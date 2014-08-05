@@ -67,7 +67,7 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 	var options = this.options;
 	compiler.plugin("this-compilation", function(compilation) {
 		compilation.plugin("normal-module-loader", function(loaderContext, module) {
-			loaderContext[__dirname] = function(text, opt) {
+			loaderContext[__dirname] = loaderContext.addText = function(text, opt) {
 				if(typeof text !== "string" && text !== null)
 					throw new Error("Exported value is not a string.");
 				module.meta[__dirname] = {
