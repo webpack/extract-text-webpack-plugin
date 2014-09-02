@@ -3,6 +3,10 @@
 	"version": "0.2.5",
 	"author": "Tobias Koppers @sokra",
 	"description": "Extract text from bundle into a file.",
+	"files": [
+		"index.js"
+		"loader.js"
+	],
 	"peerDependencies": {
 		"webpack": "^1.3"
 	},
