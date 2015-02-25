@@ -11,6 +11,7 @@ var ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
 var ExtractedModule = require("./ExtractedModule");
 var Chunk = require("webpack/lib/Chunk");
 var loaderUtils = require("loader-utils");
+var sourceMapSupport = require("./lib/SourceMapSupport");
 
 var nextId = 0;
 
@@ -92,6 +93,11 @@ ExtractTextPlugin.prototype.extract = function(before, loader, options) {
 
 ExtractTextPlugin.prototype.apply = function(compiler) {
 	var options = this.options;
+
+	if(compiler.options.devtool) {
+		compiler.options.module.loaders = sourceMapSupport.applyParam(compiler.options.module.loaders);
+	}
+
 	compiler.plugin("this-compilation", function(compilation) {
 		var extractCompilation = new ExtractTextPluginCompilation();
 		compilation.plugin("normal-module-loader", function(loaderContext, module) {
