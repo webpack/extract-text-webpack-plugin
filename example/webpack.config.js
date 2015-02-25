@@ -15,7 +15,7 @@ module.exports = {
 		loaders: [
 			{ test: /\.css$/, loader: ExtractTextPlugin.extract(
 				"style-loader",
-				"css-loader?sourceMap",
+				"css-loader",
 				{
 					publicPath: "../"
 				}
@@ -23,7 +23,6 @@ module.exports = {
 			{ test: /\.png$/, loader: "file-loader" }
 		]
 	},
-	devtool: "sourcemap",
 	plugins: [
 		new ExtractTextPlugin("css/[name].css?[hash]-[chunkhash]-[contenthash]-[name]", {
 			disable: false,

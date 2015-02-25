@@ -1,31 +1,36 @@
 {
-	"name": "extract-text-webpack-plugin",
-	"version": "0.3.8",
-	"author": "Tobias Koppers @sokra",
-	"description": "Extract text from bundle into a file.",
-	"peerDependencies": {
-		"webpack": "^1.4.2"
-	},
-	"dependencies": {
-		"async": "~0.2.10",
-		"source-map": "~0.1.38",
-		"loader-utils": "~0.2.3"
-	},
-	"devDependencies": {
-		"file-loader": "*",
-		"style-loader": "*",
-		"css-loader": "*",
-		"webpack": "*"
-	},
-	"homepage": "http://github.com/webpack/extract-text-webpack-plugin",
-	"repository": {
-		"type": "git",
-		"url": "http://github.com/webpack/extract-text-webpack-plugin.git"
-	},
-	"licenses": [
-		{
-			"type": "MIT",
-			"url": "http://www.opensource.org/licenses/mit-license.php"
-		}
-	]
+  "name": "extract-text-webpack-plugin",
+  "version": "0.3.8",
+  "author": "Tobias Koppers @sokra",
+  "description": "Extract text from bundle into a file.",
+  "peerDependencies": {
+    "webpack": "^1.4.2"
+  },
+  "dependencies": {
+    "async": "~0.2.10",
+    "source-map": "~0.1.38",
+    "loader-utils": "~0.2.3"
+  },
+  "devDependencies": {
+    "css-loader": "*",
+    "file-loader": "*",
+    "mocha": "^2.1.0",
+    "should": "^5.0.1",
+    "style-loader": "*",
+    "webpack": "*"
+  },
+  "homepage": "http://github.com/webpack/extract-text-webpack-plugin",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/webpack/extract-text-webpack-plugin.git"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ]
 }
