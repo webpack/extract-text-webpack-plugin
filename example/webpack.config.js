@@ -13,7 +13,7 @@ module.exports = {
 	},
 	module: {
 		loaders: [
-			{ test: /\.css$/, loader: ExtractTextPlugin.extract(
+			{ test: /\.css$/, loader: StringReplacePlugin.extract(
 				"style-loader",
 				"css-loader?sourceMap",
 				{
@@ -25,7 +25,7 @@ module.exports = {
 	},
 	devtool: "sourcemap",
 	plugins: [
-		new ExtractTextPlugin("css/[name].css?[hash]-[chunkhash]-[contenthash]-[name]", {
+		new StringReplacePlugin("css/[name].css?[hash]-[chunkhash]-[contenthash]-[name]", {
 			disable: false,
 			allChunks: true
 		}),
