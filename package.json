@@ -1,8 +1,8 @@
 {
-	"name": "extract-text-webpack-plugin",
-	"version": "0.3.8",
-	"author": "Tobias Koppers @sokra",
-	"description": "Extract text from bundle into a file.",
+	"name": "string-replace-webpack-plugin",
+	"version": "0.1.0",
+	"author": "James Andersen @jandersen78",
+	"description": "Replace string tokens in the contents of a file.",
 	"peerDependencies": {
 		"webpack": "^1.4.2"
 	},
@@ -17,10 +17,10 @@
 		"css-loader": "*",
 		"webpack": "*"
 	},
-	"homepage": "http://github.com/webpack/extract-text-webpack-plugin",
+	"homepage": "http://github.com/jamesandersen/string-replace-webpack-plugin",
 	"repository": {
 		"type": "git",
-		"url": "http://github.com/webpack/extract-text-webpack-plugin.git"
+		"url": "http://github.com/jamesandersen/string-replace-webpack-plugin.git"
 	},
 	"licenses": [
 		{
