@@ -8,10 +8,31 @@ var NodeTargetPlugin = require("webpack/lib/node/NodeTargetPlugin");
 var LibraryTemplatePlugin = require("webpack/lib/LibraryTemplatePlugin");
 var SingleEntryPlugin = require("webpack/lib/SingleEntryPlugin");
 var LimitChunkCountPlugin = require("webpack/lib/optimize/LimitChunkCountPlugin");
+var SourceMapConsumer = require("source-map").SourceMapConsumer;
 module.exports = function(source) {
 	this.cacheable && this.cacheable();
 	return source;
 };
+
+function fixLineNumbers(e, map) {
+	var lines = e.stack.split('\n');
+	var sourceMap = new SourceMapConsumer(map);
+	for (var i = 1, l = lines.length; i < l; i++) {
+		var line = lines[i];
+		var lineAndColumn = line.match(/:[0-9]+/g);
+		var lineNumber = parseInt(lineAndColumn[0].replace(/:/g, ''), 10);
+		var column = parseInt(lineAndColumn[1].replace(/:/g, ''), 10);
+		var original = sourceMap.originalPositionFor({line: lineNumber, column: column});
+		if (original.source) {
+			var opening = line.indexOf('(') + 1;
+			var closing = line.indexOf(')');
+			lines[i] = line.replace(line.substr(opening, closing - opening),
+					original.source + ':' + original.line + ':' + original.column);
+		}
+	}
+	e.stack = lines.join('\n');
+}
+
 module.exports.pitch = function(request, preReq, data) {
 	this.cacheable && this.cacheable();
 	var query = loaderUtils.parseQuery(this.query);
@@ -64,9 +85,13 @@ module.exports.pitch = function(request, preReq, data) {
 				});
 			});
 			var source;
+			var map;
 			childCompiler.plugin("after-compile", function(compilation, callback) {
-				source = compilation.assets[childFilename] && compilation.assets[childFilename].source();
-
+				var childAsset = compilation.assets[childFilename];
+				if (childAsset) {
+					source = childAsset.source();
+					map = childAsset.map();
+				}
 				// Remove all chunk assets
 				compilation.chunks.forEach(function(chunk) {
 					chunk.files.forEach(function(file) {
@@ -90,7 +115,7 @@ module.exports.pitch = function(request, preReq, data) {
 					return callback(new Error("Didn't get a result from child compiler"));
 				}
 				try {
-					var text = this.exec(source, request);
+					var text = this.exec(source, request, map);
 					if(typeof text === "string")
 						text = [[0, text]];
 					text.forEach(function(item) {
@@ -105,6 +130,7 @@ module.exports.pitch = function(request, preReq, data) {
 						resultSource += "\nmodule.exports = " + JSON.stringify(text.placeholders) + ";";
 					}
 				} catch(e) {
+					fixLineNumbers(e, map);
 					return callback(e);
 				}
 				if(resultSource)
