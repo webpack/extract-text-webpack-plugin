@@ -87,6 +87,12 @@ function getModuleCssImportOrder (module) {
 }
 
 function getOrder(a, b) {
+	// fix ---- http://stackoverflow.com/a/14676665/1458162 ----- begin
+	var aImportOrder = getModuleCssImportOrder(a);
+	var bImportOrder = getModuleCssImportOrder(b);
+	if (aImportOrder < bImportOrder) return -1;
+	if (aImportOrder > bImportOrder) return 1;
+	// fix ---- http://stackoverflow.com/a/14676665/1458162 ----- end
 	var aIndex = a.getOriginalModule().index2;
 	var bIndex = b.getOriginalModule().index2;
 	if(aIndex < bIndex) return -1;
