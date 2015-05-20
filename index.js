@@ -81,6 +81,11 @@ function isInvalidOrder(a, b) {
 	return aBeforeB && bBeforeA;
 }
 
+function getModuleCssImportOrder (module) {
+	var hasCssImport = /^@import url/.test(module._source);
+	return hasCssImport ? -1 : 1;
+}
+
 function getOrder(a, b) {
 	var aIndex = a.getOriginalModule().index2;
 	var bIndex = b.getOriginalModule().index2;
