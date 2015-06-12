@@ -6,7 +6,6 @@ var ConcatSource = require("webpack/lib/ConcatSource");
 var async = require("async");
 var ExtractedModule = require("./ExtractedModule");
 var Chunk = require("webpack/lib/Chunk");
-var OrderUndefinedError = require("./OrderUndefinedError");
 var loaderUtils = require("loader-utils");
 
 var nextId = 0;
@@ -79,22 +78,6 @@ function isInvalidOrder(a, b) {
 	var bBeforeA = a.getPrevModules().indexOf(b) >= 0;
 	var aBeforeB = b.getPrevModules().indexOf(a) >= 0;
 	return aBeforeB && bBeforeA;
-}
-
-function getOrder(a, b) {
-	var aIndex = a.getOriginalModule().index2;
-	var bIndex = b.getOriginalModule().index2;
-	if(aIndex < bIndex) return -1;
-	if(aIndex > bIndex) return 1;
-	var bBeforeA = a.getPrevModules().indexOf(b) >= 0;
-	var aBeforeB = b.getPrevModules().indexOf(a) >= 0;
-	if(aBeforeB && !bBeforeA) return -1;
-	if(!aBeforeB && bBeforeA) return 1;
-	var ai = a.identifier();
-	var bi = b.identifier();
-	if(ai < bi) return -1;
-	if(ai > bi) return 1;
-	return 0;
 }
 
 function ExtractTextPlugin(id, filename, options) {
@@ -278,13 +261,6 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 		compilation.plugin("additional-assets", function(callback) {
 			extractedChunks.forEach(function(extractedChunk) {
 				if(extractedChunk.modules.length) {
-					extractedChunk.modules.sort(function(a, b) {
-						if(isInvalidOrder(a, b)) {
-							compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
-							compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));
-						}
-						return getOrder(a, b);
-					});
 					var chunk = extractedChunk.originalChunk;
 					var source = this.renderExtractedChunk(extractedChunk);
 					var file = compilation.getPath(filename, {
