@@ -298,6 +298,12 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 					});
 					compilation.assets[file] = source;
 					chunk.files.push(file);
+
+					// Hot module replacement
+					extractedChunk.modules.forEach(function(module){
+						var originalModule = module.getOriginalModule();
+						originalModule._source._value = originalModule._source._value.replace('%%extracted-file%%', file);
+					});
 				}
 			}, this);
 			callback();
