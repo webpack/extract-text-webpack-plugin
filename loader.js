@@ -8,11 +8,14 @@ var NodeTargetPlugin = require("webpack/lib/node/NodeTargetPlugin");
 var LibraryTemplatePlugin = require("webpack/lib/LibraryTemplatePlugin");
 var SingleEntryPlugin = require("webpack/lib/SingleEntryPlugin");
 var LimitChunkCountPlugin = require("webpack/lib/optimize/LimitChunkCountPlugin");
+var cache = true;
 module.exports = function(source) {
+	if (!cache) this.cacheable = false;
 	if(this.cacheable) this.cacheable();
 	return source;
 };
 module.exports.pitch = function(request) {
+	if (!cache) this.cacheable = false;
 	if(this.cacheable) this.cacheable();
 	var query = loaderUtils.parseQuery(this.query);
 	this.addDependency(this.resourcePath);
@@ -122,3 +125,6 @@ module.exports.pitch = function(request) {
 		}
 	}
 };
+module.exports.disableCaching = function () {
+	cache = false;
+}
