@@ -222,7 +222,6 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 				});
 				chunk.parents.forEach(function(c) {
 					var idx = chunks.indexOf(c);
-					if(idx < 0) return;
 					extractedChunk.addParent(extractedChunks[idx]);
 				});
 			});
