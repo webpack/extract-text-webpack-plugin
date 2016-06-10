@@ -125,23 +125,6 @@ ExtractTextPlugin.loader = function(options) {
 	return require.resolve("./loader") + (options ? "?" + JSON.stringify(options) : "");
 };
 
-ExtractTextPlugin.extract = function(before, loader, options) {
-	if(typeof loader === "string" || Array.isArray(loader)) {
-		if(typeof before === "string") {
-			before = before.split("!");
-		}
-		return [
-			ExtractTextPlugin.loader(mergeOptions({omit: before.length, extract: true, remove: true}, options))
-		].concat(before, loader).join("!");
-	} else {
-		options = loader;
-		loader = before;
-		return [
-			ExtractTextPlugin.loader(mergeOptions({remove: true}, options))
-		].concat(loader).join("!");
-	}
-};
-
 ExtractTextPlugin.prototype.applyAdditionalInformation = function(source, info) {
 	if(info) {
 		return new ConcatSource(
@@ -175,6 +158,8 @@ ExtractTextPlugin.prototype.extract = function(before, loader, options) {
 		].concat(loader).join("!");
 	}
 };
+
+ExtractTextPlugin.extract = ExtractTextPlugin.prototype.extract.bind(ExtractTextPlugin);
 
 ExtractTextPlugin.prototype.apply = function(compiler) {
 	var options = this.options;
