@@ -13,15 +13,13 @@ module.exports = {
 	},
 	module: {
 		loaders: [
-			{ test: /\.css$/, loader: ExtractTextPlugin.extract(
-				"style-loader",
-				{ loader: "css-loader", query: {
+			{ test: /\.css$/, loader: ExtractTextPlugin.extract({
+				notExtractLoader: "style-loader",
+				loader: { loader: "css-loader", query: {
 					sourceMap: true
 				} },
-				{
-					publicPath: "../"
-				}
-			)},
+				publicPath: "../"
+			})},
 			{ test: /\.png$/, loader: "file-loader" }
 		]
 	},
