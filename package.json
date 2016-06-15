@@ -14,15 +14,15 @@
   "devDependencies": {
     "codecov.io": "^0.1.2",
     "coveralls": "^2.11.2",
-    "css-loader": "^0.21.0",
+    "css-loader": "^0.23.1",
     "file-loader": "^0.8.4",
-    "istanbul": "^0.3.13",
+    "istanbul": "^0.4.2",
     "mocha": "^2.3.3",
-    "mocha-lcov-reporter": "0.0.2",
+    "mocha-lcov-reporter": "^1.0.0",
     "raw-loader": "^0.5.1",
-    "should": "^7.1.1",
+    "should": "^8.1.1",
     "style-loader": "^0.13.0",
-    "webpack": "^1.12.2"
+    "webpack": "^1.12.11"
   },
   "homepage": "http://github.com/webpack/extract-text-webpack-plugin",
   "repository": {
