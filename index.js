@@ -276,9 +276,9 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 				}, this);
 				extractedChunks.forEach(function(extractedChunk) {
 					if(!extractedChunk.initial) {
-						extractedChunk.modules.forEach(function(module) {
-							extractedChunk.removeModule(module);
-						});
+                        while(extractedChunk.modules.length) {
+                            extractedChunk.removeModule(extractedChunk.modules[0]);
+                        }
 					}
 				});
 				compilation.applyPlugins("optimize-extracted-chunks", extractedChunks);
