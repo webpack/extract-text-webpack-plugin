@@ -101,7 +101,7 @@ function getOrder(a, b) {
 }
 
 function ExtractTextPlugin(id, filename, options) {
-	if(typeof filename !== "string") {
+	if(!isString(filename)) {
 		options = filename;
 		filename = id;
 		id = ++nextId;
@@ -121,25 +121,12 @@ function mergeOptions(a, b) {
 	return a;
 }
 
+function isString(a) {
+	return typeof a === "string";
+}
+
 ExtractTextPlugin.loader = function(options) {
 	return require.resolve("./loader") + (options ? "?" + JSON.stringify(options) : "");
-};
-
-ExtractTextPlugin.extract = function(before, loader, options) {
-	if(typeof loader === "string" || Array.isArray(loader)) {
-		if(typeof before === "string") {
-			before = before.split("!");
-		}
-		return [
-			ExtractTextPlugin.loader(mergeOptions({omit: before.length, extract: true, remove: true}, options))
-		].concat(before, loader).join("!");
-	} else {
-		options = loader;
-		loader = before;
-		return [
-			ExtractTextPlugin.loader(mergeOptions({remove: true}, options))
-		].concat(loader).join("!");
-	}
 };
 
 ExtractTextPlugin.prototype.applyAdditionalInformation = function(source, info) {
@@ -159,22 +146,39 @@ ExtractTextPlugin.prototype.loader = function(options) {
 	return ExtractTextPlugin.loader(options);
 };
 
-ExtractTextPlugin.prototype.extract = function(before, loader, options) {
-	if(typeof loader === "string" || Array.isArray(loader)) {
-		if(typeof before === "string") {
-			before = before.split("!");
-		}
-		return [
-			this.loader(mergeOptions({omit: before.length, extract: true, remove: true}, options))
-		].concat(before, loader).join("!");
-	} else {
-		options = loader;
-		loader = before;
-		return [
-			this.loader(mergeOptions({remove: true}, options))
-		].concat(loader).join("!");
+ExtractTextPlugin.prototype.extract = function(options) {
+	if(arguments.length > 1) {
+		throw new Error("Deprecation notice: extract now only takes a single argument.\n" +
+				"Example: if your old code looked like this:\n" +
+				"    ExtractTextPlugin.extract('syle-loader', 'css-loader')\n\n" +
+				"You would change it to:\n" +
+				"    ExtractTextPlugin.extract({ notExtractLoader: 'syle-loader', loader: 'css-loader' })\n\n" +
+				"The available options are:\n" +
+				"    loader: string | object | loader[]\n" +
+				"    notExtractLoader: string | object | loader[]\n" +
+				"    publicPath: string\n");
 	}
+	var loader = options.loader;
+	var before = options.notExtractLoader || [];
+	if(isString(loader)) {
+		loader = loader.split("!");
+	}
+	if(isString(before)) {
+		before = before.split("!");
+	} else if(!Array.isArray(before)) {
+		before = [before];
+	}
+	options = mergeOptions({omit: before.length, extract: !!before.length, remove: !!before.length}, options);
+	delete options.loader;
+	delete options.notExtractLoader;
+	var loaders = [this.loader(options)].concat(before, loader);
+	if(loaders.every(isString)) {
+		loaders = loaders.join("!");
+	}
+	return loaders;
 };
+
+ExtractTextPlugin.extract = ExtractTextPlugin.prototype.extract.bind(ExtractTextPlugin);
 
 ExtractTextPlugin.prototype.apply = function(compiler) {
 	var options = this.options;
