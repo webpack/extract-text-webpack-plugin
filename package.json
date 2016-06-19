@@ -3,9 +3,6 @@
   "version": "1.0.1",
   "author": "Tobias Koppers @sokra",
   "description": "Extract text from bundle into a file.",
-  "peerDependencies": {
-    "webpack": "^1.9.11"
-  },
   "dependencies": {
     "async": "^1.5.0",
     "loader-utils": "^0.2.3",
