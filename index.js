@@ -19,7 +19,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, c
 	if(!intoChunk) {
 		checkedChunks = [];
 		chunk.chunks.forEach(function(c) {
-			if(c.initial) return;
+			if(!c || c.initial) return;
 			this.mergeNonInitialChunks(c, chunk, checkedChunks);
 		}, this);
 	} else if(checkedChunks.indexOf(chunk) < 0) {
@@ -29,7 +29,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, c
 			module.addChunk(intoChunk);
 		});
 		chunk.chunks.forEach(function(c) {
-			if(c.initial) return;
+			if(!c || c.initial) return;
 			this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
 		}, this);
 	}
