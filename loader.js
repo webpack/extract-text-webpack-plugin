@@ -105,8 +105,12 @@ module.exports.pitch = function(request) {
 						});
 					});
 					this[__dirname](text, query);
-					if(text.locals && typeof resultSource !== "undefined") {
-						resultSource += "\nmodule.exports = " + JSON.stringify(text.locals) + ";";
+					if (resultSource !== "undefined") {
+						if(text.locals) {
+							resultSource += "\nmodule.exports = " + JSON.stringify(text.locals) + ";";
+						}
+						resultSource += '\nif(module.hot){require("' + require.resolve('./hotModuleReplacement.js') + '")' +
+							'("' + compilation.hash + '", "%%extracted-file%%");}'
 					}
 				} catch(e) {
 					return callback(e);
