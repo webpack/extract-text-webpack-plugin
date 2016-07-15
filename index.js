@@ -231,10 +231,13 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 				extractedChunk.name = chunk.name;
 				extractedChunk.entrypoints = chunk.entrypoints;
 				chunk.chunks.forEach(function(c) {
-					extractedChunk.addChunk(extractedChunks[chunks.indexOf(c)]);
+					var idx = chunks.indexOf(c);
+					if(idx < 0) return;
+					extractedChunk.addChunk(extractedChunks[idx]);
 				});
 				chunk.parents.forEach(function(c) {
-					extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
+					var idx = chunks.indexOf(c);
+					extractedChunk.addParent(extractedChunks[idx]);
 				});
 			});
 			async.forEach(chunks, function(chunk, callback) {
