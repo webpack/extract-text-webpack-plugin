@@ -1,4 +1,6 @@
-# extract text plugin for webpack
+# extract text plugin for webpack 2
+
+The API has changed since version 1. For the webpack 1 version, see [the README in the webpack-1 branch](https://github.com/webpack/extract-text-webpack-plugin/blob/webpack-1/README.md).
 
 ## Usage example with css
 
@@ -8,7 +10,7 @@ module.exports = {
 	module: {
 		loaders: [
 			{ test: /\.css$/, loader: ExtractTextPlugin.extract({
-				notExtractLoader: "style-loader",
+				fallbackLoader: "style-loader",
 				loader: "css-loader"
 			}) }
 		]
@@ -60,7 +62,7 @@ ExtractTextPlugin.extract(options: loader | object)
 Creates an extracting loader from an existing loader. Supports loaders of type `{ loader: string; query: object }`.
 
 * `options.loader: string | object | loader[]` _(required)_ the loader(s) that should be used for converting the resource to a css exporting module
-* `options.notExtractLoader: string | object | loader[]` the loader(s) that should be used when the css is not extracted (i.e. in an additional chunk when `allChunks: false`)
+* `options.fallbackLoader: string | object | loader[]` the loader(s) that should be used when the css is not extracted (i.e. in an additional chunk when `allChunks: false`)
 * `options.publicPath: string` override the `publicPath` setting for this loader
 
 There is also an `extract` function on the instance. You should use this if you have more than one `ExtractTextPlugin`.

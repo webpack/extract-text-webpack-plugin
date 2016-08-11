@@ -173,17 +173,17 @@ ExtractTextPlugin.prototype.extract = function(options) {
 						"Example: if your old code looked like this:\n" +
 						"    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
 						"You would change it to:\n" +
-						"    ExtractTextPlugin.extract({ notExtractLoader: 'style-loader', loader: 'css-loader' })\n\n" +
+						"    ExtractTextPlugin.extract({ fallbackLoader: 'style-loader', loader: 'css-loader' })\n\n" +
 						"The available options are:\n" +
 						"    loader: string | object | loader[]\n" +
-						"    notExtractLoader: string | object | loader[]\n" +
+						"    fallbackLoader: string | object | loader[]\n" +
 						"    publicPath: string\n");
 	}
 	if(Array.isArray(options) || isString(options) || typeof options.query === "object") {
 		options = { loader: options };
 	}
 	var loader = options.loader;
-	var before = options.notExtractLoader || [];
+	var before = options.fallbackLoader || [];
 	if(isString(loader)) {
 		loader = loader.split("!");
 	}
@@ -194,7 +194,7 @@ ExtractTextPlugin.prototype.extract = function(options) {
 	}
 	options = mergeOptions({omit: before.length, remove: true}, options);
 	delete options.loader;
-	delete options.notExtractLoader;
+	delete options.fallbackLoader;
 	return [this.loader(options)]
 		.concat(before, loader)
 		.map(getLoaderWithQuery)

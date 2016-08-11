@@ -4,7 +4,7 @@ module.exports = {
 	module: {
 		loaders: [
 			{ test: /\.css$/, loader: ExtractTextPlugin.extract({
-				notExtractLoader: "style-loader",
+				fallbackLoader: "style-loader",
 				loader: { loader: "css-loader", query: {
 					sourceMap: true
 				} }
