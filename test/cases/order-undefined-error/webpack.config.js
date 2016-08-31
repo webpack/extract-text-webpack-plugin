@@ -4,11 +4,15 @@ module.exports = {
   module: {
     loaders: [{
       test: /\.css$/,
-      loader: ExtractTextPlugin.extract('style', 'css?modules')
+      loader: ExtractTextPlugin.extract({
+        fallbackLoader: 'style',
+        loader: 'css?modules'
+      })
     }]
   },
   plugins: [
-    new ExtractTextPlugin('file.css', {
+    new ExtractTextPlugin({
+      filename: 'file.css',
       ignoreOrder: true
     })
   ]
