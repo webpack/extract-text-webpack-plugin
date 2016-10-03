@@ -21,7 +21,7 @@ module.exports = {
 }
 ```
 
-It moves every `require("style.css")` in entry chunks into a separate css output file. So your styles are no longer inlined into the javascript, but separate in a css bundle file (`styles.css`). If your total stylesheet volume is big, it will be faster because the stylesheet bundle is loaded in parallel to the javascript bundle.
+It moves every `require("style.css")` in entry chunks into a separate css output file, based on the order the `require()` calls were encountered. So your styles are no longer inlined into the javascript, but separate in a css bundle file (`styles.css`). If your total stylesheet volume is big, it will be faster because the stylesheet bundle is loaded in parallel to the javascript bundle.
 
 Advantages:
 
