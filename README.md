@@ -48,6 +48,8 @@ new ExtractTextPlugin([id: string], filename: string, [options])
 * `options`
   * `allChunks` extract from all additional chunks too (by default it extracts only from the initial chunk(s))
   * `disable` disables the plugin
+  * `isCacheable` defaults to `true` but if you pass `false` loader will run `this.cacheable(false)`
+  * `ignoreOrder` defaults to `false` but for assets types where chunk order doesn't matter (local scoped CSS) you may want to set it to `true`.
 
 The `ExtractTextPlugin` generates an output file per entry, so you must use `[name]`, `[id]` or `[contenthash]` when using multiple entries.
 
@@ -61,6 +63,7 @@ Creates an extracting loader from an existing loader.
 * `loader` the loader(s) that should be used for converting the resource to a css exporting module.
 * `options`
   * `publicPath` override the `publicPath` setting for this loader.
+  * `isCacheable` defaults to `true` but if you pass `false` loader will run `this.cacheable(false)`
 
 There is also an `extract` function on the instance. You should use this if you have more than one ExtractTextPlugin.
 

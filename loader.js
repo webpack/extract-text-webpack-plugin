@@ -8,13 +8,25 @@ var NodeTargetPlugin = require("webpack/lib/node/NodeTargetPlugin");
 var LibraryTemplatePlugin = require("webpack/lib/LibraryTemplatePlugin");
 var SingleEntryPlugin = require("webpack/lib/SingleEntryPlugin");
 var LimitChunkCountPlugin = require("webpack/lib/optimize/LimitChunkCountPlugin");
+
+function isCacheableCheck(flag) {
+	if (typeof flag === "boolean") {
+		return flag;
+	}
+	// compiler-provided this.cacheable is `true` by default
+	return true;
+}
+
 module.exports = function(source) {
-	if(this.cacheable) this.cacheable();
+	var query = loaderUtils.parseQuery(this.query);
+	var isCacheable = isCacheableCheck(query.isCacheable);
+	if(this.cacheable) this.cacheable(isCacheable);
 	return source;
 };
 module.exports.pitch = function(request) {
-	if(this.cacheable) this.cacheable();
 	var query = loaderUtils.parseQuery(this.query);
+	var isCacheable = isCacheableCheck(query.isCacheable);
+	if(this.cacheable) this.cacheable(isCacheable);
 	this.addDependency(this.resourcePath);
 	// We already in child compiler, return empty bundle
 	if(this[__dirname] === undefined) {
