@@ -1,0 +1,12 @@
+body {
+	correct: a;
+}
+
+.cssmodule--a {
+	color: red;
+}
+body {
+	correct: b;
+}
+
+/*# sourceMappingURL=file.css.map*/

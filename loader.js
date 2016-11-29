@@ -38,7 +38,7 @@ module.exports.pitch = function(request) {
 		if(query.remove) {
 			resultSource = "// removed by extract-text-webpack-plugin";
 		} else {
-			resultSource = undefined;
+			resultSource = '';
 		}
 
 		var childFilename = "extract-text-webpack-plugin-output-filename"; // eslint-disable-line no-path-concat
