@@ -78,8 +78,8 @@ module.exports = {
   ...
   module: {
     loaders: [
-      { test: /\.scss$/i, loader: extractCSS.extract(['css','sass']) },
-      { test: /\.less$/i, loader: extractLESS.extract(['css','less']) },
+      { test: /\.scss$/i, loader: extractCSS.extract(['css-loader','sass-loader']) },
+      { test: /\.less$/i, loader: extractLESS.extract(['css-loader','less-loader']) },
       ...
     ]
   },
