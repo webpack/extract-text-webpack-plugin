@@ -19,7 +19,7 @@ module.exports = {
 				loader: "css-loader?sourceMap",
 				publicPath: "../"
 			}) },
-			{ test: /\.png$/, loader: "file-loader" }
+			{ test: /\.(png|eot|woff|woff2|ttf|svg)$/, loader: "file-loader" }
 		]
 	},
 	devtool: "source-map",

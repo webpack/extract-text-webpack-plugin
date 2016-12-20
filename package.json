@@ -12,10 +12,11 @@
     "webpack-sources": "^0.1.0"
   },
   "devDependencies": {
+    "bootstrap": "^3.3.7",
     "codecov.io": "^0.1.2",
     "coveralls": "^2.11.2",
     "css-loader": "^0.21.0",
-    "file-loader": "^0.8.4",
+    "file-loader": "^0.8.5",
     "istanbul": "^0.3.13",
     "mocha": "^2.3.3",
     "mocha-lcov-reporter": "0.0.2",
