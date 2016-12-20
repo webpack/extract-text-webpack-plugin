@@ -1,4 +1,5 @@
 var webpack = require("webpack");
+var path = require("path");
 var ExtractTextPlugin = require("../");
 module.exports = {
 	entry: {
@@ -22,12 +23,20 @@ module.exports = {
 		]
 	},
 	devtool: "source-map",
+	recordsOutputPath: path.join(__dirname, "js", "records.json"),
 	plugins: [
 		new ExtractTextPlugin({
 			filename: "css/[name].css?[hash]-[chunkhash]-[contenthash]-[name]",
 			disable: false,
 			allChunks: true
 		}),
-		new webpack.optimize.CommonsChunkPlugin({ name: "c", filename: "c.js" })
+		new webpack.optimize.CommonsChunkPlugin({ name: "c", filename: "c.js" }),
+		new webpack.optimize.AggressiveSplittingPlugin({
+			minSize: 30000,
+            maxSize: 50000
+		}),
+		new webpack.DefinePlugin({
+            "process.env.NODE_ENV": JSON.stringify("production")
+        })
 	]
 };
