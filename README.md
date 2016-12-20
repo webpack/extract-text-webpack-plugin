@@ -52,6 +52,7 @@ new ExtractTextPlugin(options: filename | object)
 * `options.allChunks: boolean` extract from all additional chunks too (by default it extracts only from the initial chunk(s))
 * `options.disable: boolean` disables the plugin
 * `options.id: string` Unique ident for this plugin instance. (For advanced usage only, by default automatically generated)
+* `options.ignoreOrder` defaults to `false` but for assets types where chunk order doesn't matter (local scoped CSS) you may want to set it to `true`.
 
 The `ExtractTextPlugin` generates an output file per entry, so you must use `[name]`, `[id]` or `[contenthash]` when using multiple entries.
 
