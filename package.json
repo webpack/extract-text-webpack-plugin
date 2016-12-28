@@ -7,7 +7,7 @@
     "webpack": "^2.1.0-beta.19"
   },
   "dependencies": {
-    "async": "^1.5.0",
+    "async": "^2.1.2",
     "loader-utils": "^0.2.16",
     "webpack-sources": "^0.1.0"
   },
