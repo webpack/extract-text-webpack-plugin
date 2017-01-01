@@ -12,17 +12,18 @@
     "webpack-sources": "^0.1.0"
   },
   "devDependencies": {
+    "bootstrap": "^3.3.7",
     "codecov.io": "^0.1.2",
     "coveralls": "^2.11.2",
     "css-loader": "^0.21.0",
-    "file-loader": "^0.8.4",
+    "file-loader": "^0.8.5",
     "istanbul": "^0.3.13",
     "mocha": "^2.3.3",
     "mocha-lcov-reporter": "0.0.2",
     "raw-loader": "^0.5.1",
     "should": "^7.1.1",
     "style-loader": "^0.13.0",
-    "webpack": "^2.1.0-beta"
+    "webpack": "^2.2.0-rc.0"
   },
   "homepage": "http://github.com/webpack/extract-text-webpack-plugin",
   "repository": {
