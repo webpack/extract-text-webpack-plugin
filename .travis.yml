@@ -3,7 +3,9 @@ language: node_js
 node_js:
   - "0.12"
   - node
-script: npm run travis
+script:
+  - npm run travis
+  - npm run example
 
 after_success:
   - cat ./coverage/lcov.info | node_modules/.bin/coveralls --verbose

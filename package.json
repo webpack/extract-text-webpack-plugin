@@ -36,5 +36,6 @@
     "travis": "npm run cover -- --report lcovonly",
     "cover": "istanbul cover _mocha",
     "publish-patch": "mocha && npm version patch && git push && git push --tags && npm publish"
+    ,"example": "cd example && webpack"
   }
 }
