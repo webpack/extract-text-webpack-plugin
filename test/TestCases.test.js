@@ -5,7 +5,7 @@ var webpack = require("webpack");
 var should = require("should");
 var ExtractTextPlugin = require("../");
 
-var cases = fs.readdirSync(path.join(__dirname, "cases"));
+var cases = process.env.CASES ? process.env.CASES.split(",") : fs.readdirSync(path.join(__dirname, "cases"));
 
 describe("TestCases", function() {
 	cases.forEach(function(testCase) {
@@ -23,6 +23,9 @@ describe("TestCases", function() {
 			];
 			if(!options.output) options.output = { filename: "[name].js" };
 			if(!options.output.path) options.output.path = outputDirectory;
+			if(process.env.CASES) {
+				console.log("\nwebpack." + testCase + ".config.js " + JSON.stringify(options, null, 2));
+			}
 			webpack(options, function(err, stats) {
 				if(err) return done(err);
 				if(stats.hasErrors()) return done(new Error(stats.toString()));

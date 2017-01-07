@@ -5,7 +5,8 @@ module.exports = {
 		b: "./b"
 	},
 	plugins: [
-		new ExtractTextPlugin("[name].txt", {
+		new ExtractTextPlugin({
+			filename: "[name].txt",
 			allChunks: true
 		})
 	]
