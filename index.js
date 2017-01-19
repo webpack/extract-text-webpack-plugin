@@ -128,12 +128,11 @@ function ExtractTextPlugin(options) {
 }
 module.exports = ExtractTextPlugin;
 
-// modified from webpack/lib/LoadersList.js
-function getLoaderWithQuery(loader) {
-	if(isString(loader)) return loader;
-	if(!loader.query) return loader.loader;
-	var query = isString(loader.query) ? loader.query : JSON.stringify(loader.query);
-	return loader.loader + "?" + query;
+function getLoaderObject(loader) {
+	if (isString(loader)) {
+		return {loader: loader};
+	}
+	return loader;
 }
 
 function mergeOptions(a, b) {
@@ -198,8 +197,7 @@ ExtractTextPlugin.prototype.extract = function(options) {
 	delete options.fallbackLoader;
 	return [this.loader(options)]
 		.concat(before, loader)
-		.map(getLoaderWithQuery)
-		.join("!");
+		.map(getLoaderObject);
 }
 
 ExtractTextPlugin.extract = ExtractTextPlugin.prototype.extract.bind(ExtractTextPlugin);
