@@ -64,6 +64,15 @@ new ExtractTextPlugin(options: filename | object)
 * `options.allChunks: boolean` extract from all additional chunks too (by default it extracts only from the initial chunk(s))
 * `options.disable: boolean` disables the plugin
 * `options.id: string` Unique ident for this plugin instance. (For advanced usage only, by default automatically generated)
+* `filenamefilter` function to modify path and filename before files are emitted
+``` javascript
+{
+  filenamefilter: function(filename) {
+    // modify filename
+    return filename;
+  }
+}
+```
 
 The `ExtractTextPlugin` generates an output file per entry, so you must use `[name]`, `[id]` or `[contenthash]` when using multiple entries.
 
@@ -101,6 +110,9 @@ module.exports = {
   ]
 };
 ```
+
+## Maybe a temp repo
+This maybe a temporary repository. Once ```extract-text-webpack-plugin``` merge my pull request, please stick to the origin repo.
 
 ## License
 

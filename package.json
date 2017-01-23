@@ -1,5 +1,5 @@
 {
-  "name": "extract-text-webpack-plugin",
+  "name": "extract-text-webpack-plugin-steamer",
   "version": "2.0.0-beta.5",
   "author": "Tobias Koppers @sokra",
   "description": "Extract text from bundle into a file.",
@@ -24,10 +24,10 @@
     "style-loader": "^0.13.0",
     "webpack": "^2.1.0-beta"
   },
-  "homepage": "http://github.com/webpack/extract-text-webpack-plugin",
+  "homepage": "http://github.com/lcxfs1991/extract-text-webpack-plugin",
   "repository": {
     "type": "git",
-    "url": "http://github.com/webpack/extract-text-webpack-plugin.git"
+    "url": "http://github.com/lcxfs1991/extract-text-webpack-plugin.git"
   },
   "license": "MIT",
   "scripts": {
