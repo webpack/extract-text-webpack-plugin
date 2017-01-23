@@ -302,6 +302,7 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 					}).replace(/\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/ig, function() {
 						return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
 					});
+					file = (options.filenamefilter) ? options.filenamefilter(file) : file;
 					compilation.assets[file] = source;
 					chunk.files.push(file);
 				}

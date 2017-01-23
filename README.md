@@ -48,6 +48,16 @@ new ExtractTextPlugin([id: string], filename: string, [options])
 * `options`
   * `allChunks` extract from all additional chunks too (by default it extracts only from the initial chunk(s))
   * `disable` disables the plugin
+  * `filenamefilter` function to modify path and filename before files are emitted
+    
+    ```
+    {
+      filenamefilter: function(filename) {
+        // modify filename
+        return filename;
+      }
+    }
+    ```
 
 The `ExtractTextPlugin` generates an output file per entry, so you must use `[name]`, `[id]` or `[contenthash]` when using multiple entries.
 
