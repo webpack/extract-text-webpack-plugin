@@ -148,7 +148,7 @@ function isString(a) {
 }
 
 ExtractTextPlugin.loader = function(options) {
-	return { loader: require.resolve("./loader"), query: options };
+	return { loader: require.resolve("./loader"), options: options };
 };
 
 ExtractTextPlugin.prototype.applyAdditionalInformation = function(source, info) {
@@ -179,7 +179,7 @@ ExtractTextPlugin.prototype.extract = function(options) {
 						"    fallbackLoader: string | object | loader[]\n" +
 						"    publicPath: string\n");
 	}
-	if(Array.isArray(options) || isString(options) || typeof options.query === "object") {
+	if(Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
 		options = { loader: options };
 	}
 	var loader = options.loader;
