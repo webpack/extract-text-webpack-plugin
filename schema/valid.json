@@ -1,0 +1,8 @@
+{
+  "allChunks": { "type": "boolean"},
+  "disable": { "type": "boolean" },
+  "fallbackLoader": { "type": "string" },
+  "filename": { "type": "string" },
+  "loader": { "type": "string" },
+  "publicPath": { "type": "string" }
+}
