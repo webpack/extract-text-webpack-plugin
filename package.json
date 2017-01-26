@@ -22,6 +22,7 @@
     "mocha-lcov-reporter": "1.2.0",
     "raw-loader": "^0.5.1",
     "should": "^11.1.2",
+    "standard-version": "^4.0.0",
     "style-loader": "^0.13.0",
     "webpack": "^2.2.0"
   },
@@ -35,6 +36,6 @@
     "test": "mocha",
     "travis": "npm run cover -- --report lcovonly",
     "cover": "istanbul cover _mocha",
-    "publish-patch": "mocha && npm version patch && git push && git push --tags && npm publish"
+    "release": "standard-version"
   }
 }
