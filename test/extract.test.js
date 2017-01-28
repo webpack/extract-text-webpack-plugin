@@ -29,7 +29,7 @@ describe("ExtractTextPlugin.extract()", function() {
 					ExtractTextPlugin.extract({style: 'file.css'});
 				},
 				function(err) {
-					return err.message === 'data should NOT have additional properties';
+					return err.message === 'data[\'style\'] should NOT have additional properties';
 				}
 			);
 		});
