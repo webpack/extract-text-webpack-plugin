@@ -3,9 +3,9 @@ module.exports = {
 	entry: "./index",
 	module: {
 		loaders: [
-			{ test: /\.css$/, loader: ExtractTextPlugin.extract({
+			{ test: /\.css$/, use: ExtractTextPlugin.extract({
 				fallbackLoader: "style-loader",
-				loader: { loader: "css-loader", query: {
+				loader: { loader: "css-loader", options: {
 					sourceMap: true
 				} }
 			}) }

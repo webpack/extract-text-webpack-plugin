@@ -1,0 +1,15 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"type": "object",
+	"additionalProperties": false,
+	"properties": {
+		"allChunks": { "type": "boolean"},
+		"disable": { "type": "boolean" },
+		"omit": { "type": "boolean" },
+		"remove": { "type": "boolean" },
+		"fallbackLoader": { "type": ["string", "array", "object"] },
+		"filename": { "type": "string" },
+		"loader": { "type": ["string", "array", "object"] },
+		"publicPath": { "type": "string" }
+	}
+}

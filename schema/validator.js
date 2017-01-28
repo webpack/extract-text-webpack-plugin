@@ -1,10 +1,9 @@
 var Ajv = require('ajv');
 var ajv = new Ajv({allErrors: true});
-var json = require('./schema.json');
 
-module.exports = function validate(data) {
+module.exports = function validate(schema, data) {
 	var ajv = new Ajv();
-	var isValid = ajv.validate(json, data);
+	var isValid = ajv.validate(schema, data);
 
 	if(!isValid) {
 		throw new Error(ajv.errorsText());
