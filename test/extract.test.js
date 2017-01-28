@@ -24,9 +24,14 @@ describe("ExtractTextPlugin.extract()", function() {
 		});
 
 		it("throws if an incorrect config is passed in", function() {
-			should.throws(function() {
-				ExtractTextPlugin.extract({style: 'file.css'});
-			});
+			should.throws(
+				function() {
+					ExtractTextPlugin.extract({style: 'file.css'});
+				},
+				function(err) {
+					return err.message === 'data should NOT have additional properties';
+				}
+			);
 		});
 	});
 

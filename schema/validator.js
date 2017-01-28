@@ -3,10 +3,10 @@ var ajv = new Ajv({allErrors: true});
 var json = require('./schema.json');
 
 module.exports = function validate(data) {
-	var validSchema = ajv.compile(json);
-	var valid = validSchema(data);
+	var ajv = new Ajv();
+	var isValid = ajv.validate(json, data);
 
-	if(!valid) {
+	if(!isValid) {
 		throw new Error(ajv.errorsText());
 	}
 }
