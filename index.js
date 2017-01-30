@@ -3,6 +3,7 @@
 	Author Tobias Koppers @sokra
 */
 var fs = require('fs');
+var querystring = require('querystring');
 var ConcatSource = require("webpack-sources").ConcatSource;
 var async = require("async");
 var ExtractedModule = require("./ExtractedModule");
@@ -202,9 +203,17 @@ ExtractTextPlugin.prototype.extract = function(options) {
 	options = mergeOptions({omit: before.length, remove: true}, options);
 	delete options.loader;
 	delete options.fallbackLoader;
-	return [this.loader(options)]
+	var result = [this.loader(options)]
 		.concat(before, loader)
 		.map(getLoaderObject);
+
+	result.toString = function() {
+		return result.map(function(o) {
+			return o.loader + '?' + querystring.stringify(o.options);
+		}).join('!');
+	};
+
+	return result;
 }
 
 ExtractTextPlugin.extract = ExtractTextPlugin.prototype.extract.bind(ExtractTextPlugin);
