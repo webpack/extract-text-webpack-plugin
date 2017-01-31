@@ -10,6 +10,7 @@
 		"fallbackLoader": { "type": ["string", "array", "object"] },
 		"filename": { "type": "string" },
 		"loader": { "type": ["string", "array", "object"] },
+		"notExtractLoader": { "type": ["string", "array", "object"] },
 		"publicPath": { "type": "string" }
 	}
 }
