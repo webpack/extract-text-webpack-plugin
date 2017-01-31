@@ -17,6 +17,17 @@ var NS = fs.realpathSync(__dirname);
 
 var nextId = 0;
 
+var helpText = "Breaking change: ExtractTextPlugin now only takes a single argument. Either an options " +
+	"object *or* the name of the result file.\n" +
+	"Example: if your old code looked like this:\n" +
+	"    new ExtractTextPlugin('css/[name].css', { disable: false, allChunks: true })\n\n" +
+	"You would change it to:\n" +
+	"    new ExtractTextPlugin({ filename: 'css/[name].css', disable: false, allChunks: true })\n\n" +
+	"The available options are:\n" +
+	"    filename: string\n" +
+	"    allChunks: boolean\n" +
+	"    disable: boolean\n";
+
 function ExtractTextPluginCompilation() {
 	this.modulesByIdentifier = {};
 }
@@ -108,21 +119,15 @@ function getOrder(a, b) {
 
 function ExtractTextPlugin(options) {
 	if(arguments.length > 1) {
-		throw new Error("Breaking change: ExtractTextPlugin now only takes a single argument. Either an options " +
-						"object *or* the name of the result file.\n" +
-						"Example: if your old code looked like this:\n" +
-						"    new ExtractTextPlugin('css/[name].css', { disable: false, allChunks: true })\n\n" +
-						"You would change it to:\n" +
-						"    new ExtractTextPlugin({ filename: 'css/[name].css', disable: false, allChunks: true })\n\n" +
-						"The available options are:\n" +
-						"    filename: string\n" +
-						"    allChunks: boolean\n" +
-						"    disable: boolean\n");
+		throw new Error(helpText);
 	}
 	if(isString(options)) {
 		options = { filename: options };
 	} else {
 		schemaTester(pluginSchema, options);
+	}
+	if(!options.filename) {
+		throw new Error("Required option `filename` not defined.\n" + helpText);
 	}
 	this.filename = options.filename;
 	this.id = options.id != null ? options.id : ++nextId;
@@ -173,16 +178,7 @@ ExtractTextPlugin.prototype.loader = function(options) {
 
 ExtractTextPlugin.prototype.extract = function(options) {
 	if(arguments.length > 1) {
-		throw new Error("Breaking change: extract now only takes a single argument. Either an options " +
-						"object *or* the loader(s).\n" +
-						"Example: if your old code looked like this:\n" +
-						"    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
-						"You would change it to:\n" +
-						"    ExtractTextPlugin.extract({ fallbackLoader: 'style-loader', loader: 'css-loader' })\n\n" +
-						"The available options are:\n" +
-						"    loader: string | object | loader[]\n" +
-						"    fallbackLoader: string | object | loader[]\n" +
-						"    publicPath: string\n");
+		throw new Error(helpText);
 	}
 	if(Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
 		options = { loader: options };
