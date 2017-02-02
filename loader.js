@@ -23,12 +23,7 @@ module.exports.pitch = function(request) {
 	var loaders = this.loaders.slice(this.loaderIndex + 1);
 	this.addDependency(this.resourcePath);
 	// We already in child compiler, return empty bundle
-	if(this[NS] === undefined) {
-		throw new Error(
-			'"extract-text-webpack-plugin" loader is used without the corresponding plugin, ' +
-			'refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example'
-		);
-	} else if(this[NS] === false) {
+	if(this[NS] === undefined || this[NS] === false) {
 		return "";
 	} else if(this[NS](null, query)) {
 		if(query.omit) {
