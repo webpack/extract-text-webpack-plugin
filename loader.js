@@ -8,6 +8,9 @@ var NodeTargetPlugin = require("webpack/lib/node/NodeTargetPlugin");
 var LibraryTemplatePlugin = require("webpack/lib/LibraryTemplatePlugin");
 var SingleEntryPlugin = require("webpack/lib/SingleEntryPlugin");
 var LimitChunkCountPlugin = require("webpack/lib/optimize/LimitChunkCountPlugin");
+
+var plugin = require("./index");
+
 module.exports = function(source) {
 	if(this.cacheable) this.cacheable();
 	return source;
@@ -15,6 +18,9 @@ module.exports = function(source) {
 module.exports.pitch = function(request) {
 	if(this.cacheable) this.cacheable();
 	var query = loaderUtils.parseQuery(this.query);
+	if(!plugin.publicPath && query.publicPath){
+		plugin.publicPath = query.publicPath
+	}
 	this.addDependency(this.resourcePath);
 	// We already in child compiler, return empty bundle
 	if(this[__dirname] === undefined) {
@@ -38,7 +44,7 @@ module.exports.pitch = function(request) {
 
 		if(query.extract !== false) {
 			var childFilename = "extract-text-webpack-plugin-output-filename"; // eslint-disable-line no-path-concat
-			var publicPath = typeof query.publicPath === "string" ? query.publicPath : this._compilation.outputOptions.publicPath;
+			var publicPath = typeof plugin.publicPath === "string" ? plugin.publicPath : this._compilation.outputOptions.publicPath;
 			var outputOptions = {
 				filename: childFilename,
 				publicPath: publicPath
