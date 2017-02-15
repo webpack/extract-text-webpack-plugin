@@ -25,6 +25,8 @@ npm install --save-dev extract-text-webpack-plugin
 
 > :warning: For webpack v1, see [the README in the webpack-1 branch](https://github.com/webpack/extract-text-webpack-plugin/blob/webpack-1/README.md).
 
+> :warning: The following example code only works with the beta version.
+
 ```js
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
@@ -36,6 +38,29 @@ module.exports = {
         use: ExtractTextPlugin.extract({
           fallback: "style-loader",
           use: "css-loader"
+        })
+      }
+    ]
+  },
+  plugins: [
+    new ExtractTextPlugin("styles.css"),
+  ]
+}
+```
+
+If you need to use options with `css-loader`.
+
+```js
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: "style-loader",
+          use: 'css-loader?modules,localIdentName="[name]-[local]-[hash:base64:6]"'
         })
       }
     ]
