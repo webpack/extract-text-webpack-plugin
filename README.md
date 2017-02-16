@@ -18,7 +18,10 @@
 <h2 align="center">Install</h2>
 
 ```bash
+# for webpack 1
 npm install --save-dev extract-text-webpack-plugin
+# for webpack 2
+npm install --save-dev extract-text-webpack-plugin@beta
 ```
 
 <h2 align="center">Usage</h2>
