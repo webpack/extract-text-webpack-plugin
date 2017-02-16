@@ -1,29 +1,34 @@
 {
   "name": "extract-text-webpack-plugin",
-  "version": "2.0.0-beta.4",
+  "version": "2.0.0-rc.3",
   "author": "Tobias Koppers @sokra",
   "description": "Extract text from bundle into a file.",
+  "engines": {
+    "node": ">=4.3.0 < 5.0.0 || >= 5.10"
+  },
   "peerDependencies": {
-    "webpack": "^2.1.0-beta.19 || ^2.2.0-rc.0"
+    "webpack": "^2.2.0"
   },
   "dependencies": {
+    "ajv": "^4.11.2",
     "async": "^2.1.2",
-    "loader-utils": "^0.2.3",
+    "loader-utils": "^0.2.16",
     "webpack-sources": "^0.1.0"
   },
   "devDependencies": {
     "bootstrap": "^3.3.7",
     "codecov.io": "^0.1.2",
     "coveralls": "^2.11.2",
-    "css-loader": "^0.21.0",
-    "file-loader": "^0.8.5",
-    "istanbul": "^0.3.13",
-    "mocha": "^2.3.3",
-    "mocha-lcov-reporter": "0.0.2",
+    "css-loader": "^0.26.1",
+    "file-loader": "^0.9.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "mocha-lcov-reporter": "1.2.0",
     "raw-loader": "^0.5.1",
-    "should": "^7.1.1",
+    "should": "^11.1.2",
+    "standard-version": "^4.0.0",
     "style-loader": "^0.13.0",
-    "webpack": "^2.2.0-rc.0"
+    "webpack": "^2.2.0"
   },
   "homepage": "http://github.com/webpack/extract-text-webpack-plugin",
   "repository": {
@@ -35,7 +40,7 @@
     "test": "mocha",
     "travis": "npm run cover -- --report lcovonly",
     "cover": "istanbul cover _mocha",
-    "publish-patch": "mocha && npm version patch && git push && git push --tags && npm publish"
-    ,"example": "cd example && webpack"
+    "release": "standard-version",
+    "build:example": "(cd example && webpack)"
   }
 }
