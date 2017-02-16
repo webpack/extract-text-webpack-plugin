@@ -9,6 +9,9 @@ var ExtractedModule = require("./ExtractedModule");
 var Chunk = require("webpack/lib/Chunk");
 var OrderUndefinedError = require("./OrderUndefinedError");
 var loaderUtils = require("loader-utils");
+var schemaTester = require('./schema/validator');
+var loaderSchema = require('./schema/loader-schema');
+var pluginSchema = require('./schema/plugin-schema.json');
 
 var NS = fs.realpathSync(__dirname);
 
@@ -118,6 +121,8 @@ function ExtractTextPlugin(options) {
 	}
 	if(isString(options)) {
 		options = { filename: options };
+	} else {
+		schemaTester(pluginSchema, options);
 	}
 	this.filename = options.filename;
 	this.id = options.id != null ? options.id : ++nextId;
@@ -128,12 +133,11 @@ function ExtractTextPlugin(options) {
 }
 module.exports = ExtractTextPlugin;
 
-// modified from webpack/lib/LoadersList.js
-function getLoaderWithQuery(loader) {
-	if(isString(loader)) return loader;
-	if(!loader.query) return loader.loader;
-	var query = isString(loader.query) ? loader.query : JSON.stringify(loader.query);
-	return loader.loader + "?" + query;
+function getLoaderObject(loader) {
+	if (isString(loader)) {
+		return {loader: loader};
+	}
+	return loader;
 }
 
 function mergeOptions(a, b) {
@@ -149,7 +153,7 @@ function isString(a) {
 }
 
 ExtractTextPlugin.loader = function(options) {
-	return { loader: require.resolve("./loader"), query: options };
+	return { loader: require.resolve("./loader"), options: options };
 };
 
 ExtractTextPlugin.prototype.applyAdditionalInformation = function(source, info) {
@@ -174,17 +178,25 @@ ExtractTextPlugin.prototype.extract = function(options) {
 						"Example: if your old code looked like this:\n" +
 						"    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
 						"You would change it to:\n" +
-						"    ExtractTextPlugin.extract({ fallbackLoader: 'style-loader', loader: 'css-loader' })\n\n" +
+						"    ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })\n\n" +
 						"The available options are:\n" +
-						"    loader: string | object | loader[]\n" +
-						"    fallbackLoader: string | object | loader[]\n" +
+						"    use: string | object | loader[]\n" +
+						"    fallback: string | object | loader[]\n" +
 						"    publicPath: string\n");
 	}
-	if(Array.isArray(options) || isString(options) || typeof options.query === "object") {
-		options = { loader: options };
+	if(options.fallbackLoader) {
+		console.warn('fallbackLoader option has been deprecated - replace with "fallback"');
 	}
-	var loader = options.loader;
-	var before = options.fallbackLoader || [];
+	if(options.loader) {
+		console.warn('loader option has been deprecated - replace with "use"');
+	}
+	if(Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
+		options = { loader: options };
+	} else {
+		schemaTester(loaderSchema, options);
+	}
+	var loader = options.use ||  options.loader;
+	var before = options.fallback || options.fallbackLoader || [];
 	if(isString(loader)) {
 		loader = loader.split("!");
 	}
@@ -195,11 +207,12 @@ ExtractTextPlugin.prototype.extract = function(options) {
 	}
 	options = mergeOptions({omit: before.length, remove: true}, options);
 	delete options.loader;
+	delete options.use;
+	delete options.fallback;
 	delete options.fallbackLoader;
 	return [this.loader(options)]
 		.concat(before, loader)
-		.map(getLoaderWithQuery)
-		.join("!");
+		.map(getLoaderObject);
 }
 
 ExtractTextPlugin.extract = ExtractTextPlugin.prototype.extract.bind(ExtractTextPlugin);
@@ -296,7 +309,7 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 			extractedChunks.forEach(function(extractedChunk) {
 				if(extractedChunk.modules.length) {
 					extractedChunk.modules.sort(function(a, b) {
-						if(isInvalidOrder(a, b)) {
+						if(!options.ignoreOrder && isInvalidOrder(a, b)) {
 							compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
 							compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));
 						}
