@@ -134,7 +134,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   module: {
-    use: [
+    rules: [
       {
         test: /\.scss$/,
         use: ExtractTextPlugin.extract({
