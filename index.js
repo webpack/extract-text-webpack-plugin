@@ -31,6 +31,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, c
 	} else if(checkedChunks.indexOf(chunk) < 0) {
 		checkedChunks.push(chunk);
 		chunk.modules.slice().forEach(function(module) {
+			chunk.removeModule(module);
 			intoChunk.addModule(module);
 			module.addChunk(intoChunk);
 		});
