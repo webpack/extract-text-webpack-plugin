@@ -49,20 +49,12 @@ module.exports.pitch = function(request) {
 			filename: childFilename,
 			publicPath: publicPath
 		};
-		var childCompiler = this._compilation.createChildCompiler("extract-text-webpack-plugin", outputOptions);
+		var childCompiler = this._compilation.createChildCompiler("extract-text-webpack-plugin " + NS + " " + request, outputOptions);
 		childCompiler.apply(new NodeTemplatePlugin(outputOptions));
 		childCompiler.apply(new LibraryTemplatePlugin(null, "commonjs2"));
 		childCompiler.apply(new NodeTargetPlugin());
 		childCompiler.apply(new SingleEntryPlugin(this.context, "!!" + request));
 		childCompiler.apply(new LimitChunkCountPlugin({ maxChunks: 1 }));
-		var subCache = "subcache " + NS + " " + request; // eslint-disable-line no-path-concat
-		childCompiler.plugin("compilation", function(compilation) {
-			if(compilation.cache) {
-				if(!compilation.cache[subCache])
-					compilation.cache[subCache] = {};
-				compilation.cache = compilation.cache[subCache];
-			}
-		});
 		// We set loaderContext[NS] = false to indicate we already in
 		// a child compiler so we don't spawn another child compilers from there.
 		childCompiler.plugin("this-compilation", function(compilation) {
