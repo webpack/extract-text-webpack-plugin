@@ -276,17 +276,18 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 									compilation.errors.push(err);
 									return callback();
 								}
-								// TODO: Investigate "TypeError: Cannot read property '...\node_modules\extract-text-webpack-plugin' of null" in case of css errors and remove workaround check for module.meta[NS] below
-								if (module && module.meta && module.meta[NS]) {
-								  meta = module[NS];
-								  // Error out if content is not an array and is not null
-								  if(!Array.isArray(meta.content) && meta.content != null) {
-									  err = new Error(module.identifier() + " doesn't export content");
-									  compilation.errors.push(err);
-									  return callback();
-                                  }
-								  if(meta.content)
-									  extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+								// TODO: Investigate "TypeError: Cannot read property '...\node_modules\extract-text-webpack-plugin' of null" in case of css errors and remove workaround check for module[NS] below
+								if (module && module[NS]) {
+									meta = module[NS];
+
+									// Error out if content is not an array and is not null
+									if(!Array.isArray(meta.content) && meta.content != null) {
+										err = new Error(module.identifier() + " doesn't export content");
+										compilation.errors.push(err);
+										return callback();
+									}
+									if(meta.content)
+										extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
 								}
 								callback();
 							});
