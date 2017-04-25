@@ -284,7 +284,9 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 									  err = new Error(module.identifier() + " doesn't export content");
 									  compilation.errors.push(err);
 									  return callback();
-                  }
+                                  }
+								  if(meta.content)
+									  extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
 								}
 								callback();
 							});
