@@ -4,7 +4,7 @@ module.exports = {
 	module: {
 		loaders: [
 			{ test: /\.css$/, use: ExtractTextPlugin.extract({
-				fallback: "style-loader",
+				fallback: { loader: "style-loader" },
 				use: { loader: "css-loader", options: {
 					sourceMap: true
 				} }

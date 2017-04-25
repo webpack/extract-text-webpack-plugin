@@ -27,10 +27,14 @@ ExtractedModule.prototype.addChunk = function(chunk) {
 		this.chunks.push(chunk);
 };
 
-ExtractedModule.prototype._removeAndDo = require("webpack/lib/removeAndDo");
-
 ExtractedModule.prototype.removeChunk = function(chunk) {
-	return this._removeAndDo("chunks", chunk, "removeModule");
+	var idx = this.chunks.indexOf(chunk);
+	if(idx >= 0) {
+		this.chunks.splice(idx, 1);
+		chunk.removeModule(this);
+		return true;
+	}
+	return false;
 };
 
 ExtractedModule.prototype.rewriteChunkInReasons = function(oldChunk, newChunks) { };

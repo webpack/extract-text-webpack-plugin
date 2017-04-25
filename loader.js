@@ -19,7 +19,8 @@ module.exports = function(source) {
 
 module.exports.pitch = function(request) {
 	if(this.cacheable) this.cacheable();
-	var query = loaderUtils.parseQuery(this.query);
+	var query = loaderUtils.getOptions(this) || {};
+	var loaders = this.loaders.slice(this.loaderIndex + 1);
 	this.addDependency(this.resourcePath);
 	// We already in child compiler, return empty bundle
 	if(this[NS] === undefined) {
@@ -33,6 +34,7 @@ module.exports.pitch = function(request) {
 		if(query.omit) {
 			this.loaderIndex += +query.omit + 1;
 			request = request.split("!").slice(+query.omit).join("!");
+			loaders = loaders.slice(+query.omit);
 		}
 		var resultSource;
 		if(query.remove) {
@@ -64,10 +66,19 @@ module.exports.pitch = function(request) {
 		// We set loaderContext[NS] = false to indicate we already in
 		// a child compiler so we don't spawn another child compilers from there.
 		childCompiler.plugin("this-compilation", function(compilation) {
-			compilation.plugin("normal-module-loader", function(loaderContext) {
+			compilation.plugin("normal-module-loader", function(loaderContext, module) {
 				loaderContext[NS] = false;
+				if (module.request === request) {
+					module.loaders = loaders.map(function(loader) {
+						return {
+							loader: loader.path,
+							options: loader.options
+						};
+					});
+				}
 			});
 		});
+
 		var source;
 		childCompiler.plugin("after-compile", function(compilation, callback) {
 			source = compilation.assets[childFilename] && compilation.assets[childFilename].source();
