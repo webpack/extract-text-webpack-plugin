@@ -21,11 +21,15 @@ function ExtractTextPluginCompilation() {
 	this.modulesByIdentifier = {};
 }
 
+function isInitialOrHasNoParents(chunk) {
+        return chunk.isInitial() || chunk.parents.length === 0;
+}
+
 ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, checkedChunks) {
 	if(!intoChunk) {
 		checkedChunks = [];
 		chunk.chunks.forEach(function(c) {
-			if(c.isInitial()) return;
+			if(isInitialOrHasNoParents(c)) return;
 			this.mergeNonInitialChunks(c, chunk, checkedChunks);
 		}, this);
 	} else if(checkedChunks.indexOf(chunk) < 0) {
@@ -35,7 +39,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, c
 			module.addChunk(intoChunk);
 		});
 		chunk.chunks.forEach(function(c) {
-			if(c.isInitial()) return;
+			if(isInitialOrHasNoParents(c)) return;
 			this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
 		}, this);
 	}
@@ -264,7 +268,7 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 			});
 			async.forEach(chunks, function(chunk, callback) {
 				var extractedChunk = extractedChunks[chunks.indexOf(chunk)];
-				var shouldExtract = !!(options.allChunks || chunk.isInitial());
+				var shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
 				async.forEach(chunk.modules.slice(), function(module, callback) {
 					var meta = module[NS];
 					if(meta && (!meta.options.id || meta.options.id === id)) {
@@ -300,11 +304,11 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 			}, function(err) {
 				if(err) return callback(err);
 				extractedChunks.forEach(function(extractedChunk) {
-					if(extractedChunk.isInitial())
+					if(isInitialOrHasNoParents(extractedChunk))
 						this.mergeNonInitialChunks(extractedChunk);
 				}, this);
 				extractedChunks.forEach(function(extractedChunk) {
-					if(!extractedChunk.isInitial()) {
+					if(!isInitialOrHasNoParents(extractedChunk)) {
 						extractedChunk.modules.slice().forEach(function(module) {
 							extractedChunk.removeModule(module);
 						});
