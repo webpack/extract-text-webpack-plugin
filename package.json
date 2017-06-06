@@ -21,7 +21,7 @@
     "ajv": "^4.11.2",
     "async": "^2.1.2",
     "loader-utils": "^1.0.2",
-    "webpack-sources": "^0.1.0"
+    "webpack-sources": "^1.0.1"
   },
   "devDependencies": {
     "codecov.io": "^0.1.2",
