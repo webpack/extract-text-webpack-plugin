@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -14,16 +13,13 @@
     "fallback": {
       "description": "A loader that webpack can fall back to if the original one fails.",
       "modes": {
-        "type": "string",
-        "type": "object",
-        "type": "array"
+        "type": ["string", "object", "array"]
       }
     },
     "filename": {
       "description": "The filename and path that ExtractTextPlugin will extract to",
       "modes": {
-        "type": "string",
-        "type": "function"
+        "type": ["string", "function"]
       }
     },
     "ignoreOrder": {
@@ -33,9 +29,7 @@
     "loader": {
       "description": "The loader that ExtractTextPlugin will attempt to load through.",
       "modes": {
-        "type": "string",
-        "type": "object",
-        "type": "array"
+        "type": ["string", "object", "array"]
       }
     },
     "publicPath": {

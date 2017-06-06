@@ -29,7 +29,9 @@ describe("ExtractTextPlugin.extract()", function() {
 					ExtractTextPlugin.extract({style: 'file.css'});
 				},
 				function(err) {
-					return err.message === 'data[\'style\'] should NOT have additional properties';
+					return err.message === 'Validation Error\n\n' +
+						'Extract Text Plugin (Loader) Invalid Options\n\n' +
+						'options[\'style\'] should NOT have additional properties\n';
 				}
 			);
 		});

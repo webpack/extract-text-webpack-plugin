@@ -9,9 +9,7 @@ var ExtractedModule = require("./ExtractedModule");
 var Chunk = require("webpack/lib/Chunk");
 var OrderUndefinedError = require("./OrderUndefinedError");
 var loaderUtils = require("loader-utils");
-var schemaTester = require('./schema/validator');
-var loaderSchema = require('./schema/loader-schema');
-var pluginSchema = require('./schema/plugin-schema.json');
+var validateOptions = require('schema-utils');
 
 var NS = fs.realpathSync(__dirname);
 
@@ -122,7 +120,7 @@ function ExtractTextPlugin(options) {
 	if(isString(options)) {
 		options = { filename: options };
 	} else {
-		schemaTester(pluginSchema, options);
+		validateOptions('./schema/plugin.json', options, 'Extract Text Plugin');
 	}
 	this.filename = options.filename;
 	this.id = options.id != null ? options.id : ++nextId;
@@ -201,7 +199,7 @@ ExtractTextPlugin.prototype.extract = function(options) {
 	if(Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
 		options = { loader: options };
 	} else {
-		schemaTester(loaderSchema, options);
+		validateOptions('./schema/loader.json', options, 'Extract Text Plugin (Loader)');
 	}
 	var loader = options.use ||  options.loader;
 	var before = options.fallback || options.fallbackLoader || [];
