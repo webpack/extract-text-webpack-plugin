@@ -2,9 +2,10 @@
 
 /example/assets
 
-/test/js
+/test/build
 /coverage
 
 /.idea
 
 .DS_Store
+jest_0

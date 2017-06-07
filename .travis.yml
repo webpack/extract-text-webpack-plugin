@@ -1,10 +1,11 @@
-sudo: false
 language: node_js
+
 node_js:
   - node
   - 6
   - 4
-script: npm run travis
+
+script: npm t
 
 after_success:
   - cat ./coverage/lcov.info | node_modules/.bin/coveralls --verbose
