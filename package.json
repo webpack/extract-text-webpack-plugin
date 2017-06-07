@@ -8,46 +8,41 @@
   },
   "main": "index.js",
   "files": [
-    "schema",
-    "ExtractedModule.js",
-    "index.js",
-    "loader.js",
-    "OrderUndefinedError.js"
+    "lib",
+    "index.js"
   ],
-  "peerDependencies": {
-    "webpack": "^2.2.0"
-  },
   "dependencies": {
-    "schema-utils": "^0.3.0",
     "async": "^2.1.2",
     "loader-utils": "^1.0.2",
+    "schema-utils": "^0.3.0",
     "webpack-sources": "^1.0.1"
   },
   "devDependencies": {
     "codecov.io": "^0.1.2",
     "coveralls": "^2.11.2",
-    "css-loader": "^0.26.1",
-    "file-loader": "^0.9.0",
+    "css-loader": "^0.28.0",
+    "file-loader": "^0.11.0",
     "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
-    "mocha-lcov-reporter": "1.2.0",
+    "jest": "^20.0.4",
     "raw-loader": "^0.5.1",
     "should": "^11.1.2",
     "standard-version": "^4.0.0",
-    "style-loader": "^0.13.0",
-    "webpack": "^2.2.0"
+    "style-loader": "^0.18.0",
+    "webpack": "^2.6.0"
   },
-  "homepage": "http://github.com/webpack/extract-text-webpack-plugin",
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/webpack/extract-text-webpack-plugin.git"
+  "peerDependencies": {
+    "webpack": "^2.6.0"
   },
-  "license": "MIT",
   "scripts": {
-    "test": "mocha",
-    "travis": "npm run cover -- --report lcovonly",
-    "cover": "istanbul cover _mocha",
+    "clean": "rm -rf jest_0 test/build",
+    "test": "jest --verbose",
     "release": "standard-version",
     "build:example": "(cd example && webpack)"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/webpack-contrib/extract-text-webpack-plugin"
+  },
+  "homepage": "http://github.com/webpack-contrib/extract-text-webpack-plugin",
+  "license": "MIT"
 }
