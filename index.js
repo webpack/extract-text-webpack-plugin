@@ -20,6 +20,13 @@ function ExtractTextPluginCompilation() {
 }
 
 ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, checkedChunks) {
+	if (chunk.chunks) {
+		// Fix error when hot module replacement used with CommonsChunkPlugin
+		chunk.chunks = chunk.chunks.filter(function(c) {
+			return typeof c !== 'undefined';
+		})
+	}
+
 	if(!intoChunk) {
 		checkedChunks = [];
 		chunk.chunks.forEach(function(c) {
@@ -312,7 +319,8 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 				callback();
 			}.bind(this));
 		}.bind(this));
-		compilation.plugin("additional-assets", function(callback) {
+		compilation.plugin("before-chunk-assets", function() {
+			// This appears to be the latest hook where the %%extracted-file%% and hash replacements work on initial load. Any later and the contents of modules appears to be sealed and changes don't have any effect until the next hot update.
 			extractedChunks.forEach(function(extractedChunk) {
 				if(extractedChunk.modules.length) {
 					extractedChunk.modules.sort(function(a, b) {
@@ -335,9 +343,15 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 					
 					compilation.assets[file] = source;
 					chunk.files.push(file);
+
+					// Hot module replacement
+					extractedChunk.modules.forEach(function(module){
+						var originalModule = module.getOriginalModule();
+						originalModule._source._value = originalModule._source._value.replace('%%extracted-file%%', file);
+						originalModule._source._value = originalModule._source._value.replace('%%extracted-hash%%', compilation.hash);
+					});
 				}
 			}, this);
-			callback();
 		}.bind(this));
 	}.bind(this));
 };

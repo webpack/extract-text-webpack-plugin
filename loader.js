@@ -10,11 +10,13 @@ var LibraryTemplatePlugin = require("webpack/lib/LibraryTemplatePlugin");
 var SingleEntryPlugin = require("webpack/lib/SingleEntryPlugin");
 var LimitChunkCountPlugin = require("webpack/lib/optimize/LimitChunkCountPlugin");
 
+var extractTextPluginHmrRuntime = require.resolve("./hotModuleReplacement.js");
 var NS = fs.realpathSync(__dirname);
 
 module.exports = function(source) {
 	if(this.cacheable) this.cacheable();
-	return source;
+	// Even though this gets overwritten if extract+remove are true, without it, the runtime doesn't get added to the chunk
+	return `if (module.hot) { require('${extractTextPluginHmrRuntime}'); }\n${source}`;
 };
 
 module.exports.pitch = function(request) {
@@ -120,8 +122,18 @@ module.exports.pitch = function(request) {
 					});
 				});
 				this[NS](text, query);
-				if(text.locals && typeof resultSource !== "undefined") {
-					resultSource += "\nmodule.exports = " + JSON.stringify(text.locals) + ";";
+				if(typeof resultSource !== "undefined") {
+					if (text.locals) {
+						resultSource += "\nmodule.exports = " + JSON.stringify(text.locals) + ";";
+					}
+					// module.hot.data is undefined on initial load, and an object in hot updates
+					resultSource += `
+if (module.hot) {
+	module.hot.accept();
+	if (module.hot.data) {
+		require('${extractTextPluginHmrRuntime}')('%%extracted-hash%%','${publicPath}','%%extracted-file%%');
+	}
+}`;
 				}
 			} catch(e) {
 				return callback(e);
