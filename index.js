@@ -2,7 +2,9 @@
 	MIT License http://www.opensource.org/licenses/mit-license.php
 	Author Tobias Koppers @sokra
 */
+
 var fs = require('fs');
+var path = require('path');
 var ConcatSource = require("webpack-sources").ConcatSource;
 var async = require("async");
 var ExtractedModule = require("./ExtractedModule");
@@ -124,7 +126,7 @@ function ExtractTextPlugin(options) {
 	if(isString(options)) {
 		options = { filename: options };
 	} else {
-		validateOptions('./schema/plugin.json', options, 'Extract Text Plugin');
+		validateOptions(path.resolve(__dirname, './schema/plugin.json'), options, 'Extract Text Plugin');
 	}
 	this.filename = options.filename;
 	this.id = options.id != null ? options.id : ++nextId;
@@ -203,7 +205,7 @@ ExtractTextPlugin.prototype.extract = function(options) {
 	if(Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
 		options = { loader: options };
 	} else {
-		validateOptions('./schema/loader.json', options, 'Extract Text Plugin (Loader)');
+		validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
 	}
 	var loader = options.use ||  options.loader;
 	var before = options.fallback || options.fallbackLoader || [];
@@ -336,7 +338,7 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 					});
 
 					var file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
-					
+
 					compilation.assets[file] = source;
 					chunk.files.push(file);
 				}
