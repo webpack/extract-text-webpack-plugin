@@ -2,7 +2,9 @@
 	MIT License http://www.opensource.org/licenses/mit-license.php
 	Author Tobias Koppers @sokra
 */
+
 var fs = require('fs');
+var path = require('path');
 var ConcatSource = require("webpack-sources").ConcatSource;
 var async = require("async");
 var ExtractedModule = require("./ExtractedModule");
@@ -337,7 +339,7 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 					});
 
 					var file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
-					
+
 					compilation.assets[file] = source;
 					chunk.files.push(file);
 				}
