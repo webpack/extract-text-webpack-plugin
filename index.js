@@ -4,6 +4,7 @@
 */
 var fs = require('fs');
 var ConcatSource = require("webpack-sources").ConcatSource;
+var CachedSource = require("webpack-sources").CachedSource;
 var async = require("async");
 var ExtractedModule = require("./ExtractedModule");
 var Chunk = require("webpack/lib/Chunk");
@@ -337,8 +338,22 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 					});
 
 					var file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
-					
+
+					var cacheKey = "extracted " + file;
+					var chunkHash = loaderUtils.getHashDigest(source.source());
+					if(compilation.cache && compilation.cache[cacheKey] && compilation.cache[cacheKey].hash === chunkHash) {
+						source = compilation.cache[cacheKey].source;
+					} else {
+						if(compilation.cache) {
+							compilation.cache[cacheKey] = {
+								hash: chunkHash,
+								source: source = (source instanceof CachedSource ? source : new CachedSource(source))
+							};
+						}
+					}
+
 					compilation.assets[file] = source;
+					compilation.modifyHash(chunkHash);
 					chunk.files.push(file);
 				}
 			}, this);
