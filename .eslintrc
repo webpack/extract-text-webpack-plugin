@@ -1,3 +1,11 @@
 {
-  "extends": "webpack"
+  "extends": "webpack",
+  "rules": {
+    "import/no-namespace": 1,
+    "prefer-destructuring": 1,
+    "prefer-rest-params": 1,
+    "no-plusplus": 1,
+    "consistent-return": 1,
+    "no-param-reassign": 1
+  }
 }

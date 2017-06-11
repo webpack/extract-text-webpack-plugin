@@ -1,17 +1,16 @@
-/* eslint-disable */
 /*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
 */
 import fs from 'fs';
 import path from 'path';
-import Chunk from "webpack/lib/Chunk";
-import { ConcatSource } from "webpack-sources";
-import async from "async";
-import loaderUtils from "loader-utils";
+import Chunk from 'webpack/lib/Chunk';
+import { ConcatSource } from 'webpack-sources';
+import async from 'async';
+import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
-import ExtractTextPluginCompilation from "./lib/ExtractTextPluginCompilation";
-import OrderUndefinedError from "./lib/OrderUndefinedError";
+import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';
+import OrderUndefinedError from './lib/OrderUndefinedError';
 import * as helpers from './lib/helpers';
 
 const NS = fs.realpathSync(__dirname);
@@ -21,17 +20,17 @@ let nextId = 0;
 class ExtractTextPlugin {
   constructor(options) {
     if (arguments.length > 1) {
-      throw new Error("Breaking change: ExtractTextPlugin now only takes a single argument. Either an options " +
-        "object *or* the name of the result file.\n" +
-        "Example: if your old code looked like this:\n" +
-        "    new ExtractTextPlugin('css/[name].css', { disable: false, allChunks: true })\n\n" +
-        "You would change it to:\n" +
-        "    new ExtractTextPlugin({ filename: 'css/[name].css', disable: false, allChunks: true })\n\n" +
-        "The available options are:\n" +
-        "    filename: string\n" +
-        "    allChunks: boolean\n" +
-        "    disable: boolean\n" +
-        "    ignoreOrder: boolean\n");
+      throw new Error('Breaking change: ExtractTextPlugin now only takes a single argument. Either an options ' +
+        'object *or* the name of the result file.\n' +
+        'Example: if your old code looked like this:\n' +
+        '    new ExtractTextPlugin("css/[name].css", { disable: false, allChunks: true })\n\n' +
+        'You would change it to:\n' +
+        '    new ExtractTextPlugin({ filename: "css/[name].css", disable: false, allChunks: true })\n\n' +
+        'The available options are:\n' +
+        '    filename: string\n' +
+        '    allChunks: boolean\n' +
+        '    disable: boolean\n' +
+        '    ignoreOrder: boolean\n');
     }
     if (helpers.isString(options)) {
       options = { filename: options };
@@ -52,16 +51,16 @@ class ExtractTextPlugin {
 
   extract(options) {
     if (arguments.length > 1) {
-      throw new Error("Breaking change: extract now only takes a single argument. Either an options " +
-        "object *or* the loader(s).\n" +
-        "Example: if your old code looked like this:\n" +
-        "    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
-        "You would change it to:\n" +
-        "    ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })\n\n" +
-        "The available options are:\n" +
-        "    use: string | object | loader[]\n" +
-        "    fallback: string | object | loader[]\n" +
-        "    publicPath: string\n");
+      throw new Error('Breaking change: extract now only takes a single argument. Either an options ' +
+        'object *or* the loader(s).\n' +
+        'Example: if your old code looked like this:\n' +
+        '    ExtractTextPlugin.extract("style-loader", "css-loader")\n\n' +
+        'You would change it to:\n' +
+        '    ExtractTextPlugin.extract({ fallback: "style-loader", use: "css-loader" })\n\n' +
+        'The available options are:\n' +
+        '    use: string | object | loader[]\n' +
+        '    fallback: string | object | loader[]\n' +
+        '    publicPath: string\n');
     }
     if (options.fallbackLoader) {
       console.warn('fallbackLoader option has been deprecated - replace with "fallback"');
@@ -69,7 +68,7 @@ class ExtractTextPlugin {
     if (options.loader) {
       console.warn('loader option has been deprecated - replace with "use"');
     }
-    if (Array.isArray(options) || helpers.isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
+    if (Array.isArray(options) || helpers.isString(options) || typeof options.options === 'object' || typeof options.query === 'object') {
       options = { loader: options };
     } else {
       validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
@@ -77,10 +76,10 @@ class ExtractTextPlugin {
     let loader = options.use || options.loader;
     let before = options.fallback || options.fallbackLoader || [];
     if (helpers.isString(loader)) {
-      loader = loader.split("!");
+      loader = loader.split('!');
     }
     if (helpers.isString(before)) {
-      before = before.split("!");
+      before = before.split('!');
     } else if (!Array.isArray(before)) {
       before = [before];
     }
@@ -96,17 +95,15 @@ class ExtractTextPlugin {
 
   apply(compiler) {
     const options = this.options;
-    compiler.plugin("this-compilation", compilation => {
+    compiler.plugin('this-compilation', (compilation) => {
       const extractCompilation = new ExtractTextPluginCompilation();
-      compilation.plugin("normal-module-loader", (loaderContext, module) => {
+      compilation.plugin('normal-module-loader', (loaderContext, module) => {
         loaderContext[NS] = (content, opt) => {
-          if (options.disable)
-            return false;
-          if (!Array.isArray(content) && content != null)
-            throw new Error(`Exported value was not extracted as an array: ${JSON.stringify(content)}`);
+          if (options.disable) { return false; }
+          if (!Array.isArray(content) && content != null) { throw new Error(`Exported value was not extracted as an array: ${JSON.stringify(content)}`); }
           module[NS] = {
             content,
-            options: opt || {}
+            options: opt || {},
           };
           return options.allChunks || module[`${NS}/extract`]; // eslint-disable-line no-path-concat
         };
@@ -114,9 +111,7 @@ class ExtractTextPlugin {
       const filename = this.filename;
       const id = this.id;
       let extractedChunks;
-      let entryChunks;
-      let initialChunks;
-      compilation.plugin("optimize-tree", (chunks, modules, callback) => {
+      compilation.plugin('optimize-tree', (chunks, modules, callback) => {
         extractedChunks = chunks.map(() => new Chunk());
         chunks.forEach((chunk, i) => {
           const extractedChunk = extractedChunks[i];
@@ -124,10 +119,10 @@ class ExtractTextPlugin {
           extractedChunk.originalChunk = chunk;
           extractedChunk.name = chunk.name;
           extractedChunk.entrypoints = chunk.entrypoints;
-          chunk.chunks.forEach(c => {
+          chunk.chunks.forEach((c) => {
             extractedChunk.addChunk(extractedChunks[chunks.indexOf(c)]);
           });
-          chunk.parents.forEach(c => {
+          chunk.parents.forEach((c) => {
             extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
           });
         });
@@ -140,7 +135,7 @@ class ExtractTextPlugin {
               const wasExtracted = Array.isArray(meta.content);
               if (shouldExtract !== wasExtracted) {
                 module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
-                compilation.rebuildModule(module, err => {
+                compilation.rebuildModule(module, (err) => {
                   if (err) {
                     compilation.errors.push(err);
                     return callback();
@@ -152,39 +147,36 @@ class ExtractTextPlugin {
                     compilation.errors.push(err);
                     return callback();
                   }
-                  if (meta.content)
-                    extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+                  if (meta.content) { extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk); }
                   callback();
                 });
               } else {
-                if (meta.content)
-                  extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+                if (meta.content) { extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk); }
                 callback();
               }
             } else callback();
-          }, err => {
+          }, (err) => {
             if (err) return callback(err);
             callback();
           });
-        }, err => {
+        }, (err) => {
           if (err) return callback(err);
-          extractedChunks.forEach(function (extractedChunk) {
-            if (helpers.isInitialOrHasNoParents(extractedChunk))
-              this.mergeNonInitialChunks(extractedChunk);
+          extractedChunks.forEach((extractedChunk) => {
+            if (helpers.isInitialOrHasNoParents(extractedChunk)) { this.mergeNonInitialChunks(extractedChunk); }
           }, this);
-          extractedChunks.forEach(extractedChunk => {
+          extractedChunks.forEach((extractedChunk) => {
             if (!helpers.isInitialOrHasNoParents(extractedChunk)) {
-              extractedChunk.modules.slice().forEach(module => {
+              extractedChunk.modules.slice().forEach((module) => {
                 extractedChunk.removeModule(module);
               });
             }
           });
-          compilation.applyPlugins("optimize-extracted-chunks", extractedChunks);
+          compilation.applyPlugins('optimize-extracted-chunks', extractedChunks);
           callback();
         });
       });
-      compilation.plugin("additional-assets", callback => {
-        extractedChunks.forEach(function (extractedChunk) {
+      compilation.plugin('additional-assets', (callback) => {
+        extractedChunks.forEach((extractedChunk) => {
           if (extractedChunk.modules.length) {
             extractedChunk.modules.sort((a, b) => {
               if (!options.ignoreOrder && helpers.isInvalidOrder(a, b)) {
@@ -196,8 +188,8 @@ class ExtractTextPlugin {
             const chunk = extractedChunk.originalChunk;
             const source = this.renderExtractedChunk(extractedChunk);
 
-            const getPath = (format) => compilation.getPath(format, {
-              chunk
+            const getPath = format => compilation.getPath(format, {
+              chunk,
             }).replace(/\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/ig, function () {
               return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
             });
@@ -216,17 +208,19 @@ class ExtractTextPlugin {
 
 export default ExtractTextPlugin;
 
-ExtractTextPlugin.loader = options => ({
-  loader: require.resolve("./loader"),
-  options
-});
+ExtractTextPlugin.loader = (options) => {
+  return ({
+    loader: require.resolve('./loader'),
+    options,
+  });
+};
 
 ExtractTextPlugin.prototype.applyAdditionalInformation = (source, info) => {
   if (info) {
     return new ConcatSource(
       `@media ${info[0]} {`,
       source,
-      "}"
+      '}',
     );
   }
   return source;
@@ -235,17 +229,17 @@ ExtractTextPlugin.prototype.applyAdditionalInformation = (source, info) => {
 ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, checkedChunks) {
   if (!intoChunk) {
     checkedChunks = [];
-    chunk.chunks.forEach(function (c) {
+    chunk.chunks.forEach((c) => {
       if (helpers.isInitialOrHasNoParents(c)) return;
       this.mergeNonInitialChunks(c, chunk, checkedChunks);
     }, this);
   } else if (checkedChunks.indexOf(chunk) < 0) {
     checkedChunks.push(chunk);
-    chunk.modules.slice().forEach(module => {
+    chunk.modules.slice().forEach((module) => {
       intoChunk.addModule(module);
       module.addChunk(intoChunk);
     });
-    chunk.chunks.forEach(function (c) {
+    chunk.chunks.forEach((c) => {
       if (helpers.isInitialOrHasNoParents(c)) return;
       this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
     }, this);
@@ -254,7 +248,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, 
 
 ExtractTextPlugin.prototype.renderExtractedChunk = function (chunk) {
   const source = new ConcatSource();
-  chunk.modules.forEach(function (module) {
+  chunk.modules.forEach((module) => {
     const moduleSource = module.source();
     source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
   }, this);

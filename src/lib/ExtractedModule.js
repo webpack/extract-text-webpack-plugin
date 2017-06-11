@@ -1,10 +1,8 @@
-/* eslint-disable */
 /*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
 */
-import { SourceMapSource } from "webpack-sources";
-import { RawSource } from "webpack-sources";
+import { SourceMapSource, RawSource } from 'webpack-sources';
 
 class ExtractedModule {
   constructor(
@@ -30,8 +28,7 @@ class ExtractedModule {
 
   addChunk(chunk) {
     const idx = this.chunks.indexOf(chunk);
-    if (idx < 0)
-      this.chunks.push(chunk);
+    if (idx < 0) { this.chunks.push(chunk); }
   }
 
   removeChunk(chunk) {
@@ -44,17 +41,15 @@ class ExtractedModule {
     return false;
   }
 
-  rewriteChunkInReasons(oldChunk, newChunks) { }
+  rewriteChunkInReasons(oldChunk, newChunks) { } // eslint-disable-line
 
   identifier() {
     return this._identifier;
   }
 
   source() {
-    if (this._sourceMap)
-      return new SourceMapSource(this._source, null, this._sourceMap);
-    else
-      return new RawSource(this._source);
+    if (this._sourceMap) { return new SourceMapSource(this._source, null, this._sourceMap); }
+    return new RawSource(this._source);
   }
 
   getOriginalModule() {
@@ -66,9 +61,8 @@ class ExtractedModule {
   }
 
   addPrevModules(prevModules) {
-    prevModules.forEach(function (m) {
-      if (!this._prevModules.includes(m))
-        this._prevModules.push(m);
+    prevModules.forEach((m) => {
+      if (!this._prevModules.includes(m)) { this._prevModules.push(m); }
     }, this);
   }
 

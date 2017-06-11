@@ -1,4 +1,3 @@
-/* eslint-disable */
 export function isInitialOrHasNoParents(chunk) {
   return chunk.isInitial() || chunk.parents.length === 0;
 }
