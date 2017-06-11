@@ -1,3 +1,4 @@
+/* eslint-disable */
 /*
 	MIT License http://www.opensource.org/licenses/mit-license.php
 	Author Tobias Koppers @sokra
@@ -5,9 +6,9 @@
 var fs = require('fs');
 var ConcatSource = require("webpack-sources").ConcatSource;
 var async = require("async");
-var ExtractedModule = require("./ExtractedModule");
+var ExtractedModule = require("./lib/ExtractedModule");
 var Chunk = require("webpack/lib/Chunk");
-var OrderUndefinedError = require("./OrderUndefinedError");
+var OrderUndefinedError = require("./lib/OrderUndefinedError");
 var loaderUtils = require("loader-utils");
 var validateOptions = require('schema-utils');
 var path = require('path');

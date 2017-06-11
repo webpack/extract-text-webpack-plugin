@@ -1,10 +1,10 @@
-var ExtractTextPlugin = require("../../../");
+const ExtractTextPlugin = require('../../../src/');
 module.exports = {
-	entry: "./index",
-	plugins: [
-		new ExtractTextPlugin({
-			filename: "file.css",
-			allChunks: false
-		})
-	]
+  entry: './index',
+  plugins: [
+    new ExtractTextPlugin({
+      filename: 'file.css',
+      allChunks: false,
+    }),
+  ],
 };
