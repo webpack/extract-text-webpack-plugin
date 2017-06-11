@@ -4,6 +4,7 @@ language: node_js
 branches:
   only:
     - master
+    - feature/webpack3
 jobs:
   fast_finish: true
   allow_failures:
