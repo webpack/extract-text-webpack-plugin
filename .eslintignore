@@ -1,0 +1,7 @@
+/node_modules
+/dist
+/test/build
+/test/js
+/test
+/test_old
+/test_old/build

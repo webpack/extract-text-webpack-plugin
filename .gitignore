@@ -3,8 +3,22 @@
 /example/assets
 
 /test/js
+/test_old/build
 /coverage
 
 /.idea
 
 .DS_Store
+
+logs
+*.log
+npm-debug.log*
+.eslintcache
+/dist
+/local
+/reports
+Thumbs.db
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace

@@ -1,12 +1,10 @@
 {
-	"env": {
-		"node": true
-	},
-	"rules": {
-		"strict": 0,
-		"curly": 0,
-		"quotes": 0,
-		"no-shadow": 0,
-		"no-underscore-dangle": 0
-	}
+  "extends": "webpack",
+  "rules": {
+    "prefer-destructuring": 1,
+    "prefer-rest-params": 1,
+    "no-plusplus": 1,
+    "consistent-return": 1,
+    "no-param-reassign": 1
+  }
 }
