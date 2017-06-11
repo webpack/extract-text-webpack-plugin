@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./a.css","webpack:///./b.css"],"names":[],"mappings":"AAAA;CACC,WAAW;CACX;ACFD;CACC,WAAW;CACX","file":"file.css","sourcesContent":["body {\n\tcorrect: a;\n}\n\n\n\n// WEBPACK FOOTER //\n// ./a.css","body {\n\tcorrect: b;\n}\n\n\n\n// WEBPACK FOOTER //\n// ./b.css"],"sourceRoot":""}
