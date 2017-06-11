@@ -6,7 +6,7 @@
 import fs from 'fs';
 import { ConcatSource } from "webpack-sources";
 import async from "async";
-import ExtractedModule from "./lib/ExtractedModule";
+import ExtractTextPluginCompilation from "./lib/ExtractTextPluginCompilation";
 import Chunk from "webpack/lib/Chunk";
 import OrderUndefinedError from "./lib/OrderUndefinedError";
 import loaderUtils from "loader-utils";
@@ -17,72 +17,207 @@ const NS = fs.realpathSync(__dirname);
 
 let nextId = 0;
 
-function ExtractTextPluginCompilation() {
-	this.modulesByIdentifier = {};
+class ExtractTextPlugin {
+  constructor(options) {
+    if (arguments.length > 1) {
+      throw new Error("Breaking change: ExtractTextPlugin now only takes a single argument. Either an options " +
+        "object *or* the name of the result file.\n" +
+        "Example: if your old code looked like this:\n" +
+        "    new ExtractTextPlugin('css/[name].css', { disable: false, allChunks: true })\n\n" +
+        "You would change it to:\n" +
+        "    new ExtractTextPlugin({ filename: 'css/[name].css', disable: false, allChunks: true })\n\n" +
+        "The available options are:\n" +
+        "    filename: string\n" +
+        "    allChunks: boolean\n" +
+        "    disable: boolean\n" +
+        "    ignoreOrder: boolean\n");
+    }
+    if (isString(options)) {
+      options = { filename: options };
+    } else {
+      validateOptions(path.resolve(__dirname, './schema/plugin.json'), options, 'Extract Text Plugin');
+    }
+    this.filename = options.filename;
+    this.id = options.id != null ? options.id : ++nextId;
+    this.options = {};
+    mergeOptions(this.options, options);
+    delete this.options.filename;
+    delete this.options.id;
+  }
+
+  loader(options) {
+    return ExtractTextPlugin.loader(mergeOptions({ id: this.id }, options));
+  }
+
+  extract(options) {
+    if (arguments.length > 1) {
+      throw new Error("Breaking change: extract now only takes a single argument. Either an options " +
+        "object *or* the loader(s).\n" +
+        "Example: if your old code looked like this:\n" +
+        "    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
+        "You would change it to:\n" +
+        "    ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })\n\n" +
+        "The available options are:\n" +
+        "    use: string | object | loader[]\n" +
+        "    fallback: string | object | loader[]\n" +
+        "    publicPath: string\n");
+    }
+    if (options.fallbackLoader) {
+      console.warn('fallbackLoader option has been deprecated - replace with "fallback"');
+    }
+    if (options.loader) {
+      console.warn('loader option has been deprecated - replace with "use"');
+    }
+    if (Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
+      options = { loader: options };
+    } else {
+      validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
+    }
+    let loader = options.use || options.loader;
+    let before = options.fallback || options.fallbackLoader || [];
+    if (isString(loader)) {
+      loader = loader.split("!");
+    }
+    if (isString(before)) {
+      before = before.split("!");
+    } else if (!Array.isArray(before)) {
+      before = [before];
+    }
+    options = mergeOptions({ omit: before.length, remove: true }, options);
+    delete options.loader;
+    delete options.use;
+    delete options.fallback;
+    delete options.fallbackLoader;
+    return [this.loader(options)]
+      .concat(before, loader)
+      .map(getLoaderObject);
+  }
+
+  apply(compiler) {
+    const options = this.options;
+    compiler.plugin("this-compilation", compilation => {
+      const extractCompilation = new ExtractTextPluginCompilation();
+      compilation.plugin("normal-module-loader", (loaderContext, module) => {
+        loaderContext[NS] = (content, opt) => {
+          if (options.disable)
+            return false;
+          if (!Array.isArray(content) && content != null)
+            throw new Error(`Exported value was not extracted as an array: ${JSON.stringify(content)}`);
+          module[NS] = {
+            content,
+            options: opt || {}
+          };
+          return options.allChunks || module[`${NS}/extract`]; // eslint-disable-line no-path-concat
+        };
+      });
+      const filename = this.filename;
+      const id = this.id;
+      let extractedChunks;
+      let entryChunks;
+      let initialChunks;
+      compilation.plugin("optimize-tree", (chunks, modules, callback) => {
+        extractedChunks = chunks.map(() => new Chunk());
+        chunks.forEach((chunk, i) => {
+          const extractedChunk = extractedChunks[i];
+          extractedChunk.index = i;
+          extractedChunk.originalChunk = chunk;
+          extractedChunk.name = chunk.name;
+          extractedChunk.entrypoints = chunk.entrypoints;
+          chunk.chunks.forEach(c => {
+            extractedChunk.addChunk(extractedChunks[chunks.indexOf(c)]);
+          });
+          chunk.parents.forEach(c => {
+            extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
+          });
+        });
+        async.forEach(chunks, (chunk, callback) => {
+          const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
+          const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
+          async.forEach(chunk.modules.slice(), (module, callback) => {
+            let meta = module[NS];
+            if (meta && (!meta.options.id || meta.options.id === id)) {
+              const wasExtracted = Array.isArray(meta.content);
+              if (shouldExtract !== wasExtracted) {
+                module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
+                compilation.rebuildModule(module, err => {
+                  if (err) {
+                    compilation.errors.push(err);
+                    return callback();
+                  }
+                  meta = module[NS];
+                  // Error out if content is not an array and is not null
+                  if (!Array.isArray(meta.content) && meta.content != null) {
+                    err = new Error(`${module.identifier()} doesn't export content`);
+                    compilation.errors.push(err);
+                    return callback();
+                  }
+                  if (meta.content)
+                    extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+                  callback();
+                });
+              } else {
+                if (meta.content)
+                  extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+                callback();
+              }
+            } else callback();
+          }, err => {
+            if (err) return callback(err);
+            callback();
+          });
+        }, err => {
+          if (err) return callback(err);
+          extractedChunks.forEach(function (extractedChunk) {
+            if (isInitialOrHasNoParents(extractedChunk))
+              this.mergeNonInitialChunks(extractedChunk);
+          }, this);
+          extractedChunks.forEach(extractedChunk => {
+            if (!isInitialOrHasNoParents(extractedChunk)) {
+              extractedChunk.modules.slice().forEach(module => {
+                extractedChunk.removeModule(module);
+              });
+            }
+          });
+          compilation.applyPlugins("optimize-extracted-chunks", extractedChunks);
+          callback();
+        });
+      });
+      compilation.plugin("additional-assets", callback => {
+        extractedChunks.forEach(function (extractedChunk) {
+          if (extractedChunk.modules.length) {
+            extractedChunk.modules.sort((a, b) => {
+              if (!options.ignoreOrder && isInvalidOrder(a, b)) {
+                compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
+                compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));
+              }
+              return getOrder(a, b);
+            });
+            const chunk = extractedChunk.originalChunk;
+            const source = this.renderExtractedChunk(extractedChunk);
+
+            const getPath = (format) => compilation.getPath(format, {
+              chunk
+            }).replace(/\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/ig, function () {
+              return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
+            });
+
+            const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
+
+            compilation.assets[file] = source;
+            chunk.files.push(file);
+          }
+        }, this);
+        callback();
+      });
+    });
+  }
 }
+
+export default ExtractTextPlugin;
 
 function isInitialOrHasNoParents(chunk) {
-        return chunk.isInitial() || chunk.parents.length === 0;
+  return chunk.isInitial() || chunk.parents.length === 0;
 }
-
-ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, checkedChunks) {
-	if(!intoChunk) {
-		checkedChunks = [];
-		chunk.chunks.forEach(function(c) {
-			if(isInitialOrHasNoParents(c)) return;
-			this.mergeNonInitialChunks(c, chunk, checkedChunks);
-		}, this);
-	} else if(checkedChunks.indexOf(chunk) < 0) {
-		checkedChunks.push(chunk);
-		chunk.modules.slice().forEach(function(module) {
-			intoChunk.addModule(module);
-			module.addChunk(intoChunk);
-		});
-		chunk.chunks.forEach(function(c) {
-			if(isInitialOrHasNoParents(c)) return;
-			this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
-		}, this);
-	}
-};
-
-ExtractTextPluginCompilation.prototype.addModule = function (identifier, originalModule, source, additionalInformation, sourceMap, prevModules) {
-  let m;
-  if (!this.modulesByIdentifier[identifier]) {
-    m = this.modulesByIdentifier[identifier] = new ExtractedModule(identifier, originalModule, source, sourceMap, additionalInformation, prevModules);
-  } else {
-    m = this.modulesByIdentifier[identifier];
-    m.addPrevModules(prevModules);
-    if (originalModule.index2 < m.getOriginalModule().index2) {
-      m.setOriginalModule(originalModule);
-    }
-  }
-  return m;
-};
-
-ExtractTextPluginCompilation.prototype.addResultToChunk = function (identifier, result, originalModule, extractedChunk) {
-  if (!Array.isArray(result)) {
-    result = [[identifier, result]];
-  }
-  const counterMap = {};
-  const prevModules = [];
-  result.forEach(function (item) {
-    const c = counterMap[item[0]];
-    const module = this.addModule.call(this, item[0] + (c || ""), originalModule, item[1], item[2], item[3], prevModules.slice());
-    extractedChunk.addModule(module);
-    module.addChunk(extractedChunk);
-    counterMap[item[0]] = (c || 0) + 1;
-    prevModules.push(module);
-  }, this);
-};
-
-ExtractTextPlugin.prototype.renderExtractedChunk = function (chunk) {
-  const source = new ConcatSource();
-  chunk.modules.forEach(function (module) {
-    const moduleSource = module.source();
-    source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
-  }, this);
-  return source;
-};
 
 function isInvalidOrder(a, b) {
   const bBeforeA = a.getPrevModules().includes(b);
@@ -109,34 +244,6 @@ function getOrder(a, b) {
   if (ai > bi) return 1;
   return 0;
 }
-
-function ExtractTextPlugin(options) {
-  if (arguments.length > 1) {
-    throw new Error("Breaking change: ExtractTextPlugin now only takes a single argument. Either an options " +
-      "object *or* the name of the result file.\n" +
-      "Example: if your old code looked like this:\n" +
-      "    new ExtractTextPlugin('css/[name].css', { disable: false, allChunks: true })\n\n" +
-      "You would change it to:\n" +
-      "    new ExtractTextPlugin({ filename: 'css/[name].css', disable: false, allChunks: true })\n\n" +
-      "The available options are:\n" +
-      "    filename: string\n" +
-      "    allChunks: boolean\n" +
-      "    disable: boolean\n" +
-      "    ignoreOrder: boolean\n");
-  }
-  if (isString(options)) {
-    options = { filename: options };
-  } else {
-    validateOptions(path.resolve(__dirname, './schema/plugin.json'), options, 'Extract Text Plugin');
-  }
-  this.filename = options.filename;
-  this.id = options.id != null ? options.id : ++nextId;
-  this.options = {};
-  mergeOptions(this.options, options);
-  delete this.options.filename;
-  delete this.options.id;
-}
-export default ExtractTextPlugin;
 
 function getLoaderObject(loader) {
   if (isString(loader)) {
@@ -181,171 +288,33 @@ ExtractTextPlugin.prototype.applyAdditionalInformation = (source, info) => {
   return source;
 };
 
-ExtractTextPlugin.prototype.loader = function (options) {
-  return ExtractTextPlugin.loader(mergeOptions({ id: this.id }, options));
+ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, checkedChunks) {
+  if (!intoChunk) {
+    checkedChunks = [];
+    chunk.chunks.forEach(function (c) {
+      if (isInitialOrHasNoParents(c)) return;
+      this.mergeNonInitialChunks(c, chunk, checkedChunks);
+    }, this);
+  } else if (!checkedChunks.includes(chunk)) {
+    checkedChunks.push(chunk);
+    chunk.modules.slice().forEach(module => {
+      intoChunk.addModule(module);
+      module.addChunk(intoChunk);
+    });
+    chunk.chunks.forEach(function (c) {
+      if (isInitialOrHasNoParents(c)) return;
+      this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
+    }, this);
+  }
 };
 
-ExtractTextPlugin.prototype.extract = function (options) {
-  if (arguments.length > 1) {
-    throw new Error("Breaking change: extract now only takes a single argument. Either an options " +
-      "object *or* the loader(s).\n" +
-      "Example: if your old code looked like this:\n" +
-      "    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
-      "You would change it to:\n" +
-      "    ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })\n\n" +
-      "The available options are:\n" +
-      "    use: string | object | loader[]\n" +
-      "    fallback: string | object | loader[]\n" +
-      "    publicPath: string\n");
-  }
-  if (options.fallbackLoader) {
-    console.warn('fallbackLoader option has been deprecated - replace with "fallback"');
-  }
-  if (options.loader) {
-    console.warn('loader option has been deprecated - replace with "use"');
-  }
-  if (Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
-    options = { loader: options };
-  } else {
-    validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
-  }
-  let loader = options.use || options.loader;
-  let before = options.fallback ||  options.fallbackLoader || [];
-  if (isString(loader)) {
-    loader = loader.split("!");
-  }
-  if (isString(before)) {
-    before = before.split("!");
-  } else if (!Array.isArray(before)) {
-    before = [before];
-  }
-  options = mergeOptions({ omit: before.length, remove: true }, options);
-  delete options.loader;
-  delete options.use;
-  delete options.fallback;
-  delete options.fallbackLoader;
-  return [this.loader(options)]
-    .concat(before, loader)
-    .map(getLoaderObject);
-}
+ExtractTextPlugin.prototype.renderExtractedChunk = function (chunk) {
+  const source = new ConcatSource();
+  chunk.modules.forEach(function (module) {
+    const moduleSource = module.source();
+    source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
+  }, this);
+  return source;
+};
 
 ExtractTextPlugin.extract = ExtractTextPlugin.prototype.extract.bind(ExtractTextPlugin);
-
-ExtractTextPlugin.prototype.apply = function (compiler) {
-  const options = this.options;
-  compiler.plugin("this-compilation", compilation => {
-    const extractCompilation = new ExtractTextPluginCompilation();
-    compilation.plugin("normal-module-loader", (loaderContext, module) => {
-      loaderContext[NS] = (content, opt) => {
-        if (options.disable)
-          return false;
-        if (!Array.isArray(content) && content != null)
-          throw new Error(`Exported value was not extracted as an array: ${JSON.stringify(content)}`);
-        module[NS] = {
-          content,
-          options: opt || {}
-        };
-        return options.allChunks || module[`${NS}/extract`]; // eslint-disable-line no-path-concat
-      };
-    });
-    const filename = this.filename;
-    const id = this.id;
-    let extractedChunks;
-    let entryChunks;
-    let initialChunks;
-    compilation.plugin("optimize-tree", (chunks, modules, callback) => {
-      extractedChunks = chunks.map(() => new Chunk());
-      chunks.forEach((chunk, i) => {
-        const extractedChunk = extractedChunks[i];
-        extractedChunk.index = i;
-        extractedChunk.originalChunk = chunk;
-        extractedChunk.name = chunk.name;
-        extractedChunk.entrypoints = chunk.entrypoints;
-        chunk.chunks.forEach(c => {
-          extractedChunk.addChunk(extractedChunks[chunks.indexOf(c)]);
-        });
-        chunk.parents.forEach(c => {
-          extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
-        });
-      });
-      async.forEach(chunks, (chunk, callback) => {
-        const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
-        const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
-        async.forEach(chunk.modules.slice(), (module, callback) => {
-          let meta = module[NS];
-          if (meta && (!meta.options.id || meta.options.id === id)) {
-            const wasExtracted = Array.isArray(meta.content);
-            if (shouldExtract !== wasExtracted) {
-              module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
-              compilation.rebuildModule(module, err => {
-                if (err) {
-                  compilation.errors.push(err);
-                  return callback();
-                }
-                meta = module[NS];
-                // Error out if content is not an array and is not null
-                if (!Array.isArray(meta.content) && meta.content != null) {
-                  err = new Error(`${module.identifier()} doesn't export content`);
-                  compilation.errors.push(err);
-                  return callback();
-                }
-                if (meta.content)
-                  extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
-                callback();
-              });
-            } else {
-              if (meta.content)
-                extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
-              callback();
-            }
-          } else callback();
-        }, err => {
-          if (err) return callback(err);
-          callback();
-        });
-      }, err => {
-        if (err) return callback(err);
-        extractedChunks.forEach(function (extractedChunk) {
-          if (isInitialOrHasNoParents(extractedChunk))
-            this.mergeNonInitialChunks(extractedChunk);
-        }, this);
-        extractedChunks.forEach(extractedChunk => {
-          if (!isInitialOrHasNoParents(extractedChunk)) {
-            extractedChunk.modules.slice().forEach(module => {
-              extractedChunk.removeModule(module);
-            });
-          }
-        });
-        compilation.applyPlugins("optimize-extracted-chunks", extractedChunks);
-        callback();
-      });
-    });
-    compilation.plugin("additional-assets", callback => {
-      extractedChunks.forEach(function (extractedChunk) {
-        if (extractedChunk.modules.length) {
-          extractedChunk.modules.sort((a, b) => {
-            if (!options.ignoreOrder && isInvalidOrder(a, b)) {
-              compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
-              compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));
-            }
-            return getOrder(a, b);
-          });
-          const chunk = extractedChunk.originalChunk;
-          const source = this.renderExtractedChunk(extractedChunk);
-
-          const getPath = (format) => compilation.getPath(format, {
-            chunk
-          }).replace(/\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/ig, function () {
-            return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
-          });
-
-          const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
-
-          compilation.assets[file] = source;
-          chunk.files.push(file);
-        }
-      }, this);
-      callback();
-    });
-  });
-};
