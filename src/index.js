@@ -7,7 +7,15 @@ import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
 import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';
 import OrderUndefinedError from './lib/OrderUndefinedError';
-import * as helpers from './lib/helpers';
+import {
+  isInitialOrHasNoParents,
+  isInvalidOrder,
+  getOrder,
+  getLoaderObject,
+  mergeOptions,
+  isString,
+  isFunction,
+} from './lib/helpers';
 
 const NS = fs.realpathSync(__dirname);
 
@@ -28,7 +36,7 @@ class ExtractTextPlugin {
         '    disable: boolean\n' +
         '    ignoreOrder: boolean\n');
     }
-    if (helpers.isString(options)) {
+    if (isString(options)) {
       options = { filename: options };
     } else {
       validateOptions(path.resolve(__dirname, './schema/plugin.json'), options, 'Extract Text Plugin');
@@ -36,13 +44,13 @@ class ExtractTextPlugin {
     this.filename = options.filename;
     this.id = options.id != null ? options.id : ++nextId;
     this.options = {};
-    helpers.mergeOptions(this.options, options);
+    mergeOptions(this.options, options);
     delete this.options.filename;
     delete this.options.id;
   }
 
   loader(options) {
-    return ExtractTextPlugin.loader(helpers.mergeOptions({ id: this.id }, options));
+    return ExtractTextPlugin.loader(mergeOptions({ id: this.id }, options));
   }
 
   extract(options) {
@@ -64,29 +72,29 @@ class ExtractTextPlugin {
     if (options.loader) {
       console.warn('loader option has been deprecated - replace with "use"');
     }
-    if (Array.isArray(options) || helpers.isString(options) || typeof options.options === 'object' || typeof options.query === 'object') {
+    if (Array.isArray(options) || isString(options) || typeof options.options === 'object' || typeof options.query === 'object') {
       options = { loader: options };
     } else {
       validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
     }
     let loader = options.use || options.loader;
     let before = options.fallback || options.fallbackLoader || [];
-    if (helpers.isString(loader)) {
+    if (isString(loader)) {
       loader = loader.split('!');
     }
-    if (helpers.isString(before)) {
+    if (isString(before)) {
       before = before.split('!');
     } else if (!Array.isArray(before)) {
       before = [before];
     }
-    options = helpers.mergeOptions({ omit: before.length, remove: true }, options);
+    options = mergeOptions({ omit: before.length, remove: true }, options);
     delete options.loader;
     delete options.use;
     delete options.fallback;
     delete options.fallbackLoader;
     return [this.loader(options)]
       .concat(before, loader)
-      .map(helpers.getLoaderObject);
+      .map(getLoaderObject);
   }
 
   apply(compiler) {
@@ -124,7 +132,7 @@ class ExtractTextPlugin {
         });
         async.forEach(chunks, (chunk, callback) => {
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
-          const shouldExtract = !!(options.allChunks || helpers.isInitialOrHasNoParents(chunk));
+          const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
           async.forEach(chunk.modules.slice(), (module, callback) => {
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
@@ -158,10 +166,10 @@ class ExtractTextPlugin {
         }, (err) => {
           if (err) return callback(err);
           extractedChunks.forEach((extractedChunk) => {
-            if (helpers.isInitialOrHasNoParents(extractedChunk)) { this.mergeNonInitialChunks(extractedChunk); }
+            if (isInitialOrHasNoParents(extractedChunk)) { this.mergeNonInitialChunks(extractedChunk); }
           }, this);
           extractedChunks.forEach((extractedChunk) => {
-            if (!helpers.isInitialOrHasNoParents(extractedChunk)) {
+            if (!isInitialOrHasNoParents(extractedChunk)) {
               extractedChunk.modules.slice().forEach((module) => {
                 extractedChunk.removeModule(module);
               });
@@ -175,11 +183,11 @@ class ExtractTextPlugin {
         extractedChunks.forEach((extractedChunk) => {
           if (extractedChunk.modules.length) {
             extractedChunk.modules.sort((a, b) => {
-              if (!options.ignoreOrder && helpers.isInvalidOrder(a, b)) {
+              if (!options.ignoreOrder && isInvalidOrder(a, b)) {
                 compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
                 compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));
               }
-              return helpers.getOrder(a, b);
+              return getOrder(a, b);
             });
             const chunk = extractedChunk.originalChunk;
             const source = this.renderExtractedChunk(extractedChunk);
@@ -190,7 +198,7 @@ class ExtractTextPlugin {
               return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
             });
 
-            const file = (helpers.isFunction(filename)) ? filename(getPath) : getPath(filename);
+            const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
 
             compilation.assets[file] = source;
             chunk.files.push(file);
@@ -226,7 +234,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, 
   if (!intoChunk) {
     checkedChunks = [];
     chunk.chunks.forEach((c) => {
-      if (helpers.isInitialOrHasNoParents(c)) return;
+      if (isInitialOrHasNoParents(c)) return;
       this.mergeNonInitialChunks(c, chunk, checkedChunks);
     }, this);
   } else if (checkedChunks.indexOf(chunk) < 0) {
@@ -236,7 +244,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, 
       module.addChunk(intoChunk);
     });
     chunk.chunks.forEach((c) => {
-      if (helpers.isInitialOrHasNoParents(c)) return;
+      if (isInitialOrHasNoParents(c)) return;
       this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
     }, this);
   }
