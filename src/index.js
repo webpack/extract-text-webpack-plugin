@@ -239,7 +239,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, 
       if (helpers.isInitialOrHasNoParents(c)) return;
       this.mergeNonInitialChunks(c, chunk, checkedChunks);
     }, this);
-  } else if (!checkedChunks.includes(chunk)) {
+  } else if (checkedChunks.indexOf(chunk) < 0) {
     checkedChunks.push(chunk);
     chunk.modules.slice().forEach(module => {
       intoChunk.addModule(module);
