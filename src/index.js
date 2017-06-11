@@ -3,19 +3,19 @@
 	MIT License http://www.opensource.org/licenses/mit-license.php
 	Author Tobias Koppers @sokra
 */
-var fs = require('fs');
-var ConcatSource = require("webpack-sources").ConcatSource;
-var async = require("async");
-var ExtractedModule = require("./lib/ExtractedModule");
-var Chunk = require("webpack/lib/Chunk");
-var OrderUndefinedError = require("./lib/OrderUndefinedError");
-var loaderUtils = require("loader-utils");
-var validateOptions = require('schema-utils');
-var path = require('path');
+import fs from 'fs';
+import { ConcatSource } from "webpack-sources";
+import async from "async";
+import ExtractedModule from "./lib/ExtractedModule";
+import Chunk from "webpack/lib/Chunk";
+import OrderUndefinedError from "./lib/OrderUndefinedError";
+import loaderUtils from "loader-utils";
+import validateOptions from 'schema-utils';
+import path from 'path';
 
-var NS = fs.realpathSync(__dirname);
+const NS = fs.realpathSync(__dirname);
 
-var nextId = 0;
+let nextId = 0;
 
 function ExtractTextPluginCompilation() {
 	this.modulesByIdentifier = {};
@@ -45,69 +45,69 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, c
 	}
 };
 
-ExtractTextPluginCompilation.prototype.addModule = function(identifier, originalModule, source, additionalInformation, sourceMap, prevModules) {
-	var m;
-	if(!this.modulesByIdentifier[identifier]) {
-		m = this.modulesByIdentifier[identifier] = new ExtractedModule(identifier, originalModule, source, sourceMap, additionalInformation, prevModules);
-	} else {
-		m = this.modulesByIdentifier[identifier];
-		m.addPrevModules(prevModules);
-		if(originalModule.index2 < m.getOriginalModule().index2) {
-			m.setOriginalModule(originalModule);
-		}
-	}
-	return m;
+ExtractTextPluginCompilation.prototype.addModule = function (identifier, originalModule, source, additionalInformation, sourceMap, prevModules) {
+  let m;
+  if (!this.modulesByIdentifier[identifier]) {
+    m = this.modulesByIdentifier[identifier] = new ExtractedModule(identifier, originalModule, source, sourceMap, additionalInformation, prevModules);
+  } else {
+    m = this.modulesByIdentifier[identifier];
+    m.addPrevModules(prevModules);
+    if (originalModule.index2 < m.getOriginalModule().index2) {
+      m.setOriginalModule(originalModule);
+    }
+  }
+  return m;
 };
 
-ExtractTextPluginCompilation.prototype.addResultToChunk = function(identifier, result, originalModule, extractedChunk) {
-	if(!Array.isArray(result)) {
-		result = [[identifier, result]];
-	}
-	var counterMap = {};
-	var prevModules = [];
-	result.forEach(function(item) {
-		var c = counterMap[item[0]];
-		var module = this.addModule.call(this, item[0] + (c || ""), originalModule, item[1], item[2], item[3], prevModules.slice());
-		extractedChunk.addModule(module);
-		module.addChunk(extractedChunk);
-		counterMap[item[0]] = (c || 0) + 1;
-		prevModules.push(module);
-	}, this);
+ExtractTextPluginCompilation.prototype.addResultToChunk = function (identifier, result, originalModule, extractedChunk) {
+  if (!Array.isArray(result)) {
+    result = [[identifier, result]];
+  }
+  const counterMap = {};
+  const prevModules = [];
+  result.forEach(function (item) {
+    const c = counterMap[item[0]];
+    const module = this.addModule.call(this, item[0] + (c || ""), originalModule, item[1], item[2], item[3], prevModules.slice());
+    extractedChunk.addModule(module);
+    module.addChunk(extractedChunk);
+    counterMap[item[0]] = (c || 0) + 1;
+    prevModules.push(module);
+  }, this);
 };
 
-ExtractTextPlugin.prototype.renderExtractedChunk = function(chunk) {
-	var source = new ConcatSource();
-	chunk.modules.forEach(function(module) {
-		var moduleSource = module.source();
-		source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
-	}, this);
-	return source;
+ExtractTextPlugin.prototype.renderExtractedChunk = function (chunk) {
+  const source = new ConcatSource();
+  chunk.modules.forEach(function (module) {
+    const moduleSource = module.source();
+    source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
+  }, this);
+  return source;
 };
 
 function isInvalidOrder(a, b) {
-	var bBeforeA = a.getPrevModules().indexOf(b) >= 0;
-	var aBeforeB = b.getPrevModules().indexOf(a) >= 0;
-	return aBeforeB && bBeforeA;
+  const bBeforeA = a.getPrevModules().includes(b);
+  const aBeforeB = b.getPrevModules().includes(a);
+  return aBeforeB && bBeforeA;
 }
 
 function getOrder(a, b) {
-	var aOrder = a.getOrder();
-	var bOrder = b.getOrder();
-	if(aOrder < bOrder) return -1;
-	if(aOrder > bOrder) return 1;
-	var aIndex = a.getOriginalModule().index2;
-	var bIndex = b.getOriginalModule().index2;
-	if(aIndex < bIndex) return -1;
-	if(aIndex > bIndex) return 1;
-	var bBeforeA = a.getPrevModules().indexOf(b) >= 0;
-	var aBeforeB = b.getPrevModules().indexOf(a) >= 0;
-	if(aBeforeB && !bBeforeA) return -1;
-	if(!aBeforeB && bBeforeA) return 1;
-	var ai = a.identifier();
-	var bi = b.identifier();
-	if(ai < bi) return -1;
-	if(ai > bi) return 1;
-	return 0;
+  const aOrder = a.getOrder();
+  const bOrder = b.getOrder();
+  if (aOrder < bOrder) return -1;
+  if (aOrder > bOrder) return 1;
+  const aIndex = a.getOriginalModule().index2;
+  const bIndex = b.getOriginalModule().index2;
+  if (aIndex < bIndex) return -1;
+  if (aIndex > bIndex) return 1;
+  const bBeforeA = a.getPrevModules().includes(b);
+  const aBeforeB = b.getPrevModules().includes(a);
+  if (aBeforeB && !bBeforeA) return -1;
+  if (!aBeforeB && bBeforeA) return 1;
+  const ai = a.identifier();
+  const bi = b.identifier();
+  if (ai < bi) return -1;
+  if (ai > bi) return 1;
+  return 0;
 }
 
 function ExtractTextPlugin(options) {
@@ -139,212 +139,213 @@ function ExtractTextPlugin(options) {
 module.exports = ExtractTextPlugin;
 
 function getLoaderObject(loader) {
-	if (isString(loader)) {
-		return {loader: loader};
-	}
-	return loader;
+  if (isString(loader)) {
+    return { loader };
+  }
+  return loader;
 }
 
 function mergeOptions(a, b) {
-	if(!b) return a;
-	Object.keys(b).forEach(function(key) {
-		a[key] = b[key];
-	});
-	return a;
+  if (!b) return a;
+  Object.keys(b).forEach(key => {
+    a[key] = b[key];
+  });
+  return a;
 }
 
 function isString(a) {
-	return typeof a === "string";
+  return typeof a === "string";
 }
 
 function isFunction(a) {
-	return isType('Function', a);
+  return isType('Function', a);
 }
 
 function isType(type, obj) {
-	return Object.prototype.toString.call(obj) === '[object ' + type + ']';
+  return Object.prototype.toString.call(obj) === `[object ${type}]`;
 }
 
-ExtractTextPlugin.loader = function(options) {
-	return { loader: require.resolve("./loader"), options: options };
+ExtractTextPlugin.loader = options => ({
+  loader: require.resolve("./loader"),
+  options
+});
+
+ExtractTextPlugin.prototype.applyAdditionalInformation = (source, info) => {
+  if (info) {
+    return new ConcatSource(
+      `@media ${info[0]} {`,
+      source,
+      "}"
+    );
+  }
+  return source;
 };
 
-ExtractTextPlugin.prototype.applyAdditionalInformation = function(source, info) {
-	if(info) {
-		return new ConcatSource(
-			"@media " + info[0] + " {",
-			source,
-			"}"
-		);
-	}
-	return source;
+ExtractTextPlugin.prototype.loader = function (options) {
+  return ExtractTextPlugin.loader(mergeOptions({ id: this.id }, options));
 };
 
-ExtractTextPlugin.prototype.loader = function(options) {
-	return ExtractTextPlugin.loader(mergeOptions({id: this.id}, options));
-};
-
-ExtractTextPlugin.prototype.extract = function(options) {
-	if(arguments.length > 1) {
-		throw new Error("Breaking change: extract now only takes a single argument. Either an options " +
-						"object *or* the loader(s).\n" +
-						"Example: if your old code looked like this:\n" +
-						"    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
-						"You would change it to:\n" +
-						"    ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })\n\n" +
-						"The available options are:\n" +
-						"    use: string | object | loader[]\n" +
-						"    fallback: string | object | loader[]\n" +
-						"    publicPath: string\n");
-	}
-	if(options.fallbackLoader) {
-		console.warn('fallbackLoader option has been deprecated - replace with "fallback"');
-	}
-	if(options.loader) {
-		console.warn('loader option has been deprecated - replace with "use"');
-	}
-	if(Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
-		options = { loader: options };
-	} else {
-		validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
-	}
-	var loader = options.use ||  options.loader;
-	var before = options.fallback || options.fallbackLoader || [];
-	if(isString(loader)) {
-		loader = loader.split("!");
-	}
-	if(isString(before)) {
-		before = before.split("!");
-	} else if(!Array.isArray(before)) {
-		before = [before];
-	}
-	options = mergeOptions({omit: before.length, remove: true}, options);
-	delete options.loader;
-	delete options.use;
-	delete options.fallback;
-	delete options.fallbackLoader;
-	return [this.loader(options)]
-		.concat(before, loader)
-		.map(getLoaderObject);
+ExtractTextPlugin.prototype.extract = function (options) {
+  if (arguments.length > 1) {
+    throw new Error("Breaking change: extract now only takes a single argument. Either an options " +
+      "object *or* the loader(s).\n" +
+      "Example: if your old code looked like this:\n" +
+      "    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
+      "You would change it to:\n" +
+      "    ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })\n\n" +
+      "The available options are:\n" +
+      "    use: string | object | loader[]\n" +
+      "    fallback: string | object | loader[]\n" +
+      "    publicPath: string\n");
+  }
+  if (options.fallbackLoader) {
+    console.warn('fallbackLoader option has been deprecated - replace with "fallback"');
+  }
+  if (options.loader) {
+    console.warn('loader option has been deprecated - replace with "use"');
+  }
+  if (Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
+    options = { loader: options };
+  } else {
+    validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
+  }
+  let loader = options.use || options.loader;
+  let before = options.fallback ||  options.fallbackLoader || [];
+  if (isString(loader)) {
+    loader = loader.split("!");
+  }
+  if (isString(before)) {
+    before = before.split("!");
+  } else if (!Array.isArray(before)) {
+    before = [before];
+  }
+  options = mergeOptions({ omit: before.length, remove: true }, options);
+  delete options.loader;
+  delete options.use;
+  delete options.fallback;
+  delete options.fallbackLoader;
+  return [this.loader(options)]
+    .concat(before, loader)
+    .map(getLoaderObject);
 }
 
 ExtractTextPlugin.extract = ExtractTextPlugin.prototype.extract.bind(ExtractTextPlugin);
 
-ExtractTextPlugin.prototype.apply = function(compiler) {
-	var options = this.options;
-	compiler.plugin("this-compilation", function(compilation) {
-		var extractCompilation = new ExtractTextPluginCompilation();
-		compilation.plugin("normal-module-loader", function(loaderContext, module) {
-			loaderContext[NS] = function(content, opt) {
-				if(options.disable)
-					return false;
-				if(!Array.isArray(content) && content != null)
-					throw new Error("Exported value was not extracted as an array: " + JSON.stringify(content));
-				module[NS] = {
-					content: content,
-					options: opt || {}
-				};
-				return options.allChunks || module[NS + "/extract"]; // eslint-disable-line no-path-concat
-			};
-		});
-		var filename = this.filename;
-		var id = this.id;
-		var extractedChunks, entryChunks, initialChunks;
-		compilation.plugin("optimize-tree", function(chunks, modules, callback) {
-			extractedChunks = chunks.map(function() {
-				return new Chunk();
-			});
-			chunks.forEach(function(chunk, i) {
-				var extractedChunk = extractedChunks[i];
-				extractedChunk.index = i;
-				extractedChunk.originalChunk = chunk;
-				extractedChunk.name = chunk.name;
-				extractedChunk.entrypoints = chunk.entrypoints;
-				chunk.chunks.forEach(function(c) {
-					extractedChunk.addChunk(extractedChunks[chunks.indexOf(c)]);
-				});
-				chunk.parents.forEach(function(c) {
-					extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
-				});
-			});
-			async.forEach(chunks, function(chunk, callback) {
-				var extractedChunk = extractedChunks[chunks.indexOf(chunk)];
-				var shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
-				async.forEach(chunk.modules.slice(), function(module, callback) {
-					var meta = module[NS];
-					if(meta && (!meta.options.id || meta.options.id === id)) {
-						var wasExtracted = Array.isArray(meta.content);
-						if(shouldExtract !== wasExtracted) {
-							module[NS + "/extract"] = shouldExtract; // eslint-disable-line no-path-concat
-							compilation.rebuildModule(module, function(err) {
-								if(err) {
-									compilation.errors.push(err);
-									return callback();
-								}
-								meta = module[NS];
-								// Error out if content is not an array and is not null
-								if(!Array.isArray(meta.content) && meta.content != null) {
-									err = new Error(module.identifier() + " doesn't export content");
-									compilation.errors.push(err);
-									return callback();
-								}
-								if(meta.content)
-									extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
-								callback();
-							});
-						} else {
-							if(meta.content)
-								extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
-							callback();
-						}
-					} else callback();
-				}, function(err) {
-					if(err) return callback(err);
-					callback();
-				});
-			}, function(err) {
-				if(err) return callback(err);
-				extractedChunks.forEach(function(extractedChunk) {
-					if(isInitialOrHasNoParents(extractedChunk))
-						this.mergeNonInitialChunks(extractedChunk);
-				}, this);
-				extractedChunks.forEach(function(extractedChunk) {
-					if(!isInitialOrHasNoParents(extractedChunk)) {
-						extractedChunk.modules.slice().forEach(function(module) {
-							extractedChunk.removeModule(module);
-						});
-					}
-				});
-				compilation.applyPlugins("optimize-extracted-chunks", extractedChunks);
-				callback();
-			}.bind(this));
-		}.bind(this));
-		compilation.plugin("additional-assets", function(callback) {
-			extractedChunks.forEach(function(extractedChunk) {
-				if(extractedChunk.modules.length) {
-					extractedChunk.modules.sort(function(a, b) {
-						if(!options.ignoreOrder && isInvalidOrder(a, b)) {
-							compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
-							compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));
-						}
-						return getOrder(a, b);
-					});
-					var chunk = extractedChunk.originalChunk;
-					var source = this.renderExtractedChunk(extractedChunk);
+ExtractTextPlugin.prototype.apply = function (compiler) {
+  const options = this.options;
+  compiler.plugin("this-compilation", compilation => {
+    const extractCompilation = new ExtractTextPluginCompilation();
+    compilation.plugin("normal-module-loader", (loaderContext, module) => {
+      loaderContext[NS] = (content, opt) => {
+        if (options.disable)
+          return false;
+        if (!Array.isArray(content) && content != null)
+          throw new Error(`Exported value was not extracted as an array: ${JSON.stringify(content)}`);
+        module[NS] = {
+          content,
+          options: opt || {}
+        };
+        return options.allChunks || module[`${NS}/extract`]; // eslint-disable-line no-path-concat
+      };
+    });
+    const filename = this.filename;
+    const id = this.id;
+    let extractedChunks;
+    let entryChunks;
+    let initialChunks;
+    compilation.plugin("optimize-tree", (chunks, modules, callback) => {
+      extractedChunks = chunks.map(() => new Chunk());
+      chunks.forEach((chunk, i) => {
+        const extractedChunk = extractedChunks[i];
+        extractedChunk.index = i;
+        extractedChunk.originalChunk = chunk;
+        extractedChunk.name = chunk.name;
+        extractedChunk.entrypoints = chunk.entrypoints;
+        chunk.chunks.forEach(c => {
+          extractedChunk.addChunk(extractedChunks[chunks.indexOf(c)]);
+        });
+        chunk.parents.forEach(c => {
+          extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
+        });
+      });
+      async.forEach(chunks, (chunk, callback) => {
+        const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
+        const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
+        async.forEach(chunk.modules.slice(), (module, callback) => {
+          let meta = module[NS];
+          if (meta && (!meta.options.id || meta.options.id === id)) {
+            const wasExtracted = Array.isArray(meta.content);
+            if (shouldExtract !== wasExtracted) {
+              module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
+              compilation.rebuildModule(module, err => {
+                if (err) {
+                  compilation.errors.push(err);
+                  return callback();
+                }
+                meta = module[NS];
+                // Error out if content is not an array and is not null
+                if (!Array.isArray(meta.content) && meta.content != null) {
+                  err = new Error(`${module.identifier()} doesn't export content`);
+                  compilation.errors.push(err);
+                  return callback();
+                }
+                if (meta.content)
+                  extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+                callback();
+              });
+            } else {
+              if (meta.content)
+                extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+              callback();
+            }
+          } else callback();
+        }, err => {
+          if (err) return callback(err);
+          callback();
+        });
+      }, err => {
+        if (err) return callback(err);
+        extractedChunks.forEach(function (extractedChunk) {
+          if (isInitialOrHasNoParents(extractedChunk))
+            this.mergeNonInitialChunks(extractedChunk);
+        }, this);
+        extractedChunks.forEach(extractedChunk => {
+          if (!isInitialOrHasNoParents(extractedChunk)) {
+            extractedChunk.modules.slice().forEach(module => {
+              extractedChunk.removeModule(module);
+            });
+          }
+        });
+        compilation.applyPlugins("optimize-extracted-chunks", extractedChunks);
+        callback();
+      });
+    });
+    compilation.plugin("additional-assets", callback => {
+      extractedChunks.forEach(function (extractedChunk) {
+        if (extractedChunk.modules.length) {
+          extractedChunk.modules.sort((a, b) => {
+            if (!options.ignoreOrder && isInvalidOrder(a, b)) {
+              compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
+              compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));
+            }
+            return getOrder(a, b);
+          });
+          const chunk = extractedChunk.originalChunk;
+          const source = this.renderExtractedChunk(extractedChunk);
 
-					var getPath = (format) => compilation.getPath(format, {
-						chunk: chunk
-					}).replace(/\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/ig, function() {
-						return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
-					});
+          const getPath = (format) => compilation.getPath(format, {
+            chunk
+          }).replace(/\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/ig, function () {
+            return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
+          });
 
-					var file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
+          const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
 
-					compilation.assets[file] = source;
-					chunk.files.push(file);
-				}
-			}, this);
-			callback();
-		}.bind(this));
-	}.bind(this));
+          compilation.assets[file] = source;
+          chunk.files.push(file);
+        }
+      }, this);
+      callback();
+    });
+  });
 };
