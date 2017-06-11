@@ -60,7 +60,7 @@
     "webpack-defaults": "^1.4.0"
   },
   "peerDependencies": {
-    "webpack": "^2.0.0 || >= 3.0.0-rc.0 || ^3.0.0"
+    "webpack": ">= 3.0.0-rc.0 || ^3.0.0"
   },
   "engines": {
     "node": ">= 4.3 < 5.0.0 || >= 5.10"
