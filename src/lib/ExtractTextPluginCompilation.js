@@ -32,7 +32,7 @@ class ExtractTextPluginCompilation {
     }
     const counterMap = {};
     const prevModules = [];
-    result.forEach(function (item) {
+    result.forEach((item) => {
       const c = counterMap[item[0]];
       const module = this.addModule.call(this, item[0] + (c || ''), originalModule, item[1], item[2], item[3], prevModules.slice());
       extractedChunk.addModule(module);

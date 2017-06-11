@@ -1,7 +1,3 @@
-/*
-  MIT License http://www.opensource.org/licenses/mit-license.php
-  Author Tobias Koppers @sokra
-*/
 import fs from 'fs';
 import loaderUtils from 'loader-utils';
 import NodeTemplatePlugin from 'webpack/lib/node/NodeTemplatePlugin';
@@ -87,10 +83,10 @@ export function pitch(request) {
       if (compilation.errors.length > 0) {
         return callback(compilation.errors[0]);
       }
-      compilation.fileDependencies.forEach(function (dep) {
+      compilation.fileDependencies.forEach((dep) => {
         this.addDependency(dep);
       }, this);
-      compilation.contextDependencies.forEach(function (dep) {
+      compilation.contextDependencies.forEach((dep) => {
         this.addContextDependency(dep);
       }, this);
       if (!source) {

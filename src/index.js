@@ -1,7 +1,3 @@
-/*
-  MIT License http://www.opensource.org/licenses/mit-license.php
-  Author Tobias Koppers @sokra
-*/
 import fs from 'fs';
 import path from 'path';
 import Chunk from 'webpack/lib/Chunk';
