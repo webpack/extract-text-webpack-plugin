@@ -111,32 +111,32 @@ function getOrder(a, b) {
 }
 
 function ExtractTextPlugin(options) {
-	if(arguments.length > 1) {
-		throw new Error("Breaking change: ExtractTextPlugin now only takes a single argument. Either an options " +
-						"object *or* the name of the result file.\n" +
-						"Example: if your old code looked like this:\n" +
-						"    new ExtractTextPlugin('css/[name].css', { disable: false, allChunks: true })\n\n" +
-						"You would change it to:\n" +
-						"    new ExtractTextPlugin({ filename: 'css/[name].css', disable: false, allChunks: true })\n\n" +
-						"The available options are:\n" +
-						"    filename: string\n" +
-						"    allChunks: boolean\n" +
-						"    disable: boolean\n" +
-						"    ignoreOrder: boolean\n");
-	}
-	if(isString(options)) {
-		options = { filename: options };
-	} else {
-		validateOptions(path.resolve(__dirname, './schema/plugin.json'), options, 'Extract Text Plugin');
-	}
-	this.filename = options.filename;
-	this.id = options.id != null ? options.id : ++nextId;
-	this.options = {};
-	mergeOptions(this.options, options);
-	delete this.options.filename;
-	delete this.options.id;
+  if (arguments.length > 1) {
+    throw new Error("Breaking change: ExtractTextPlugin now only takes a single argument. Either an options " +
+      "object *or* the name of the result file.\n" +
+      "Example: if your old code looked like this:\n" +
+      "    new ExtractTextPlugin('css/[name].css', { disable: false, allChunks: true })\n\n" +
+      "You would change it to:\n" +
+      "    new ExtractTextPlugin({ filename: 'css/[name].css', disable: false, allChunks: true })\n\n" +
+      "The available options are:\n" +
+      "    filename: string\n" +
+      "    allChunks: boolean\n" +
+      "    disable: boolean\n" +
+      "    ignoreOrder: boolean\n");
+  }
+  if (isString(options)) {
+    options = { filename: options };
+  } else {
+    validateOptions(path.resolve(__dirname, './schema/plugin.json'), options, 'Extract Text Plugin');
+  }
+  this.filename = options.filename;
+  this.id = options.id != null ? options.id : ++nextId;
+  this.options = {};
+  mergeOptions(this.options, options);
+  delete this.options.filename;
+  delete this.options.id;
 }
-module.exports = ExtractTextPlugin;
+export default ExtractTextPlugin;
 
 function getLoaderObject(loader) {
   if (isString(loader)) {

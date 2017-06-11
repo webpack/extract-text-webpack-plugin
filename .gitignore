@@ -3,7 +3,7 @@
 /example/assets
 
 /test/js
-/test/build
+/test_old/build
 /coverage
 
 /.idea
