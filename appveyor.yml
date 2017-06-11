@@ -1,6 +1,7 @@
 branches:
   only:
     - master
+    - feature/webpack3
 init:
   - git config --global core.autocrlf input
 environment:
