@@ -4,14 +4,15 @@
 	Author Tobias Koppers @sokra
 */
 import fs from 'fs';
+import path from 'path';
+import Chunk from "webpack/lib/Chunk";
 import { ConcatSource } from "webpack-sources";
 import async from "async";
-import ExtractTextPluginCompilation from "./lib/ExtractTextPluginCompilation";
-import Chunk from "webpack/lib/Chunk";
-import OrderUndefinedError from "./lib/OrderUndefinedError";
 import loaderUtils from "loader-utils";
 import validateOptions from 'schema-utils';
-import path from 'path';
+import ExtractTextPluginCompilation from "./lib/ExtractTextPluginCompilation";
+import OrderUndefinedError from "./lib/OrderUndefinedError";
+import * as helpers from './lib/helpers';
 
 const NS = fs.realpathSync(__dirname);
 
@@ -32,7 +33,7 @@ class ExtractTextPlugin {
         "    disable: boolean\n" +
         "    ignoreOrder: boolean\n");
     }
-    if (isString(options)) {
+    if (helpers.isString(options)) {
       options = { filename: options };
     } else {
       validateOptions(path.resolve(__dirname, './schema/plugin.json'), options, 'Extract Text Plugin');
@@ -40,13 +41,13 @@ class ExtractTextPlugin {
     this.filename = options.filename;
     this.id = options.id != null ? options.id : ++nextId;
     this.options = {};
-    mergeOptions(this.options, options);
+    helpers.mergeOptions(this.options, options);
     delete this.options.filename;
     delete this.options.id;
   }
 
   loader(options) {
-    return ExtractTextPlugin.loader(mergeOptions({ id: this.id }, options));
+    return ExtractTextPlugin.loader(helpers.mergeOptions({ id: this.id }, options));
   }
 
   extract(options) {
@@ -68,29 +69,29 @@ class ExtractTextPlugin {
     if (options.loader) {
       console.warn('loader option has been deprecated - replace with "use"');
     }
-    if (Array.isArray(options) || isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
+    if (Array.isArray(options) || helpers.isString(options) || typeof options.options === "object" || typeof options.query === 'object') {
       options = { loader: options };
     } else {
       validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
     }
     let loader = options.use || options.loader;
     let before = options.fallback || options.fallbackLoader || [];
-    if (isString(loader)) {
+    if (helpers.isString(loader)) {
       loader = loader.split("!");
     }
-    if (isString(before)) {
+    if (helpers.isString(before)) {
       before = before.split("!");
     } else if (!Array.isArray(before)) {
       before = [before];
     }
-    options = mergeOptions({ omit: before.length, remove: true }, options);
+    options = helpers.mergeOptions({ omit: before.length, remove: true }, options);
     delete options.loader;
     delete options.use;
     delete options.fallback;
     delete options.fallbackLoader;
     return [this.loader(options)]
       .concat(before, loader)
-      .map(getLoaderObject);
+      .map(helpers.getLoaderObject);
   }
 
   apply(compiler) {
@@ -132,7 +133,7 @@ class ExtractTextPlugin {
         });
         async.forEach(chunks, (chunk, callback) => {
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
-          const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
+          const shouldExtract = !!(options.allChunks || helpers.isInitialOrHasNoParents(chunk));
           async.forEach(chunk.modules.slice(), (module, callback) => {
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
@@ -168,11 +169,11 @@ class ExtractTextPlugin {
         }, err => {
           if (err) return callback(err);
           extractedChunks.forEach(function (extractedChunk) {
-            if (isInitialOrHasNoParents(extractedChunk))
+            if (helpers.isInitialOrHasNoParents(extractedChunk))
               this.mergeNonInitialChunks(extractedChunk);
           }, this);
           extractedChunks.forEach(extractedChunk => {
-            if (!isInitialOrHasNoParents(extractedChunk)) {
+            if (!helpers.isInitialOrHasNoParents(extractedChunk)) {
               extractedChunk.modules.slice().forEach(module => {
                 extractedChunk.removeModule(module);
               });
@@ -186,11 +187,11 @@ class ExtractTextPlugin {
         extractedChunks.forEach(function (extractedChunk) {
           if (extractedChunk.modules.length) {
             extractedChunk.modules.sort((a, b) => {
-              if (!options.ignoreOrder && isInvalidOrder(a, b)) {
+              if (!options.ignoreOrder && helpers.isInvalidOrder(a, b)) {
                 compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
                 compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));
               }
-              return getOrder(a, b);
+              return helpers.getOrder(a, b);
             });
             const chunk = extractedChunk.originalChunk;
             const source = this.renderExtractedChunk(extractedChunk);
@@ -201,7 +202,7 @@ class ExtractTextPlugin {
               return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
             });
 
-            const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
+            const file = (helpers.isFunction(filename)) ? filename(getPath) : getPath(filename);
 
             compilation.assets[file] = source;
             chunk.files.push(file);
@@ -214,63 +215,6 @@ class ExtractTextPlugin {
 }
 
 export default ExtractTextPlugin;
-
-function isInitialOrHasNoParents(chunk) {
-  return chunk.isInitial() || chunk.parents.length === 0;
-}
-
-function isInvalidOrder(a, b) {
-  const bBeforeA = a.getPrevModules().includes(b);
-  const aBeforeB = b.getPrevModules().includes(a);
-  return aBeforeB && bBeforeA;
-}
-
-function getOrder(a, b) {
-  const aOrder = a.getOrder();
-  const bOrder = b.getOrder();
-  if (aOrder < bOrder) return -1;
-  if (aOrder > bOrder) return 1;
-  const aIndex = a.getOriginalModule().index2;
-  const bIndex = b.getOriginalModule().index2;
-  if (aIndex < bIndex) return -1;
-  if (aIndex > bIndex) return 1;
-  const bBeforeA = a.getPrevModules().includes(b);
-  const aBeforeB = b.getPrevModules().includes(a);
-  if (aBeforeB && !bBeforeA) return -1;
-  if (!aBeforeB && bBeforeA) return 1;
-  const ai = a.identifier();
-  const bi = b.identifier();
-  if (ai < bi) return -1;
-  if (ai > bi) return 1;
-  return 0;
-}
-
-function getLoaderObject(loader) {
-  if (isString(loader)) {
-    return { loader };
-  }
-  return loader;
-}
-
-function mergeOptions(a, b) {
-  if (!b) return a;
-  Object.keys(b).forEach(key => {
-    a[key] = b[key];
-  });
-  return a;
-}
-
-function isString(a) {
-  return typeof a === "string";
-}
-
-function isFunction(a) {
-  return isType('Function', a);
-}
-
-function isType(type, obj) {
-  return Object.prototype.toString.call(obj) === `[object ${type}]`;
-}
 
 ExtractTextPlugin.loader = options => ({
   loader: require.resolve("./loader"),
@@ -292,7 +236,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, 
   if (!intoChunk) {
     checkedChunks = [];
     chunk.chunks.forEach(function (c) {
-      if (isInitialOrHasNoParents(c)) return;
+      if (helpers.isInitialOrHasNoParents(c)) return;
       this.mergeNonInitialChunks(c, chunk, checkedChunks);
     }, this);
   } else if (!checkedChunks.includes(chunk)) {
@@ -302,7 +246,7 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, 
       module.addChunk(intoChunk);
     });
     chunk.chunks.forEach(function (c) {
-      if (isInitialOrHasNoParents(c)) return;
+      if (helpers.isInitialOrHasNoParents(c)) return;
       this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
     }, this);
   }
