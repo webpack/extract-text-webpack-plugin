@@ -130,10 +130,10 @@ class ExtractTextPlugin {
             extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
           });
         });
-        async.forEach(chunks, (chunk, callback) => {
+        async.forEach(chunks, (chunk) => {
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
           const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
-          async.forEach(chunk.modules.slice(), (module, callback) => {
+          async.forEach(chunk.modules.slice(), (module) => {
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
               const wasExtracted = Array.isArray(meta.content);
