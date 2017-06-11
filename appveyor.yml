@@ -7,23 +7,23 @@ init:
 environment:
   matrix:
     - nodejs_version: '8'
-      webpack_version: 2.6.0
+      webpack_version: 3.0.0-rc.1
       job_part: test
     - nodejs_version: '6'
-      webpack_version: 2.6.0
+      webpack_version: 3.0.0-rc.1
       job_part: test
     - nodejs_version: '4.3'
-      webpack_version: 2.6.0
+      webpack_version: 3.0.0-rc.1
       job_part: test
 build: 'off'
 matrix:
   fast_finish: true
 install:
-  - 'ps: Install-Product node $env:nodejs_version x64'
+  - ps: Install-Product node $env:nodejs_version x64
   - npm install
 before_test:
-  - 'cmd: npm install webpack@^%webpack_version%'
+  - cmd: npm install webpack@^%webpack_version%
 test_script:
   - node --version
   - npm --version
-  - 'cmd: npm run appveyor:%job_part%'
+  - cmd: npm run appveyor:%job_part%
