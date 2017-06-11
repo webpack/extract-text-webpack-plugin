@@ -1,4 +1,4 @@
-describe('Name of the group', () => {
+describe('Case: Merging Multiple Entries', () => {
 
   it('should behave...', () => {
 

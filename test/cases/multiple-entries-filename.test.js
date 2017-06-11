@@ -1,4 +1,4 @@
-describe('Name of the group', () => {
+describe('Case: Multiple Filename Entries', () => {
 
   it('should behave...', () => {
 

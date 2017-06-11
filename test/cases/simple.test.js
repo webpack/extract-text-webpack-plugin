@@ -1,4 +1,4 @@
-describe('Name of the group', () => {
+describe('Case: Simple', () => {
 
   it('should behave...', () => {
 

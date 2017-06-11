@@ -1,4 +1,4 @@
-describe('Name of the group', () => {
+describe('Case: Miltiple Entries Chunk Splitting', () => {
 
   it('should behave...', () => {
 

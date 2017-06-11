@@ -1,4 +1,4 @@
-describe('Name of the group', () => {
+describe('Case: Order Undefined Error', () => {
 
   it('should behave...', () => {
 

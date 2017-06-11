@@ -1,4 +1,4 @@
-describe('Name of the group', () => {
+describe('Case: Simple Queryless Object', () => {
 
   it('should behave...', () => {
 

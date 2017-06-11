@@ -1,5 +1,5 @@
 
-describe('Name of the group', () => {
+describe('Case: Common Async', () => {
 
   it('should behave...', () => {
 
