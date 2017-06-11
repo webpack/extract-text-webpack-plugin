@@ -1,7 +1,6 @@
 {
   "extends": "webpack",
   "rules": {
-    "import/no-namespace": 1,
     "prefer-destructuring": 1,
     "prefer-rest-params": 1,
     "no-plusplus": 1,
