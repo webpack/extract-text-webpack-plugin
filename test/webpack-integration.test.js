@@ -19,7 +19,7 @@ describe("Webpack Integration Tests", function() {
 			options.context = testDirectory;
 			if(!options.module) options.module = {};
 			if(!options.module.loaders) options.module.loaders = [
-				{ test: /\.txt$/, loader: ExtractTextPlugin.extract("raw-loader") }
+        { test: /\.txt$/, loader: ExtractTextPlugin.extract('raw-loader') }
 			];
 			if(!options.output) options.output = { filename: "[name].js" };
 			if(!options.output.path) options.output.path = outputDirectory;

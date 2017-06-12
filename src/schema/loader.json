@@ -25,12 +25,6 @@
 		},
 		"publicPath": {
 			"type": "string"
-		},
-		"fallbackLoader": {
-			"type": ["string", "array", "object"]
-		},
-		"loader": {
-			"type": ["string", "array", "object"]
 		}
 	}
 }

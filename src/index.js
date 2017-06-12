@@ -57,12 +57,12 @@ class ExtractTextPlugin {
 
   extract(options) {
     if (Array.isArray(options) || isString(options) || typeof options.options === 'object' || typeof options.query === 'object') {
-      options = { loader: options };
+      options = { use: options };
     } else {
       validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
     }
-    let loader = options.use || options.loader;
-    let before = options.fallback || options.fallbackLoader || [];
+    let loader = options.use;
+    let before = options.fallback || [];
     if (isString(loader)) {
       loader = loader.split('!');
     }
@@ -72,10 +72,8 @@ class ExtractTextPlugin {
       before = [before];
     }
     options = mergeOptions({ omit: before.length, remove: true }, options);
-    delete options.loader;
     delete options.use;
     delete options.fallback;
-    delete options.fallbackLoader;
     return [this.loader(options)]
       .concat(before, loader)
       .map(getLoaderObject);
