@@ -1,10 +1,10 @@
-var ExtractTextPlugin = require("../../../");
+const ExtractTextPlugin = require('../../../');
 module.exports = {
-	entry: {
-		a: "./a",
-		b: "./b"
-	},
-	plugins: [
-		new ExtractTextPlugin("[name].txt")
-	]
+  entry: {
+    a: './a',
+    b: './b',
+  },
+  plugins: [
+    new ExtractTextPlugin('[name].txt'),
+  ],
 };

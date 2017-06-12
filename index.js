@@ -1,7 +1,4 @@
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
+/* eslint-disable */
 var fs = require('fs');
 var ConcatSource = require("webpack-sources").ConcatSource;
 var async = require("async");

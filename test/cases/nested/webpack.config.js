@@ -1,7 +1,7 @@
-var ExtractTextPlugin = require("../../../");
+const ExtractTextPlugin = require('../../../');
 module.exports = {
-	entry: "./index",
-	plugins: [
-		new ExtractTextPlugin("file.css")
-	]
+  entry: './index',
+  plugins: [
+    new ExtractTextPlugin('file.css'),
+  ],
 };

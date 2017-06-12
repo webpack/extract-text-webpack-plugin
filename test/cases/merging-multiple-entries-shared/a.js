@@ -1,3 +1,3 @@
-require.ensure([], function() {
-	require("./a.txt");
+require.ensure([], () => {
+  require('./a.txt');
 });

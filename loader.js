@@ -1,7 +1,4 @@
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
+/* eslint-disable */
 var fs = require("fs");
 var loaderUtils = require("loader-utils");
 var NodeTemplatePlugin = require("webpack/lib/node/NodeTemplatePlugin");

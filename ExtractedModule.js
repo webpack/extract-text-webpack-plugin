@@ -1,7 +1,4 @@
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
+/* eslint-disable */
 var SourceMapSource = require("webpack-sources").SourceMapSource;
 var RawSource = require("webpack-sources").RawSource;
 

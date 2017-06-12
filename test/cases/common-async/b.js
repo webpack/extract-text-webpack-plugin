@@ -1,3 +1,3 @@
-require("./a.txt");
-require("./c.txt");
+require('./a.txt');
+require('./c.txt');
 
