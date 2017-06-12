@@ -69,24 +69,6 @@ class ExtractTextPlugin {
   }
 
   extract(options) {
-    if (arguments.length > 1) {
-      throw new Error('Breaking change: extract now only takes a single argument. Either an options ' +
-        'object *or* the loader(s).\n' +
-        'Example: if your old code looked like this:\n' +
-        '    ExtractTextPlugin.extract("style-loader", "css-loader")\n\n' +
-        'You would change it to:\n' +
-        '    ExtractTextPlugin.extract({ fallback: "style-loader", use: "css-loader" })\n\n' +
-        'The available options are:\n' +
-        '    use: string | object | loader[]\n' +
-        '    fallback: string | object | loader[]\n' +
-        '    publicPath: string\n');
-    }
-    if (options.fallbackLoader) {
-      console.warn('fallbackLoader option has been deprecated - replace with "fallback"');
-    }
-    if (options.loader) {
-      console.warn('loader option has been deprecated - replace with "use"');
-    }
     if (Array.isArray(options) || isString(options) || typeof options.options === 'object' || typeof options.query === 'object') {
       options = { loader: options };
     } else {
