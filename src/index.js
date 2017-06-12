@@ -1,25 +1,26 @@
 /* eslint-disable */
-var fs = require('fs');
-var ConcatSource = require("webpack-sources").ConcatSource;
-var async = require("async");
-var ExtractedModule = require("./ExtractedModule");
-var Chunk = require("webpack/lib/Chunk");
-var OrderUndefinedError = require("./OrderUndefinedError");
-var loaderUtils = require("loader-utils");
-var validateOptions = require('schema-utils');
-var path = require('path');
+import fs from 'fs';
+import path from 'path';
+import Chunk from 'webpack/lib/Chunk';
+import { ConcatSource } from 'webpack-sources';
+import async from 'async';
+import loaderUtils from 'loader-utils';
+import validateOptions from 'schema-utils';
+import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';
+import OrderUndefinedError from './lib/OrderUndefinedError';
+import {
+  isInitialOrHasNoParents,
+  isInvalidOrder,
+  getOrder,
+  getLoaderObject,
+  mergeOptions,
+  isString,
+  isFunction,
+} from './lib/helpers';
 
 var NS = fs.realpathSync(__dirname);
 
 var nextId = 0;
-
-function ExtractTextPluginCompilation() {
-	this.modulesByIdentifier = {};
-}
-
-function isInitialOrHasNoParents(chunk) {
-        return chunk.isInitial() || chunk.parents.length === 0;
-}
 
 ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, checkedChunks) {
 	if(!intoChunk) {
@@ -41,36 +42,6 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function(chunk, intoChunk, c
 	}
 };
 
-ExtractTextPluginCompilation.prototype.addModule = function(identifier, originalModule, source, additionalInformation, sourceMap, prevModules) {
-	var m;
-	if(!this.modulesByIdentifier[identifier]) {
-		m = this.modulesByIdentifier[identifier] = new ExtractedModule(identifier, originalModule, source, sourceMap, additionalInformation, prevModules);
-	} else {
-		m = this.modulesByIdentifier[identifier];
-		m.addPrevModules(prevModules);
-		if(originalModule.index2 < m.getOriginalModule().index2) {
-			m.setOriginalModule(originalModule);
-		}
-	}
-	return m;
-};
-
-ExtractTextPluginCompilation.prototype.addResultToChunk = function(identifier, result, originalModule, extractedChunk) {
-	if(!Array.isArray(result)) {
-		result = [[identifier, result]];
-	}
-	var counterMap = {};
-	var prevModules = [];
-	result.forEach(function(item) {
-		var c = counterMap[item[0]];
-		var module = this.addModule.call(this, item[0] + (c || ""), originalModule, item[1], item[2], item[3], prevModules.slice());
-		extractedChunk.addModule(module);
-		module.addChunk(extractedChunk);
-		counterMap[item[0]] = (c || 0) + 1;
-		prevModules.push(module);
-	}, this);
-};
-
 ExtractTextPlugin.prototype.renderExtractedChunk = function(chunk) {
 	var source = new ConcatSource();
 	chunk.modules.forEach(function(module) {
@@ -79,32 +50,6 @@ ExtractTextPlugin.prototype.renderExtractedChunk = function(chunk) {
 	}, this);
 	return source;
 };
-
-function isInvalidOrder(a, b) {
-	var bBeforeA = a.getPrevModules().indexOf(b) >= 0;
-	var aBeforeB = b.getPrevModules().indexOf(a) >= 0;
-	return aBeforeB && bBeforeA;
-}
-
-function getOrder(a, b) {
-	var aOrder = a.getOrder();
-	var bOrder = b.getOrder();
-	if(aOrder < bOrder) return -1;
-	if(aOrder > bOrder) return 1;
-	var aIndex = a.getOriginalModule().index2;
-	var bIndex = b.getOriginalModule().index2;
-	if(aIndex < bIndex) return -1;
-	if(aIndex > bIndex) return 1;
-	var bBeforeA = a.getPrevModules().indexOf(b) >= 0;
-	var aBeforeB = b.getPrevModules().indexOf(a) >= 0;
-	if(aBeforeB && !bBeforeA) return -1;
-	if(!aBeforeB && bBeforeA) return 1;
-	var ai = a.identifier();
-	var bi = b.identifier();
-	if(ai < bi) return -1;
-	if(ai > bi) return 1;
-	return 0;
-}
 
 function ExtractTextPlugin(options) {
 	if(arguments.length > 1) {
@@ -133,33 +78,6 @@ function ExtractTextPlugin(options) {
 	delete this.options.id;
 }
 module.exports = ExtractTextPlugin;
-
-function getLoaderObject(loader) {
-	if (isString(loader)) {
-		return {loader: loader};
-	}
-	return loader;
-}
-
-function mergeOptions(a, b) {
-	if(!b) return a;
-	Object.keys(b).forEach(function(key) {
-		a[key] = b[key];
-	});
-	return a;
-}
-
-function isString(a) {
-	return typeof a === "string";
-}
-
-function isFunction(a) {
-	return isType('Function', a);
-}
-
-function isType(type, obj) {
-	return Object.prototype.toString.call(obj) === '[object ' + type + ']';
-}
 
 ExtractTextPlugin.loader = function(options) {
 	return { loader: require.resolve("./loader"), options: options };
