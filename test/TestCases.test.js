@@ -34,7 +34,9 @@ describe("TestCases", function() {
 					require(testFile)(suite);
 				var expectedDirectory = path.join(testDirectory, "expected");
 				fs.readdirSync(expectedDirectory).forEach(function(file) {
+          var filePath = path.join(expectedDirectory, file);
 					var actualPath = path.join(outputDirectory, file);
+          expect(readFileOrEmpty(actualPath)).toEqual(readFileOrEmpty(filePath));
           expect(readFileOrEmpty(actualPath)).toMatchSnapshot();
 				});
 				done();
