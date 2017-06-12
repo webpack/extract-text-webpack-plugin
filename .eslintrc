@@ -1,3 +1,10 @@
 {
-  "extends": "webpack"
+  "extends": "webpack",
+  "rules": {
+    "prefer-destructuring": 1,
+    "prefer-rest-params": 1,
+    "no-plusplus": 1,
+    "consistent-return": 1,
+    "no-param-reassign": 1
+  }
 }
