@@ -7,7 +7,7 @@ import ExtractTextPlugin from '../src';
 
 var cases = process.env.CASES ? process.env.CASES.split(",") : fs.readdirSync(path.join(__dirname, "cases"));
 
-describe("TestCases", function() {
+describe("Webpack Integration Tests", function() {
 	cases.forEach(function(testCase) {
 		it(testCase, function(done) {
 			var testDirectory = path.join(__dirname, "cases", testCase);

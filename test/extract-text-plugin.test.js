@@ -3,7 +3,7 @@ import ExtractTextPlugin from '../src';
 
 const loader = require.resolve('../src/loader');
 
-describe('ExtractTextPlugin.extract()', () => {
+describe('ExtractTextPlugin', () => {
   it('throws if given multiple arguments', () => {
     expect(() => {
       ExtractTextPlugin.extract('style-loader', 'css-loader');
