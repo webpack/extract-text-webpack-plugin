@@ -1,8 +1,8 @@
 // import ExtractTextPlugin from '../src';
 // const loader = require.resolve('../src/loader');
 /* eslint-disable */
-var ExtractTextPlugin = require("../");
-var loader = require.resolve('../loader');
+var ExtractTextPlugin = require("../src/");
+var loader = require.resolve('../src/loader');
 
 describe('Define Fallback', () => {
   it('accepts a fallback string', () => {

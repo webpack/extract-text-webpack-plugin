@@ -1,6 +1,6 @@
 /* eslint-disable */
-var ExtractTextPlugin = require("../");
-var loader = require.resolve('../loader');
+var ExtractTextPlugin = require("../src/");
+var loader = require.resolve('../src/loader');
 
 describe('ExtractTextPlugin.extract()', () => {
   it('throws if given multiple arguments', () => {

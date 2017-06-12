@@ -4,7 +4,7 @@ var vm = require("vm");
 var path = require("path");
 var webpack = require("webpack");
 var should = require("should");
-var ExtractTextPlugin = require("../");
+var ExtractTextPlugin = require("../src");
 
 var cases = process.env.CASES ? process.env.CASES.split(",") : fs.readdirSync(path.join(__dirname, "cases"));
 

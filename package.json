@@ -6,7 +6,7 @@
   "engines": {
     "node": ">= 4.3 < 5.0.0 || >= 5.10"
   },
-  "main": "index.js",
+  "main": "dist/cjs.js",
   "files": [
     "schema",
     "ExtractedModule.js",
