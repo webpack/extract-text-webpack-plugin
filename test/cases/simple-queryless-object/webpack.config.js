@@ -1,4 +1,5 @@
-const ExtractTextPlugin = require('../../../src/');
+import ExtractTextPlugin from '../../../src/index';
+
 module.exports = {
   entry: './index',
   module: {

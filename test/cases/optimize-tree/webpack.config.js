@@ -1,5 +1,5 @@
-const ExtractTextPlugin = require('../../../src/');
-const webpack = require('webpack');
+import webpack from 'webpack';
+import ExtractTextPlugin from '../../../src/index';
 
 module.exports = {
   entry: './index.js',

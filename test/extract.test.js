@@ -1,6 +1,7 @@
-/* eslint-disable */
-var ExtractTextPlugin = require("../src/");
-var loader = require.resolve('../src/loader');
+/* eslint-disable no-unused-expressions */
+import ExtractTextPlugin from '../src';
+
+const loader = require.resolve('../src/loader');
 
 describe('ExtractTextPlugin.extract()', () => {
   it('throws if given multiple arguments', () => {
@@ -13,11 +14,11 @@ describe('ExtractTextPlugin.extract()', () => {
     expect(ExtractTextPlugin.extract({
       fallback: 'style-loader',
       use: 'css-loader',
-      publicPath: '/test'
+      publicPath: '/test',
     })).toEqual([
       { loader, options: { omit: 1, remove: true, publicPath: '/test' } },
       { loader: 'style-loader' },
-      { loader: 'css-loader' }
+      { loader: 'css-loader' },
     ]);
   });
 });

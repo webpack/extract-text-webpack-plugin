@@ -1,9 +1,9 @@
 /* eslint-disable */
-var fs = require("fs");
-var vm = require("vm");
-var path = require("path");
-var webpack = require("webpack");
-var ExtractTextPlugin = require("../src");
+import fs from "fs";
+import vm from "vm";
+import path from "path";
+import webpack from "webpack";
+import ExtractTextPlugin from '../src';
 
 var cases = process.env.CASES ? process.env.CASES.split(",") : fs.readdirSync(path.join(__dirname, "cases"));
 
