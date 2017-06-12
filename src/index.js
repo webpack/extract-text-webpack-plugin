@@ -145,10 +145,10 @@ class ExtractTextPlugin {
             extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
           });
         });
-        async.forEach(chunks, (chunk, callback) => {
+        async.forEach(chunks, (chunk, callback) => { // eslint-disable-line no-shadow
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
           const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
-          async.forEach(chunk.modules.slice(), (module, callback) => {
+          async.forEach(chunk.modules.slice(), (module, callback) => { // eslint-disable-line no-shadow
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
               const wasExtracted = Array.isArray(meta.content);
@@ -180,7 +180,7 @@ class ExtractTextPlugin {
           });
         }, (err) => {
           if (err) return callback(err);
-          extractedChunks.forEach(function (extractedChunk) {
+          extractedChunks.forEach((extractedChunk) => {
             if (isInitialOrHasNoParents(extractedChunk)) { this.mergeNonInitialChunks(extractedChunk); }
           }, this);
           extractedChunks.forEach((extractedChunk) => {
@@ -195,7 +195,7 @@ class ExtractTextPlugin {
         });
       });
       compilation.plugin('additional-assets', (callback) => {
-        extractedChunks.forEach(function (extractedChunk) {
+        extractedChunks.forEach((extractedChunk) => {
           if (extractedChunk.modules.length) {
             extractedChunk.modules.sort((a, b) => {
               if (!options.ignoreOrder && isInvalidOrder(a, b)) {
@@ -209,7 +209,7 @@ class ExtractTextPlugin {
 
             const getPath = format => compilation.getPath(format, {
               chunk,
-            }).replace(/\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/ig, function () {
+            }).replace(/\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/ig, function () { // eslint-disable-line func-names
               return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
             });
 
@@ -227,10 +227,10 @@ class ExtractTextPlugin {
 
 export default ExtractTextPlugin;
 
-ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, checkedChunks) {
+ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, checkedChunks) { // eslint-disable-line func-names
   if (!intoChunk) {
     checkedChunks = [];
-    chunk.chunks.forEach(function (c) {
+    chunk.chunks.forEach((c) => {
       if (isInitialOrHasNoParents(c)) return;
       this.mergeNonInitialChunks(c, chunk, checkedChunks);
     }, this);
@@ -240,16 +240,16 @@ ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, 
       intoChunk.addModule(module);
       module.addChunk(intoChunk);
     });
-    chunk.chunks.forEach(function (c) {
+    chunk.chunks.forEach((c) => {
       if (isInitialOrHasNoParents(c)) return;
       this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
     }, this);
   }
 };
 
-ExtractTextPlugin.prototype.renderExtractedChunk = function (chunk) {
+ExtractTextPlugin.prototype.renderExtractedChunk = function (chunk) { // eslint-disable-line func-names
   const source = new ConcatSource();
-  chunk.modules.forEach(function (module) {
+  chunk.modules.forEach((module) => {
     const moduleSource = module.source();
     source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
   }, this);
