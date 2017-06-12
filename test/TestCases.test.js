@@ -3,7 +3,6 @@ var fs = require("fs");
 var vm = require("vm");
 var path = require("path");
 var webpack = require("webpack");
-var should = require("should");
 var ExtractTextPlugin = require("../src");
 
 var cases = process.env.CASES ? process.env.CASES.split(",") : fs.readdirSync(path.join(__dirname, "cases"));
@@ -35,11 +34,8 @@ describe("TestCases", function() {
 					require(testFile)(suite);
 				var expectedDirectory = path.join(testDirectory, "expected");
 				fs.readdirSync(expectedDirectory).forEach(function(file) {
-					var filePath = path.join(expectedDirectory, file);
 					var actualPath = path.join(outputDirectory, file);
-					readFileOrEmpty(actualPath).should.be.eql(
-						readFileOrEmpty(filePath),
-						file + " should be correct");
+          expect(readFileOrEmpty(actualPath)).toMatchSnapshot();
 				});
 				done();
 			});

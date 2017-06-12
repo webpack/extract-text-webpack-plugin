@@ -1,0 +1,127 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TestCases common-async 1`] = `
+"a
+b
+c
+"
+`;
+
+exports[`TestCases merging-chunk 1`] = `
+"a
+b
+c
+"
+`;
+
+exports[`TestCases merging-multiple-entries 1`] = `
+"a
+b
+"
+`;
+
+exports[`TestCases merging-multiple-entries 2`] = `
+"a
+c
+"
+`;
+
+exports[`TestCases merging-multiple-entries-shared 1`] = `
+"a
+"
+`;
+
+exports[`TestCases merging-multiple-entries-shared 2`] = `
+"a
+"
+`;
+
+exports[`TestCases multiple-entries 1`] = `
+"a
+b
+"
+`;
+
+exports[`TestCases multiple-entries 2`] = `
+"a
+c
+"
+`;
+
+exports[`TestCases multiple-entries-filename 1`] = `
+"a
+b
+"
+`;
+
+exports[`TestCases multiple-entries-filename 2`] = `
+"a
+c
+"
+`;
+
+exports[`TestCases multiple-entries-filename 3`] = `""`;
+
+exports[`TestCases nested 1`] = `
+"a
+b
+c
+d
+"
+`;
+
+exports[`TestCases optimize-tree 1`] = `
+"index
+a
+b
+"
+`;
+
+exports[`TestCases order-undefined-error 1`] = `
+"._3QiTkN7JPds2C9Bq73MpOX {
+}
+._3dtwYD12yqGZUJ-uPQLu9z {
+}
+._32HVXkGocfWZMaHoXEFkED {
+}
+.hbZI7DlQBB9VYNCgL20kL {
+}
+"
+`;
+
+exports[`TestCases simple 1`] = `
+"a
+b
+"
+`;
+
+exports[`TestCases simple-query-object 1`] = `
+"body {
+	correct: a;
+}
+body {
+	correct: b;
+}
+
+/*# sourceMappingURL=file.css.map*/"
+`;
+
+exports[`TestCases simple-queryless-object 1`] = `
+"body {
+	correct: a;
+}
+body {
+	correct: b;
+}
+
+/*# sourceMappingURL=file.css.map*/"
+`;
+
+exports[`TestCases splitted-chunk 1`] = `
+"a
+"
+`;
+
+exports[`TestCases splitted-multiple-entries 1`] = `""`;
+
+exports[`TestCases splitted-multiple-entries 2`] = `""`;
