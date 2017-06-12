@@ -12,14 +12,12 @@ environment:
     - nodejs_version: '6'
       webpack_version: 3.0.0-rc.1
       job_part: test
-    - nodejs_version: '4.3'
-      webpack_version: 3.0.0-rc.1
-      job_part: test
 build: 'off'
 matrix:
   fast_finish: true
 install:
   - ps: Install-Product node $env:nodejs_version x64
+  - npm i -g npm@^5.0.0
   - npm install
 before_test:
   - cmd: npm install webpack@^%webpack_version%
