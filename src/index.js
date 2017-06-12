@@ -23,19 +23,6 @@ let nextId = 0;
 
 class ExtractTextPlugin {
   constructor(options) {
-    if (arguments.length > 1) {
-      throw new Error('Breaking change: ExtractTextPlugin now only takes a single argument. Either an options ' +
-        'object *or* the name of the result file.\n' +
-        'Example: if your old code looked like this:\n' +
-        '    new ExtractTextPlugin("css/[name].css", { disable: false, allChunks: true })\n\n' +
-        'You would change it to:\n' +
-        '    new ExtractTextPlugin({ filename: "css/[name].css", disable: false, allChunks: true })\n\n' +
-        'The available options are:\n' +
-        '    filename: string\n' +
-        '    allChunks: boolean\n' +
-        '    disable: boolean\n' +
-        '    ignoreOrder: boolean\n');
-    }
     if (isString(options)) {
       options = { filename: options };
     } else {
