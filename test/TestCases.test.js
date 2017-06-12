@@ -1,3 +1,4 @@
+/* eslint-disable */
 var fs = require("fs");
 var vm = require("vm");
 var path = require("path");
