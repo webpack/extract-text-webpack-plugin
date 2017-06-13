@@ -269,7 +269,7 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 			async.forEach(chunks, function(chunk, callback) {
 				var extractedChunk = extractedChunks[chunks.indexOf(chunk)];
 				var shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
-				async.forEach(chunk.modules.slice(), function(module, callback) {
+				async.forEach(chunk.mapModules(function(c) { return c; }), function(module, callback) {
 					var meta = module[NS];
 					if(meta && (!meta.options.id || meta.options.id === id)) {
 						var wasExtracted = Array.isArray(meta.content);
