@@ -120,7 +120,8 @@ function ExtractTextPlugin(options) {
 						"The available options are:\n" +
 						"    filename: string\n" +
 						"    allChunks: boolean\n" +
-						"    disable: boolean\n");
+						"    disable: boolean\n" +
+						"    ignoreOrder: boolean\n");
 	}
 	if(isString(options)) {
 		options = { filename: options };
@@ -337,7 +338,7 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 					});
 
 					var file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
-					
+
 					compilation.assets[file] = source;
 					chunk.files.push(file);
 				}
