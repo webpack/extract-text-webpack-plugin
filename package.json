@@ -15,7 +15,7 @@
     "OrderUndefinedError.js"
   ],
   "peerDependencies": {
-    "webpack": "^2.2.0"
+    "webpack": ">= 3.0.0-rc.0 || ^3.0.0"
   },
   "dependencies": {
     "schema-utils": "^0.3.0",
@@ -35,7 +35,7 @@
     "should": "^11.1.2",
     "standard-version": "^4.1.0",
     "style-loader": "^0.18.2",
-    "webpack": "^2.6.1"
+    "webpack": "^3.0.0-rc.0"
   },
   "homepage": "http://github.com/webpack-contrib/extract-text-webpack-plugin",
   "repository": {
