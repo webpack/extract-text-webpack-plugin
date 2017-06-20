@@ -29,9 +29,9 @@ describe("TestCases", function() {
 			webpack(options, function(err, stats) {
 				if(err) return done(err);
 				if(stats.hasErrors()) return done(new Error(stats.toString()));
-				var testFile = path.join(outputDirectory, "test.js");
+				var testFile = path.join(testDirectory, "test.js");
 				if(fs.existsSync(testFile))
-					require(testFile)(suite);
+					require(testFile)(describe);
 				var expectedDirectory = path.join(testDirectory, "expected");
 				fs.readdirSync(expectedDirectory).forEach(function(file) {
 					var filePath = path.join(expectedDirectory, file);
