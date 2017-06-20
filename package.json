@@ -54,14 +54,13 @@
     "raw-loader": "^0.5.1",
     "standard-version": "^4.1.0",
     "style-loader": "^0.18.2",
-    "webpack": "^3.0.0-rc.1",
     "webpack-defaults": "^1.4.0"
   },
   "engines": {
     "node": ">= 4.3 < 5.0.0 || >= 5.10"
   },
   "peerDependencies": {
-    "webpack": "^2.0.0 || >= 3.0.0-rc.0 || ^3.0.0"
+    "webpack": "^3.0.0"
   },
   "homepage": "http://github.com/webpack-contrib/extract-text-webpack-plugin",
   "repository": {
