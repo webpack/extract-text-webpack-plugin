@@ -55,6 +55,35 @@ class ExtractTextPlugin {
     return ExtractTextPlugin.loader(mergeOptions({ id: this.id }, options));
   }
 
+  mergeNonInitialChunks(chunk, intoChunk, checkedChunks) {
+    if (!intoChunk) {
+      checkedChunks = [];
+      chunk.chunks.forEach((c) => {
+        if (isInitialOrHasNoParents(c)) return;
+        this.mergeNonInitialChunks(c, chunk, checkedChunks);
+      }, this);
+    } else if (checkedChunks.indexOf(chunk) < 0) {
+      checkedChunks.push(chunk);
+      chunk.modules.slice().forEach((module) => {
+        intoChunk.addModule(module);
+        module.addChunk(intoChunk);
+      });
+      chunk.chunks.forEach((c) => {
+        if (isInitialOrHasNoParents(c)) return;
+        this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
+      }, this);
+    }
+  }
+
+  renderExtractedChunk(chunk) {
+    const source = new ConcatSource();
+    chunk.modules.forEach((module) => {
+      const moduleSource = module.source();
+      source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
+    }, this);
+    return source;
+  }
+
   extract(options) {
     if (Array.isArray(options) || isString(options) || typeof options.options === 'object' || typeof options.query === 'object') {
       options = { use: options };
@@ -192,35 +221,6 @@ class ExtractTextPlugin {
   }
 }
 
-export default ExtractTextPlugin;
-
-ExtractTextPlugin.prototype.mergeNonInitialChunks = function (chunk, intoChunk, checkedChunks) { // eslint-disable-line func-names
-  if (!intoChunk) {
-    checkedChunks = [];
-    chunk.chunks.forEach((c) => {
-      if (isInitialOrHasNoParents(c)) return;
-      this.mergeNonInitialChunks(c, chunk, checkedChunks);
-    }, this);
-  } else if (checkedChunks.indexOf(chunk) < 0) {
-    checkedChunks.push(chunk);
-    chunk.modules.slice().forEach((module) => {
-      intoChunk.addModule(module);
-      module.addChunk(intoChunk);
-    });
-    chunk.chunks.forEach((c) => {
-      if (isInitialOrHasNoParents(c)) return;
-      this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
-    }, this);
-  }
-};
-
-ExtractTextPlugin.prototype.renderExtractedChunk = function (chunk) { // eslint-disable-line func-names
-  const source = new ConcatSource();
-  chunk.modules.forEach((module) => {
-    const moduleSource = module.source();
-    source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
-  }, this);
-  return source;
-};
-
 ExtractTextPlugin.extract = ExtractTextPlugin.prototype.extract.bind(ExtractTextPlugin);
+
+export default ExtractTextPlugin;
