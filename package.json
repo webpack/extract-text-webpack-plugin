@@ -15,7 +15,7 @@
     "OrderUndefinedError.js"
   ],
   "peerDependencies": {
-    "webpack": "^2.2.0"
+    "webpack": "^2.2.0 || ^3.0.0"
   },
   "dependencies": {
     "schema-utils": "^0.3.0",
