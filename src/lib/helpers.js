@@ -48,7 +48,7 @@ export function isString(a) {
 }
 
 export function isFunction(a) {
-  return isType('Function', a);
+  return typeof a === 'function';
 }
 
 export function isType(type, obj) {
