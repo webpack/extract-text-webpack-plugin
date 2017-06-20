@@ -7,6 +7,7 @@ var ConcatSource = require("webpack-sources").ConcatSource;
 var async = require("async");
 var ExtractedModule = require("./ExtractedModule");
 var Chunk = require("webpack/lib/Chunk");
+var NormalModule = require("webpack/lib/NormalModule");
 var OrderUndefinedError = require("./OrderUndefinedError");
 var loaderUtils = require("loader-utils");
 var validateOptions = require('schema-utils');
@@ -186,15 +187,15 @@ ExtractTextPlugin.prototype.loader = function(options) {
 ExtractTextPlugin.prototype.extract = function(options) {
 	if(arguments.length > 1) {
 		throw new Error("Breaking change: extract now only takes a single argument. Either an options " +
-						"object *or* the loader(s).\n" +
-						"Example: if your old code looked like this:\n" +
-						"    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
-						"You would change it to:\n" +
-						"    ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })\n\n" +
-						"The available options are:\n" +
-						"    use: string | object | loader[]\n" +
-						"    fallback: string | object | loader[]\n" +
-						"    publicPath: string\n");
+			"object *or* the loader(s).\n" +
+			"Example: if your old code looked like this:\n" +
+			"    ExtractTextPlugin.extract('style-loader', 'css-loader')\n\n" +
+			"You would change it to:\n" +
+			"    ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })\n\n" +
+			"The available options are:\n" +
+			"    use: string | object | loader[]\n" +
+			"    fallback: string | object | loader[]\n" +
+			"    publicPath: string\n");
 	}
 	if(options.fallbackLoader) {
 		console.warn('fallbackLoader option has been deprecated - replace with "fallback"');
@@ -225,7 +226,7 @@ ExtractTextPlugin.prototype.extract = function(options) {
 	return [this.loader(options)]
 		.concat(before, loader)
 		.map(getLoaderObject);
-}
+};
 
 ExtractTextPlugin.extract = ExtractTextPlugin.prototype.extract.bind(ExtractTextPlugin);
 
@@ -233,6 +234,7 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 	var options = this.options;
 	compiler.plugin("this-compilation", function(compilation) {
 		var extractCompilation = new ExtractTextPluginCompilation();
+		var toRemoveModules = {};
 		compilation.plugin("normal-module-loader", function(loaderContext, module) {
 			loaderContext[NS] = function(content, opt) {
 				if(options.disable)
@@ -274,21 +276,43 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 					if(meta && (!meta.options.id || meta.options.id === id)) {
 						var wasExtracted = Array.isArray(meta.content);
 						if(shouldExtract !== wasExtracted) {
-							module[NS + "/extract"] = shouldExtract; // eslint-disable-line no-path-concat
-							compilation.rebuildModule(module, function(err) {
+							var newModule = new NormalModule(
+								module.request,
+								module.userRequest,
+								module.rawRequest,
+								module.loaders,
+								module.resource,
+								module.parser
+							);
+							newModule[NS + "/extract"] = shouldExtract; // eslint-disable-line no-path-concat
+							// build a new module and save result to extracted compilations
+							compilation.buildModule(newModule, false, newModule, null, function(err) {
 								if(err) {
 									compilation.errors.push(err);
 									return callback();
 								}
-								meta = module[NS];
+								meta = newModule[NS];
 								// Error out if content is not an array and is not null
 								if(!Array.isArray(meta.content) && meta.content != null) {
-									err = new Error(module.identifier() + " doesn't export content");
+									err = new Error(newModule.identifier() + " doesn't export content");
 									compilation.errors.push(err);
 									return callback();
 								}
-								if(meta.content)
-									extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+								if(meta.content) {
+									var ident = module.identifier();
+									extractCompilation.addResultToChunk(ident, meta.content, module, extractedChunk);
+									// remove generated result from chunk
+									if(toRemoveModules[ident]) {
+										toRemoveModules[ident].chunks.push(chunk)
+									} else {
+										toRemoveModules[ident] = {
+											module: newModule,
+											moduleToRemove: module,
+											chunks: [chunk]
+										};
+									}
+
+								}
 								callback();
 							});
 						} else {
@@ -318,6 +342,32 @@ ExtractTextPlugin.prototype.apply = function(compiler) {
 				callback();
 			}.bind(this));
 		}.bind(this));
+		compilation.plugin("optimize-module-ids", function(modules){
+			modules.forEach(function (module) {
+				var data = toRemoveModules[module.identifier()];
+				if (data) {
+					var id = module.id;
+					var newModule = new NormalModule(
+						module.request,
+						module.userRequest,
+						module.rawRequest,
+						module.loaders,
+						module.resource,
+						module.parser
+					);
+					newModule.id = id;
+					newModule._source = data.module._source;
+					data.chunks.forEach(function (chunk) {
+						chunk.removeModule(data.moduleToRemove);
+						var deps = data.moduleToRemove.dependencies;
+						deps.forEach(d => {
+							chunk.removeModule(d.module);
+						});
+						chunk.addModule(newModule);
+					});
+				}
+			});
+		});
 		compilation.plugin("additional-assets", function(callback) {
 			extractedChunks.forEach(function(extractedChunk) {
 				if(extractedChunk.modules.length) {
