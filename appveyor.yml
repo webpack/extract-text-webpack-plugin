@@ -7,10 +7,10 @@ init:
 environment:
   matrix:
     - nodejs_version: '8'
-      webpack_version: 3.0.0-rc.1
+      webpack_version: latest
       job_part: test
     - nodejs_version: '6'
-      webpack_version: 3.0.0-rc.1
+      webpack_version: latest
       job_part: test
 build: 'off'
 matrix:
@@ -20,7 +20,7 @@ install:
   - npm i -g npm@^5.0.0
   - npm install
 before_test:
-  - cmd: npm install webpack@^%webpack_version%
+  - cmd: npm install webpack@%webpack_version%
 test_script:
   - node --version
   - npm --version

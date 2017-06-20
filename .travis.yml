@@ -13,19 +13,19 @@ jobs:
     - &test-latest
       stage: Webpack latest
       nodejs: 6
-      env: WEBPACK_VERSION=3.0.0-rc.1 JOB_PART=test # change back to WEBPACK_VERSION=latest on merge to master
+      env: WEBPACK_VERSION=latest JOB_PART=test
       script: npm run travis:$JOB_PART
     - <<: *test-latest
       nodejs: 4.3
-      env: WEBPACK_VERSION=3.0.0-rc.1 JOB_PART=test # change back to WEBPACK_VERSION=latest on merge to master
+      env: WEBPACK_VERSION=latest JOB_PART=test
       script: npm run travis:$JOB_PART
     - <<: *test-latest
       node_js: 8
-      env: WEBPACK_VERSION=3.0.0-rc.1 JOB_PART=lint # change back to WEBPACK_VERSION=latest on merge to master
+      env: WEBPACK_VERSION=latest JOB_PART=lint
       script: npm run travis:$JOB_PART
     - <<: *test-latest
       node_js: 8
-      env: WEBPACK_VERSION=3.0.0-rc.1 JOB_PART=coverage # change back to WEBPACK_VERSION=latest on merge to master
+      env: WEBPACK_VERSION=latest JOB_PART=coverage
       script: npm run travis:$JOB_PART
       after_success: 'bash <(curl -s https://codecov.io/bash)'
     - stage: Webpack canary
