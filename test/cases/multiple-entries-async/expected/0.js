@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 11:
+/***/ 12:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
@@ -47,10 +47,10 @@ exports.push([module.i, ".homepage {\n\tcolor: yellow;\n}\n", ""]);
 
 /***/ }),
 
-/***/ 4:
+/***/ 3:
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(11);
+__webpack_require__(12);
 
 modules.export = function() {
 	return 'Route Homepage';

@@ -52,9 +52,9 @@
     "nsp": "^2.6.3",
     "pre-commit": "^1.2.2",
     "raw-loader": "^0.5.1",
-    "rimraf": "^2.6.1",
     "standard-version": "^4.1.0",
     "style-loader": "^0.18.2",
+    "webpack": "^3.0.0",
     "webpack-defaults": "^1.4.0"
   },
   "engines": {

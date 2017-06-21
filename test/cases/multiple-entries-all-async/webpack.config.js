@@ -1,4 +1,5 @@
-var ExtractTextPlugin = require("../../../");
+import ExtractTextPlugin from '../../../src/index';
+
 module.exports = {
 	entry: {
 		'homepage': "./entries/homepage.js",
