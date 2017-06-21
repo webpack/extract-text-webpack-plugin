@@ -230,7 +230,9 @@ class ExtractTextPlugin {
               chunk.removeModule(data.moduleToRemove);
               const deps = data.moduleToRemove.dependencies;
               deps.forEach((d) => {
-                chunk.removeModule(d.module);
+                if (d.module && d.module.loaders.length > 0) {
+                  chunk.removeModule(d.module);
+                }
               });
               chunk.addModule(newModule);
             });
