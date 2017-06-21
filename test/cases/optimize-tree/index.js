@@ -1,9 +1,9 @@
-require("./index.txt");
+require('./index.txt');
 
-require.ensure([], function() {
-	require("./a.js");
+require.ensure([], () => {
+  require('./a.js');
 }, 'a-chunk');
 
-require.ensure([], function() {
-	require("./b.js");
+require.ensure([], () => {
+  require('./b.js');
 }, 'b-chunk');
