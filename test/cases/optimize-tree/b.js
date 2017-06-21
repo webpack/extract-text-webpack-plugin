@@ -1,5 +1,5 @@
-require.ensure([], function() {
-	require("./b.txt");
+require.ensure([], () => {
+  require('./b.txt');
 });
 
 b = {};

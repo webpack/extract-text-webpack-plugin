@@ -1,2 +1,2 @@
-require("./a.css");
-require("./b.css");
+require('./a.css');
+require('./b.css');

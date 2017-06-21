@@ -1,4 +1,4 @@
-require("./a.txt");
-require.ensure([], function() {
-	require("./b.txt");
+require('./a.txt');
+require.ensure([], () => {
+  require('./b.txt');
 });

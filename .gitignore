@@ -8,3 +8,16 @@
 /.idea
 
 .DS_Store
+
+logs
+*.log
+npm-debug.log*
+.eslintcache
+/dist
+/local
+/reports
+Thumbs.db
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace

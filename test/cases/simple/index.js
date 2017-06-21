@@ -1,2 +1,2 @@
-require("./a.txt");
-require("./b.txt");
+require('./a.txt');
+require('./b.txt');
