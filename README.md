@@ -78,7 +78,7 @@ new ExtractTextPlugin(options: filename | object)
 * `[id]` number of the chunk
 * `[contenthash]` hash of the content of the extracted file
 
-> :warning: `ExtractTextPlugin` generates a file **per entry**, so you must use `[name]`, `[id]` or `[contenthash]` when using multiple entries.
+> ⚠ `ExtractTextPlugin` generates a file **per entry**, so you must use `[name]`, `[id]` or `[contenthash]` when using multiple entries.
 
 #### `#extract`
 
