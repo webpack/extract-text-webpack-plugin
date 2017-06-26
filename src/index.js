@@ -171,14 +171,6 @@ class ExtractTextPlugin {
                     return callback();
                   }
                   meta = newModule[NS];
-                  // Error out if content is not an array and is not null
-                  if (!Array.isArray(meta.content) && meta.content != null) {
-                    err = new Error(`${module.identifier()} doesn't export content`);
-                    compilation.errors.push(err);
-                    return callback();
-                  }
-                  if (meta.content) { extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk); }
-                  meta = newModule[NS];
                   const identifier = module.identifier();
                   // Error out if content is not an array and is not null
                   if (!Array.isArray(meta.content) && meta.content != null) {
