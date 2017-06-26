@@ -158,7 +158,7 @@ class ExtractTextPlugin {
         async.forEach(chunks, (chunk, callback) => { // eslint-disable-line no-shadow
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
           const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
-          async.forEach(chunk.modules.slice(), (module, callback) => { // eslint-disable-line no-shadow
+          async.forEach(chunk.mapModules((c) => { return c; }), (module, callback) => { // eslint-disable-line no-shadow, arrow-body-style
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
               const wasExtracted = Array.isArray(meta.content);
@@ -170,6 +170,14 @@ class ExtractTextPlugin {
                     compilation.errors.push(err);
                     return callback();
                   }
+                  meta = newModule[NS];
+                  // Error out if content is not an array and is not null
+                  if (!Array.isArray(meta.content) && meta.content != null) {
+                    err = new Error(`${module.identifier()} doesn't export content`);
+                    compilation.errors.push(err);
+                    return callback();
+                  }
+                  if (meta.content) { extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk); }
                   meta = newModule[NS];
                   const identifier = module.identifier();
                   // Error out if content is not an array and is not null

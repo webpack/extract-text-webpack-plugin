@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.0.0-beta.3"></a>
+# [3.0.0-beta.3](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v3.0.0-beta.2...v3.0.0-beta.3) (2017-06-24)
+
+### Bug Fixes
+
+* Distribute schema with package ([5d0c28f](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/5d0c28f))
+
+
+<a name="3.0.0-beta.2"></a>
+# [3.0.0-beta.2](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v3.0.0-beta.1...v3.0.0-beta.2) (2017-06-24)
+
+ * Skipped due to deployment issues with schema
+
+<a name="3.0.0-beta.1"></a>
+# [3.0.0-beta.1](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v3.0.0-beta.0...v3.0.0-beta.1) (2017-06-24)
+
+
+ * Skipped due to deployment issues with schema
+
+
+<a name="3.0.0-beta.0"></a>
+# [3.0.0-beta.0](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v2.1.2...v3.0.0-beta.0) (2017-06-23)
+
+
+### Bug Fixes
+
+* add missing `options.ignoreOrder` details in Error message ([#539](https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/539)) ([dd43832](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/dd43832))
+
+
+### Code Refactoring
+
+* Apply webpack-defaults ([#542](https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/542)) ([292e217](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/292e217))
+* Chunk.modules deprecation warning ([28171b2](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/28171b2))
+
+
+### BREAKING CHANGES
+
+* Updates to `Chunk.mapModules`. This release is not backwards compatible with `Webpack 2.x` due to breaking changes in webpack/webpack#4764
+* Enforces `peerDependencies` of `"webpack": ">= 3.0.0-rc.0 || ^3.0.0"`.
+* Enforces `engines` of `"node": ">=4.3.0 < 5.0.0 || >= 5.10`
+
+
+
 <a name="2.1.2"></a>
 ## [2.1.2](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v2.1.1...v2.1.2) (2017-06-08)
 

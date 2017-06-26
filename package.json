@@ -1,12 +1,13 @@
 {
   "name": "extract-text-webpack-plugin",
-  "version": "2.1.2",
+  "version": "3.0.0-beta.3",
   "author": "Tobias Koppers @sokra",
   "description": "Extract text from bundle into a file.",
   "license": "MIT",
   "main": "dist/cjs.js",
   "files": [
-    "dist"
+    "dist",
+    "schema"
   ],
   "scripts": {
     "start": "npm run build -- -w",
@@ -29,8 +30,8 @@
     "webpack-defaults": "webpack-defaults"
   },
   "dependencies": {
-    "async": "^2.1.2",
-    "loader-utils": "^1.0.2",
+    "async": "^2.4.1",
+    "loader-utils": "^1.1.0",
     "schema-utils": "^0.3.0",
     "webpack-sources": "^1.0.1"
   },
@@ -54,7 +55,6 @@
     "raw-loader": "^0.5.1",
     "standard-version": "^4.1.0",
     "style-loader": "^0.18.2",
-    "webpack": "^3.0.0",
     "webpack-defaults": "^1.4.0"
   },
   "engines": {
