@@ -61,7 +61,7 @@
     "node": ">= 4.3 < 5.0.0 || >= 5.10"
   },
   "peerDependencies": {
-    "webpack": "^3.0.0"
+    "webpack": "^3.1.0"
   },
   "homepage": "http://github.com/webpack-contrib/extract-text-webpack-plugin",
   "repository": {

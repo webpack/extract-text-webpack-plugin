@@ -144,6 +144,7 @@ class ExtractTextPlugin {
         async.forEach(chunks, (chunk, callback) => { // eslint-disable-line no-shadow
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
           const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
+          chunk.sortModules();
           async.forEach(chunk.mapModules((c) => { return c; }), (module, callback) => { // eslint-disable-line no-shadow, arrow-body-style
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
