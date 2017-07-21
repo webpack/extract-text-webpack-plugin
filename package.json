@@ -1,6 +1,6 @@
 {
   "name": "extract-text-webpack-plugin",
-  "version": "3.0.0-beta.3",
+  "version": "3.0.0",
   "author": "Tobias Koppers @sokra",
   "description": "Extract text from bundle into a file.",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "prepublish": "npm run build",
     "release": "standard-version",
     "security": "nsp check",
-    "test": "jest --no-cache",
+    "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --collectCoverageFrom='src/**/*.js' --coverage",
     "travis:lint": "npm run lint && npm run security",
@@ -55,14 +55,14 @@
     "raw-loader": "^0.5.1",
     "standard-version": "^4.1.0",
     "style-loader": "^0.18.2",
-    "webpack": "^3.0.0",
-    "webpack-defaults": "^1.4.0"
+    "webpack": "^3.1.0",
+    "webpack-defaults": "^1.5.0"
   },
   "engines": {
     "node": ">= 4.3 < 5.0.0 || >= 5.10"
   },
   "peerDependencies": {
-    "webpack": "^3.0.0"
+    "webpack": "^3.1.0"
   },
   "homepage": "http://github.com/webpack-contrib/extract-text-webpack-plugin",
   "repository": {

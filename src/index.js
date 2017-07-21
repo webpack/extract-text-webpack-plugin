@@ -76,7 +76,7 @@ class ExtractTextPlugin {
       }, this);
     } else if (checkedChunks.indexOf(chunk) < 0) {
       checkedChunks.push(chunk);
-      chunk.modules.slice().forEach((module) => {
+      chunk.forEachModule((module) => {
         intoChunk.addModule(module);
         module.addChunk(intoChunk);
       });
@@ -89,7 +89,7 @@ class ExtractTextPlugin {
 
   renderExtractedChunk(chunk) {
     const source = new ConcatSource();
-    chunk.modules.forEach((module) => {
+    chunk.forEachModule((module) => {
       const moduleSource = module.source();
       source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
     }, this);
@@ -158,6 +158,7 @@ class ExtractTextPlugin {
         async.forEach(chunks, (chunk, callback) => { // eslint-disable-line no-shadow
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
           const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
+          chunk.sortModules();
           async.forEach(chunk.mapModules((c) => { return c; }), (module, callback) => { // eslint-disable-line no-shadow, arrow-body-style
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
@@ -208,7 +209,7 @@ class ExtractTextPlugin {
           }, this);
           extractedChunks.forEach((extractedChunk) => {
             if (!isInitialOrHasNoParents(extractedChunk)) {
-              extractedChunk.modules.slice().forEach((module) => {
+              extractedChunk.forEachModule((module) => {
                 extractedChunk.removeModule(module);
               });
             }
@@ -242,8 +243,8 @@ class ExtractTextPlugin {
 
       compilation.plugin('additional-assets', (callback) => {
         extractedChunks.forEach((extractedChunk) => {
-          if (extractedChunk.modules.length) {
-            extractedChunk.modules.sort((a, b) => {
+          if (extractedChunk.getNumberOfModules()) {
+            extractedChunk.sortModules((a, b) => {
               if (!options.ignoreOrder && isInvalidOrder(a, b)) {
                 compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
                 compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));

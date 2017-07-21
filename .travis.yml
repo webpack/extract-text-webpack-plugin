@@ -4,7 +4,6 @@ language: node_js
 branches:
   only:
     - master
-    - feature/webpack3
 jobs:
   fast_finish: true
   allow_failures:
@@ -12,11 +11,11 @@ jobs:
   include:
     - &test-latest
       stage: Webpack latest
-      nodejs: 6
+      node_js: 6
       env: WEBPACK_VERSION=latest JOB_PART=test
       script: npm run travis:$JOB_PART
     - <<: *test-latest
-      nodejs: 4.3
+      node_js: 4.3
       env: WEBPACK_VERSION=latest JOB_PART=test
       script: npm run travis:$JOB_PART
     - <<: *test-latest
