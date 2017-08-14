@@ -95,13 +95,16 @@ export function pitch(request) {
       }
       try {
         let text = this.exec(source, request);
-        if (typeof text === 'string') { text = [[0, text]]; }
-        text.forEach((item) => {
-          const id = item[0];
-          compilation.modules.forEach((module) => {
-            if (module.id === id) { item[0] = module.identifier(); }
+        if (typeof text === 'string') {
+          text = [[compilation.entries[0].identifier(), text]];
+        } else {
+          text.forEach((item) => {
+            const id = item[0];
+            compilation.modules.forEach((module) => {
+              if (module.id === id) { item[0] = module.identifier(); }
+            });
           });
-        });
+        }
         this[NS](text, query);
         if (text.locals && typeof resultSource !== 'undefined') {
           resultSource += `\nmodule.exports = ${JSON.stringify(text.locals)};`;

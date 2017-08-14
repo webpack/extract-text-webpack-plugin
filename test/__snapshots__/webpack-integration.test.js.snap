@@ -160,3 +160,9 @@ exports[`Webpack Integration Tests splitted-chunk 1`] = `
 exports[`Webpack Integration Tests splitted-multiple-entries 1`] = `""`;
 
 exports[`Webpack Integration Tests splitted-multiple-entries 2`] = `""`;
+
+exports[`Webpack Integration Tests string-export-with-optimize-module-order 1`] = `
+"a
+b
+"
+`;
