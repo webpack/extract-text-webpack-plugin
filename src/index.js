@@ -149,7 +149,10 @@ class ExtractTextPlugin {
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
               const wasExtracted = Array.isArray(meta.content);
-              if (shouldExtract !== wasExtracted) {
+              // A stricter `shouldExtract !== wasExtracted` check to guard against cases where a previously extracted
+              // module would be extracted twice. Happens when a module is a dependency of an initial and a non-initial
+              // chunk. See issue #604
+              if (shouldExtract && !wasExtracted) {
                 module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
                 compilation.rebuildModule(module, (err) => {
                   if (err) {
