@@ -17,7 +17,7 @@ import {
   isFunction,
 } from './lib/helpers';
 
-const NS = fs.realpathSync(__dirname);
+const NS = path.dirname(fs.realpathSync(__filename));
 
 let nextId = 0;
 

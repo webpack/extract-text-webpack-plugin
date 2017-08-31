@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import loaderUtils from 'loader-utils';
 import NodeTemplatePlugin from 'webpack/lib/node/NodeTemplatePlugin';
 import NodeTargetPlugin from 'webpack/lib/node/NodeTargetPlugin';
@@ -6,7 +7,7 @@ import LibraryTemplatePlugin from 'webpack/lib/LibraryTemplatePlugin';
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin';
 
-const NS = fs.realpathSync(__dirname);
+const NS = path.dirname(fs.realpathSync(__filename));
 
 export default source => source;
 
