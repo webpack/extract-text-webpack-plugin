@@ -49,6 +49,17 @@ export function pitch(request) {
     childCompiler.apply(new LimitChunkCountPlugin({ maxChunks: 1 }));
     // We set loaderContext[NS] = false to indicate we already in
     // a child compiler so we don't spawn another child compilers from there.
+    const subCache = `subcache ${NS} ${request}`; // eslint-disable-line no-path-concat
+    childCompiler.plugin('compilation', (compilation) => {
+      if (compilation.cache) {
+        if (!compilation.cache[subCache]) {
+          compilation.cache[subCache] = {};
+        }
+
+        compilation.cache = compilation.cache[subCache];
+      }
+    });
+
     childCompiler.plugin('this-compilation', (compilation) => {
       compilation.plugin('normal-module-loader', (loaderContext, module) => {
         loaderContext[NS] = false;
