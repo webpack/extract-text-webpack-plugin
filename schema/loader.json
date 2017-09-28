@@ -25,6 +25,9 @@
 		},
 		"publicPath": {
 			"type": "string"
-		}
+		},
+		"merge": {
+      "type": "array"
+    }
 	}
 }

@@ -35,6 +35,10 @@
     "publicPath": {
       "description": "",
       "type": "string"
+    },
+    "merge": {
+      "description": "List of objects as { filename, test, preventOriginalOutput }",
+      "type": "array"
     }
   }
 }
