@@ -30,7 +30,10 @@ class ExtractTextPlugin {
     }
     this.filename = options.filename;
     this.id = options.id != null ? options.id : ++nextId;
-    this.options = {};
+    this.options = {
+      merge: [],
+    };
+    this.filesToMerge = {};
     mergeOptions(this.options, options);
     delete this.options.filename;
     delete this.options.id;
@@ -53,6 +56,23 @@ class ExtractTextPlugin {
 
   loader(options) {
     return ExtractTextPlugin.loader(mergeOptions({ id: this.id }, options));
+  }
+
+  mergeChunks(chunks, filename) {
+    const result = new Chunk();
+    // result.index = i;
+    // result.originalChunk = chunk;
+    result.name = filename;
+    result.entrypoints = [];
+
+    chunks.forEach((chunk) => {
+      // result.entrypoints = result.entrypoints.concat(chunk.entrypoints);
+      chunk.forEachModule((module) => {
+        result.addModule(module);
+        module.addChunk(result);
+      });
+    });
+    return result;
   }
 
   mergeNonInitialChunks(chunk, intoChunk, checkedChunks) {
@@ -215,10 +235,41 @@ class ExtractTextPlugin {
 
             const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
 
-            compilation.assets[file] = source;
-            chunk.files.push(file);
+            let preventOutput = false;
+            this.options.merge.forEach((mergeChunk) => {
+              if (mergeChunk.test.test(file)) {
+                if (!this.filesToMerge[mergeChunk.filename]) {
+                  this.filesToMerge[mergeChunk.filename] = [];
+                }
+                this.filesToMerge[mergeChunk.filename].push(extractedChunk);
+                preventOutput = preventOutput || (mergeChunk.preventOriginalOutput !== false);
+              }
+            });
+
+            if (!preventOutput) {
+              compilation.assets[file] = source;
+              chunk.files.push(file);
+            }
           }
         }, this);
+
+        Object.keys(this.filesToMerge).forEach((filename) => {
+          const chunks = this.filesToMerge[filename];
+          const mergedChunk = this.mergeChunks(chunks);
+          const source = this.renderExtractedChunk(mergedChunk);
+
+          const getPath = format => compilation.getPath(format, {
+            mergedChunk,
+          }).replace(/\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/ig, function () { // eslint-disable-line func-names
+            return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
+          });
+
+          const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
+
+          compilation.assets[file] = source;
+          mergedChunk.files.push(file);
+        });
+
         callback();
       });
     });
