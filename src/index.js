@@ -242,7 +242,7 @@ class ExtractTextPlugin {
                   this.filesToMerge[mergeChunk.filename] = [];
                 }
                 this.filesToMerge[mergeChunk.filename].push(extractedChunk);
-                preventOutput = preventOutput || (mergeChunk.preventOriginalOutput !== false);
+                preventOutput = preventOutput || mergeChunk.originals;
               }
             });
 

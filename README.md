@@ -91,13 +91,13 @@ new ExtractTextPlugin(options: filename | object)
 // Generate one styles.css from all the *.styles.css and one themes.css from all the *.themes.css files
 new ExtractTextPlugin({
   merge: [{
-    filename: 'styles.css',       // name of the merged output file
-    test: /\.styles\.css$/,       // files to include (*.styles.css)
-    preventOriginalOutput: true,  // when true (by default), original files won't be generated
+    filename: 'styles.css', // name of the merged output file (required)
+    test: /\.styles\.css$/, // files to include (*.styles.css) (required)
+    originals: false,       // when false (by default), original files won't be generated
   }, {
     filename: 'themes.css',
     test: /\.themes\.css$/,
-    preventOriginalOutput: true,
+    originals: true,
   }]
 })
 ```
