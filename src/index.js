@@ -235,26 +235,26 @@ class ExtractTextPlugin {
 
             const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
 
-            let preventOutput = false;
-            this.options.merge.forEach((mergeChunk) => {
-              if (mergeChunk.test.test(file)) {
-                if (!this.filesToMerge[mergeChunk.filename]) {
-                  this.filesToMerge[mergeChunk.filename] = [];
+            let outputOriginals = false;
+            this.options.merge.forEach((mergeConfig) => {
+              if (mergeConfig.test.test(file)) {
+                if (!this.filesToMerge[mergeConfig.filename]) {
+                  this.filesToMerge[mergeConfig.filename] = [];
                 }
-                this.filesToMerge[mergeChunk.filename].push(extractedChunk);
-                preventOutput = preventOutput || mergeChunk.originals;
+                this.filesToMerge[mergeConfig.filename].push(extractedChunk);
+                outputOriginals = outputOriginals || mergeConfig.originals;
               }
             });
 
-            if (!preventOutput) {
+            if (outputOriginals) {
               compilation.assets[file] = source;
               chunk.files.push(file);
             }
           }
         }, this);
 
-        Object.keys(this.filesToMerge).forEach((filename) => {
-          const chunks = this.filesToMerge[filename];
+        Object.keys(this.filesToMerge).forEach((f) => {
+          const chunks = this.filesToMerge[f];
           const mergedChunk = this.mergeChunks(chunks);
           const source = this.renderExtractedChunk(mergedChunk);
 
@@ -264,7 +264,7 @@ class ExtractTextPlugin {
             return loaderUtils.getHashDigest(source.source(), arguments[1], arguments[2], parseInt(arguments[3], 10));
           });
 
-          const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
+          const file = (isFunction(f)) ? filename(getPath) : getPath(f);
 
           compilation.assets[file] = source;
           mergedChunk.files.push(file);
