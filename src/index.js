@@ -235,9 +235,11 @@ class ExtractTextPlugin {
 
             const file = (isFunction(filename)) ? filename(getPath) : getPath(filename);
 
-            let outputOriginals = false;
+            let outputOriginals = this.options.merge.length === 0;
+            let matched = false;
             this.options.merge.forEach((mergeConfig) => {
               if (mergeConfig.test.test(file)) {
+                matched = true;
                 if (!this.filesToMerge[mergeConfig.filename]) {
                   this.filesToMerge[mergeConfig.filename] = [];
                 }
@@ -246,7 +248,7 @@ class ExtractTextPlugin {
               }
             });
 
-            if (outputOriginals) {
+            if (!matched || outputOriginals) {
               compilation.assets[file] = source;
               chunk.files.push(file);
             }
