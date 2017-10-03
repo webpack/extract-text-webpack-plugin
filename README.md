@@ -75,6 +75,7 @@ new ExtractTextPlugin(options: filename | object)
 |**`allChunks`**|`{Boolean}`|Extract from all additional chunks too (by default it extracts only from the initial chunk(s))<br />When using `CommonsChunkPlugin` and there are extracted chunks (from `ExtractTextPlugin.extract`) in the commons chunk, `allChunks` **must** be set to `true`|
 |**`disable`**|`{Boolean}`|Disables the plugin|
 |**`ignoreOrder`**|`{Boolean}`|Disables order check (useful for CSS Modules!), `false` by default|
+|**`merge`**|`{Array}`|List of files to create merging other files. Each element should be like `{ test, filename, preventOriginalOutput}`|
 
 * `[name]` name of the chunk
 * `[id]` number of the chunk
@@ -84,7 +85,22 @@ new ExtractTextPlugin(options: filename | object)
   * other `digestType`s, e.g. `hex`, `base26`, `base32`, `base36`, `base49`, `base52`, `base58`, `base62`, `base64`
   * and `length`, the length of the hash in chars
 
-> :warning: `ExtractTextPlugin` generates a file **per entry**, so you must use `[name]`, `[id]` or `[contenthash]` when using multiple entries.
+> :warning: `ExtractTextPlugin` generates a file **per entry**, so you must use `[name]`, `[id]` or `[contenthash]` when using multiple entries, or set the `merge` option.
+
+```js
+// Generate one styles.css from all the *.styles.css and one themes.css from all the *.themes.css files
+new ExtractTextPlugin({
+  merge: [{
+    filename: 'styles.css', // name of the merged output file (required)
+    test: /\.styles\.css$/, // files to include (*.styles.css) (required)
+    originals: false,       // when false (by default), original files won't be generated
+  }, {
+    filename: 'themes.css',
+    test: /\.themes\.css$/,
+    originals: true,
+  }]
+})
+```
 
 #### `#extract`
 

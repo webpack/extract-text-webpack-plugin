@@ -71,6 +71,28 @@ exports[`Webpack Integration Tests merging-multiple-entries-shared 2`] = `
 "
 `;
 
+exports[`Webpack Integration Tests merging-multiple-outputs 1`] = `
+"c
+d
+"
+`;
+
+exports[`Webpack Integration Tests merging-multiple-outputs 2`] = `
+"a
+"
+`;
+
+exports[`Webpack Integration Tests merging-multiple-outputs 3`] = `
+"b
+"
+`;
+
+exports[`Webpack Integration Tests merging-multiple-outputs 4`] = `
+"a
+b
+"
+`;
+
 exports[`Webpack Integration Tests multiple-entries 1`] = `
 "a
 b
