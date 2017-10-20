@@ -56,7 +56,7 @@
     "standard-version": "^4.1.0",
     "style-loader": "^0.18.2",
     "webpack": "^3.1.0",
-    "webpack-defaults": "^1.5.0"
+    "webpack-defaults": "^1.6.0"
   },
   "engines": {
     "node": ">= 4.3 < 5.0.0 || >= 5.10"
