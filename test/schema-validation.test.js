@@ -16,8 +16,8 @@ describe('json schema validation', () => {
   });
 
   it('throws if an incorrect config is passed in', () => {
-    expect(() => {
-      ExtractTextPlugin.extract({ style: 'file.css' });
-    }).toThrow();
+    const exit = jest.spyOn(process, 'exit').mockImplementation(() => { });
+    ExtractTextPlugin.extract({ style: 'file.css' });
+    expect(exit).toHaveBeenCalledWith(1);
   });
 });
