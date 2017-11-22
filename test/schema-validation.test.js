@@ -15,9 +15,13 @@ describe('json schema validation', () => {
     }).doesNotThrow;
   });
 
-  it('throws if an incorrect config is passed in', () => {
+  it('displays error if an incorrect config is passed in', () => {
     const exit = jest.spyOn(process, 'exit').mockImplementation(() => { });
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => { });
+
     ExtractTextPlugin.extract({ style: 'file.css' });
+
+    expect(consoleError).toHaveBeenCalled();
     expect(exit).toHaveBeenCalledWith(1);
   });
 });
