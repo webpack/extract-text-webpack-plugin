@@ -1,6 +1,6 @@
 {
   "name": "extract-text-webpack-plugin",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "author": "Tobias Koppers @sokra",
   "description": "Extract text from bundle into a file.",
   "license": "MIT",
@@ -36,30 +36,30 @@
     "webpack-sources": "^1.0.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-jest": "^20.0.3",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-polyfill": "^6.23.0",
-    "babel-preset-env": "^1.5.2",
-    "cross-env": "^5.0.1",
-    "css-loader": "^0.28.4",
-    "del-cli": "^1.0.0",
-    "eslint": "^4.0.0",
-    "eslint-config-webpack": "^1.2.3",
-    "eslint-plugin-import": "^2.3.0",
-    "file-loader": "^0.11.2",
-    "jest": "^20.0.4",
-    "lint-staged": "^3.6.1",
-    "nsp": "^2.6.3",
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^21.2.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "cross-env": "^5.1.0",
+    "css-loader": "^0.28.7",
+    "del-cli": "^1.1.0",
+    "eslint": "^4.9.0",
+    "eslint-config-webpack": "^1.2.5",
+    "eslint-plugin-import": "^2.8.0",
+    "file-loader": "^1.1.5",
+    "jest": "^21.2.1",
+    "lint-staged": "^4.3.0",
+    "nsp": "^2.8.1",
     "pre-commit": "^1.2.2",
     "raw-loader": "^0.5.1",
-    "standard-version": "^4.1.0",
-    "style-loader": "^0.18.2",
-    "webpack": "^3.1.0",
-    "webpack-defaults": "^1.5.0"
+    "standard-version": "^4.2.0",
+    "style-loader": "^0.19.0",
+    "webpack": "^3.8.1",
+    "webpack-defaults": "^1.6.0"
   },
   "engines": {
-    "node": ">= 4.3 < 5.0.0 || >= 5.10"
+    "node": ">= 4.8 < 5.0.0 || >= 5.10"
   },
   "peerDependencies": {
     "webpack": "^3.1.0"

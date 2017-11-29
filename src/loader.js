@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import loaderUtils from 'loader-utils';
 import NodeTemplatePlugin from 'webpack/lib/node/NodeTemplatePlugin';
 import NodeTargetPlugin from 'webpack/lib/node/NodeTargetPlugin';
@@ -6,7 +7,7 @@ import LibraryTemplatePlugin from 'webpack/lib/LibraryTemplatePlugin';
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin';
 
-const NS = fs.realpathSync(__dirname);
+const NS = path.dirname(fs.realpathSync(__filename));
 
 export default source => source;
 
@@ -94,13 +95,16 @@ export function pitch(request) {
       }
       try {
         let text = this.exec(source, request);
-        if (typeof text === 'string') { text = [[0, text]]; }
-        text.forEach((item) => {
-          const id = item[0];
-          compilation.modules.forEach((module) => {
-            if (module.id === id) { item[0] = module.identifier(); }
+        if (typeof text === 'string') {
+          text = [[compilation.entries[0].identifier(), text]];
+        } else {
+          text.forEach((item) => {
+            const id = item[0];
+            compilation.modules.forEach((module) => {
+              if (module.id === id) { item[0] = module.identifier(); }
+            });
           });
-        });
+        }
         this[NS](text, query);
         if (text.locals && typeof resultSource !== 'undefined') {
           resultSource += `\nmodule.exports = ${JSON.stringify(text.locals)};`;

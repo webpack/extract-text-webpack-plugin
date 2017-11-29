@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.0.2"></a>
+## [3.0.2](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v3.0.1...v3.0.2) (2017-10-25)
+
+
+### Bug Fixes
+
+* refer to the `entrypoint` instead of the first `module` (`module.identifier`)  ([#601](https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/601)) ([d5a1de2](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/d5a1de2))
+
+
+
+<a name="3.0.1"></a>
+## [3.0.1](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v3.0.0...v3.0.1) (2017-10-03)
+
+
+### Bug Fixes
+
+* **index:** stricter check for `shouldExtract !== wasExtracted` ([#605](https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/605)) ([510704f](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/510704f))
+* get real path from `__filename` instead of `__dirname` (`NS`) ([8de6558](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/8de6558))
+
+
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v2.1.2...v3.0.0) (2017-07-10)
 

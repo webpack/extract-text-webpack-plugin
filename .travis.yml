@@ -15,7 +15,7 @@ jobs:
       env: WEBPACK_VERSION=latest JOB_PART=test
       script: npm run travis:$JOB_PART
     - <<: *test-latest
-      node_js: 4.3
+      node_js: 4.8
       env: WEBPACK_VERSION=latest JOB_PART=test
       script: npm run travis:$JOB_PART
     - <<: *test-latest
