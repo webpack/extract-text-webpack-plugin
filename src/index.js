@@ -5,7 +5,6 @@ import { ConcatSource } from 'webpack-sources';
 import async from 'async';
 import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
-import NormalModule from 'webpack/lib/NormalModule';
 import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';
 import OrderUndefinedError from './lib/OrderUndefinedError';
 import {
@@ -16,6 +15,7 @@ import {
   mergeOptions,
   isString,
   isFunction,
+  cloneModule,
 } from './lib/helpers';
 
 const NS = path.dirname(fs.realpathSync(__filename));
@@ -39,17 +39,6 @@ class ExtractTextPlugin {
 
   static loader(options) {
     return { loader: require.resolve('./loader'), options };
-  }
-
-  static cloneModule(module) {
-    return new NormalModule(
-      module.request,
-      module.userRequest,
-      module.rawRequest,
-      module.loaders,
-      module.resource,
-      module.parser,
-    );
   }
 
   applyAdditionalInformation(source, info) {
@@ -159,7 +148,7 @@ class ExtractTextPlugin {
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
           const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
           chunk.sortModules();
-          async.forEach(chunk.mapModules((c) => { return c; }), (module, callback) => { // eslint-disable-line no-shadow, arrow-body-style
+          async.forEach(chunk.mapModules(c => c), (module, callback) => { // eslint-disable-line no-shadow, arrow-body-style
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
               const wasExtracted = Array.isArray(meta.content);
@@ -167,7 +156,7 @@ class ExtractTextPlugin {
               // module would be extracted twice. Happens when a module is a dependency of an initial and a non-initial
               // chunk. See issue #604
               if (shouldExtract && !wasExtracted) {
-                const newModule = ExtractTextPlugin.cloneModule(module);
+                const newModule = cloneModule(module);
                 newModule[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
                 compilation.buildModule(newModule, false, newModule, null, (err) => {
                   if (err) {
@@ -227,7 +216,7 @@ class ExtractTextPlugin {
           const data = toRemoveModules[module.identifier()];
           if (data) {
             const oldModuleId = module.id;
-            const newModule = ExtractTextPlugin.cloneModule(module);
+            const newModule = cloneModule(module);
             newModule.id = oldModuleId;
             newModule._source = data.module._source; // eslint-disable-line no-underscore-dangle
             data.chunks.forEach((chunk) => {
