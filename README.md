@@ -146,8 +146,20 @@ module.exports = {
         test: /\.scss$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
-          //resolve-url-loader may be chained before sass-loader if necessary
-          use: ['css-loader', 'sass-loader']
+          use: [{
+              loader: 'css-loader',
+              options: {
+                  url: false, // If you are having trouble with urls not resolving add this setting.
+                  minimize: true,
+                  sourceMap: true
+              }
+          }, 
+          {
+              loader: 'sass-loader',
+              options: {
+                  sourceMap: true
+              }
+          }]
         })
       }
     ]
