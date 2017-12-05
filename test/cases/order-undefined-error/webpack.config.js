@@ -3,7 +3,7 @@ import ExtractTextPlugin from '../../../src/index';
 module.exports = {
   entry: './index.js',
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({

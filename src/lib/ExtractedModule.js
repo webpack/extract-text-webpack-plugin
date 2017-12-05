@@ -7,7 +7,8 @@ class ExtractedModule {
     source,
     sourceMap,
     addtitionalInformation,
-    prevModules) {
+    prevModules
+  ) {
     this._identifier = identifier;
     this._originalModule = originalModule;
     this._source = source;
@@ -24,7 +25,9 @@ class ExtractedModule {
 
   addChunk(chunk) {
     const idx = this.chunks.indexOf(chunk);
-    if (idx < 0) { this.chunks.push(chunk); }
+    if (idx < 0) {
+      this.chunks.push(chunk);
+    }
   }
 
   removeChunk(chunk) {
@@ -37,14 +40,16 @@ class ExtractedModule {
     return false;
   }
 
-  rewriteChunkInReasons(oldChunk, newChunks) { } // eslint-disable-line
+  rewriteChunkInReasons(oldChunk, newChunks) {} // eslint-disable-line
 
   identifier() {
     return this._identifier;
   }
 
   source() {
-    if (this._sourceMap) { return new SourceMapSource(this._source, null, this._sourceMap); }
+    if (this._sourceMap) {
+      return new SourceMapSource(this._source, null, this._sourceMap);
+    }
     return new RawSource(this._source);
   }
 
@@ -58,7 +63,9 @@ class ExtractedModule {
 
   addPrevModules(prevModules) {
     prevModules.forEach((m) => {
-      if (this._prevModules.indexOf(m) < 0) { this._prevModules.push(m); }
+      if (this._prevModules.indexOf(m) < 0) {
+        this._prevModules.push(m);
+      }
     }, this);
   }
 

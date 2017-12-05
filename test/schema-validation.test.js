@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-expressions */
 import ExtractTextPlugin from '../src';
 
-
 describe('json schema validation', () => {
   it('does not throw if a filename is specified', () => {
     expect(() => {
