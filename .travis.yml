@@ -28,10 +28,9 @@ jobs:
       script: npm run travis:$JOB_PART
       after_success: 'bash <(curl -s https://codecov.io/bash)'
     - stage: Webpack canary
+      node_js: 8
       env: WEBPACK_VERSION=4.0.0-alpha.0 JOB_PART=test
       script: npm run travis:$JOB_PART
-      node_js: 8
-      env: WEBPACK_VERSION=canary JOB_PART=test
 before_install:
   - 'if [[ `npm -v` != 5* ]]; then npm i -g npm@^5.0.0; fi'
   - nvm --version
