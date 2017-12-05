@@ -59,7 +59,7 @@
     "webpack-defaults": "^1.6.0"
   },
   "engines": {
-    "node": ">= 6 || >= 8"
+    "node": ">= 6.9.0 || >= 8.9.0"
   },
   "peerDependencies": {
     "webpack": "^4.0.0-alpha.0 || ^4.0.0"
