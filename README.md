@@ -59,7 +59,7 @@ It moves all the required `*.css` modules in entry chunks into a separate CSS fi
 | Fewer style tags (older IE has a limit) | Additional HTTP request |
 | CSS SourceMap (with `devtool: "source-map"` and `extract-text-webpack-plugin?sourceMap`) | Longer compilation time |
 | CSS requested in parallel | No runtime public path modification |
-| CSS cached separate | No Hot Module Replacement |
+| CSS cached separate | No Hot Module Replacement (but you can enable it with [css-hot-loader](https://github.com/shepherdwind/css-hot-loader)) |
 | Faster runtime (less code and DOM operations) | ... |
 
 <h2 align="center">Options</h2>
