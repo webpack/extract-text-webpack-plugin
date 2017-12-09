@@ -219,6 +219,11 @@ plugins: [
 ]
 ```
 
+### Hot reloading
+
+The [extraced-loader](https://github.com/sheerun/extracted-loader) or [css-hot-reloader](https://github.com/shepherdwind/css-hot-loader) might be helpful.
+
+
 <h2 align="center">Maintainers</h2>
 
 <table>
