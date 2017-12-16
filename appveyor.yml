@@ -1,6 +1,7 @@
 branches:
   only:
     - master
+    - next
 init:
   - git config --global core.autocrlf input
 environment:
@@ -11,8 +12,8 @@ environment:
     - nodejs_version: '6'
       webpack_version: latest
       job_part: test
-    - nodejs_version: '4.8'
-      webpack_version: latest
+    - nodejs_version: '8'
+      webpack_version: next
       job_part: test
 build: 'off'
 matrix:
@@ -26,4 +27,4 @@ before_test:
 test_script:
   - node --version
   - npm --version
-  - cmd: npm run appveyor:%job_part%
+  - cmd: npm run ci:%job_part%
