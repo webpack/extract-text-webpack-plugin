@@ -21,8 +21,8 @@ describe('Webpack Integration Tests', () => {
       }
       options.context = testDirectory;
       if (!options.module) options.module = {};
-      if (!options.module.loaders) {
-        options.module.loaders = [
+      if (!options.module.rules) {
+        options.module.rules = [
           { test: /\.txt$/, loader: ExtractTextPlugin.extract('raw-loader') },
         ];
       }
