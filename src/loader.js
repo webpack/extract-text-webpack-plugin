@@ -9,24 +9,28 @@ import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin';
 
 const NS = path.dirname(fs.realpathSync(__filename));
 
-export default source => source;
+export default (source) => source;
 
 export function pitch(request) {
   const query = loaderUtils.getOptions(this) || {};
   let loaders = this.loaders.slice(this.loaderIndex + 1);
   this.addDependency(this.resourcePath);
   // We already in child compiler, return empty bundle
-  if (this[NS] === undefined) { // eslint-disable-line no-undefined
+  if (this[NS] === undefined) {
+    // eslint-disable-line no-undefined
     throw new Error(
       '"extract-text-webpack-plugin" loader is used without the corresponding plugin, ' +
-      'refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example',
+        'refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example'
     );
   } else if (this[NS] === false) {
     return '';
   } else if (this[NS](null, query)) {
     if (query.omit) {
       this.loaderIndex += +query.omit + 1;
-      request = request.split('!').slice(+query.omit).join('!');
+      request = request
+        .split('!')
+        .slice(+query.omit)
+        .join('!');
       loaders = loaders.slice(+query.omit);
     }
     let resultSource;
@@ -37,12 +41,18 @@ export function pitch(request) {
     }
 
     const childFilename = 'extract-text-webpack-plugin-output-filename'; // eslint-disable-line no-path-concat
-    const publicPath = typeof query.publicPath === 'string' ? query.publicPath : this._compilation.outputOptions.publicPath;
+    const publicPath =
+      typeof query.publicPath === 'string'
+        ? query.publicPath
+        : this._compilation.outputOptions.publicPath;
     const outputOptions = {
       filename: childFilename,
       publicPath,
     };
-    const childCompiler = this._compilation.createChildCompiler(`extract-text-webpack-plugin ${NS} ${request}`, outputOptions);
+    const childCompiler = this._compilation.createChildCompiler(
+      `extract-text-webpack-plugin ${NS} ${request}`,
+      outputOptions
+    );
     childCompiler.apply(new NodeTemplatePlugin(outputOptions));
     childCompiler.apply(new LibraryTemplatePlugin(null, 'commonjs2'));
     childCompiler.apply(new NodeTargetPlugin());
@@ -55,10 +65,10 @@ export function pitch(request) {
         loaderContext[NS] = false;
         if (module.request === request) {
           module.loaders = loaders.map((loader) => {
-            return ({
+            return {
               loader: loader.path,
               options: loader.options,
-            });
+            };
           });
         }
       });
@@ -66,7 +76,9 @@ export function pitch(request) {
 
     let source;
     childCompiler.plugin('after-compile', (compilation, callback) => {
-      source = compilation.assets[childFilename] && compilation.assets[childFilename].source();
+      source =
+        compilation.assets[childFilename] &&
+        compilation.assets[childFilename].source();
 
       // Remove all chunk assets
       compilation.chunks.forEach((chunk) => {
@@ -101,7 +113,9 @@ export function pitch(request) {
           text.forEach((item) => {
             const id = item[0];
             compilation.modules.forEach((module) => {
-              if (module.id === id) { item[0] = module.identifier(); }
+              if (module.id === id) {
+                item[0] = module.identifier();
+              }
             });
           });
         }
@@ -112,7 +126,11 @@ export function pitch(request) {
       } catch (e) {
         return callback(e);
       }
-      if (resultSource) { callback(null, resultSource); } else { callback(); }
+      if (resultSource) {
+        callback(null, resultSource);
+      } else {
+        callback();
+      }
     });
   }
 }
