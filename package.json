@@ -65,23 +65,18 @@
     "raw-loader": "^0.5.1",
     "standard-version": "^4.2.0",
     "style-loader": "^0.19.0",
-    "webpack": "^3.10.0",
+    "webpack": "^4.0.0-alpha.1",
     "webpack-defaults": "^2.0.0-beta.1"
   },
   "engines": {
     "node": ">= 6.9.0 || >= 8.9.0"
   },
   "peerDependencies": {
-    "webpack": "^3.1.0 || ^4.0.0"
+    "webpack": "^4.0.0"
   },
   "homepage": "https://github.com/webpack-contrib/extract-text-webpack-plugin",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/webpack-contrib/extract-text-webpack-plugin"
-  },
-  "bugs": {
-    "url": "https://github.com/webpack-contrib/extract-text-webpack-plugin"
-  },
+  "repository": "https://github.com/webpack-contrib/extract-text-webpack-plugin",
+  "bugs": "https://github.com/webpack-contrib/extract-text-webpack-plugin",
   "pre-commit": "lint-staged",
   "lint-staged": {
     "*.js": [

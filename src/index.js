@@ -58,7 +58,7 @@ class ExtractTextPlugin {
   mergeNonInitialChunks(chunk, intoChunk, checkedChunks) {
     if (!intoChunk) {
       checkedChunks = [];
-      chunk.chunks.forEach((c) => {
+      chunk.getChunks().forEach((c) => {
         if (isInitialOrHasNoParents(c)) return;
         this.mergeNonInitialChunks(c, chunk, checkedChunks);
       }, this);
@@ -68,7 +68,7 @@ class ExtractTextPlugin {
         intoChunk.addModule(module);
         module.addChunk(intoChunk);
       });
-      chunk.chunks.forEach((c) => {
+      chunk.getChunks().forEach((c) => {
         if (isInitialOrHasNoParents(c)) return;
         this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
       }, this);
@@ -153,11 +153,11 @@ class ExtractTextPlugin {
           extractedChunk.index = i;
           extractedChunk.originalChunk = chunk;
           extractedChunk.name = chunk.name;
-          extractedChunk.entrypoints = chunk.entrypoints;
-          chunk.chunks.forEach((c) => {
+          extractedChunk.setEntrypoints(chunk.getEntrypoints());
+          chunk.getChunks().forEach((c) => {
             extractedChunk.addChunk(extractedChunks[chunks.indexOf(c)]);
           });
-          chunk.parents.forEach((c) => {
+          chunk.getParents().forEach((c) => {
             extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
           });
         });
