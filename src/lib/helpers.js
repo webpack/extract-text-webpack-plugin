@@ -1,5 +1,5 @@
 export function isInitialOrHasNoParents(chunk) {
-  return chunk.isInitial() || chunk.parents.length === 0;
+  return chunk.isInitial() || chunk.getParents().length === 0;
 }
 
 export function isInvalidOrder(a, b) {
