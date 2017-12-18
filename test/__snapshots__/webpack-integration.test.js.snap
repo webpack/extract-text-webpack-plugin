@@ -157,6 +157,10 @@ exports[`Webpack Integration Tests splitted-chunk 1`] = `
 "
 `;
 
+exports[`Webpack Integration Tests splitted-mix-multiple-entries 1`] = `"a"`;
+
+exports[`Webpack Integration Tests splitted-mix-multiple-entries 2`] = `"b"`;
+
 exports[`Webpack Integration Tests splitted-multiple-entries 1`] = `""`;
 
 exports[`Webpack Integration Tests splitted-multiple-entries 2`] = `""`;

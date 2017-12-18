@@ -153,16 +153,16 @@ class ExtractTextPlugin {
               // module would be extracted twice. Happens when a module is a dependency of an initial and a non-initial
               // chunk. See issue #604
 
-              let cks = module.chunks;
+              const cks = module.chunks;
               // check every module's chunks.parents() to decide extract or not
-              for (let i = 0 ; i < cks.length ; i++) {
-                  if (!isInitialOrHasNoParents(cks[i]) && !module.noExtracted) {
-                      module.noExtracted = 1;
-                      break;
-                  }
+              for (let i = 0; i < cks.length; i++) {
+                if (!isInitialOrHasNoParents(cks[i]) && !module.noExtracted) {
+                  module.noExtracted = 1;
+                  break;
+                }
               }
               if (shouldExtract || (!module.noExtracted && !wasExtracted)) {
-                module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
+                module[`${NS}/extract`] = true; // eslint-disable-line no-path-concat
                 compilation.rebuildModule(module, (err) => {
                   if (err) {
                     compilation.errors.push(err);
