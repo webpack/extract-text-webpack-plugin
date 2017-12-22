@@ -29,7 +29,7 @@
     "ci:lint": "npm run lint && npm run security",
     "ci:test": "npm run test -- --runInBand",
     "ci:coverage": "npm run test:coverage -- --runInBand",
-    "webpack-defaults": "webpack-defaults"
+    "defaults": "webpack-defaults"
   },
   "dependencies": {
     "async": "^2.4.1",
@@ -38,25 +38,25 @@
     "webpack-sources": "^1.1.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^5.2.5",
+    "@commitlint/cli": "^5.2.6",
     "@commitlint/config-angular": "^5.1.1",
     "@webpack-contrib/eslint-config-webpack": "^2.0.2",
     "babel-cli": "^6.26.0",
-    "babel-jest": "^21.2.0",
+    "babel-jest": "^22.0.4",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "conventional-github-releaser": "^2.0.0",
-    "cross-env": "^5.1.1",
+    "cross-env": "^5.1.3",
     "css-loader": "^0.28.7",
     "del": "^3.0.0",
     "del-cli": "^1.1.0",
     "eslint": "^4.13.1",
     "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-prettier": "^2.3.1",
-    "file-loader": "^1.1.5",
+    "eslint-plugin-prettier": "^2.4.0",
+    "file-loader": "^1.1.6",
     "husky": "^0.14.3",
-    "jest": "^21.2.1",
+    "jest": "^22.0.4",
     "lint-staged": "^6.0.0",
     "memory-fs": "^0.4.1",
     "nsp": "^3.1.0",
@@ -64,9 +64,9 @@
     "prettier": "^1.9.2",
     "raw-loader": "^0.5.1",
     "standard-version": "^4.2.0",
-    "style-loader": "^0.19.0",
+    "style-loader": "^0.19.1",
     "webpack": "^4.0.0-alpha.1",
-    "webpack-defaults": "^2.0.0-beta.1"
+    "webpack-defaults": "^2.0.0-rc.3"
   },
   "engines": {
     "node": ">= 6.9.0 || >= 8.9.0"
@@ -76,7 +76,7 @@
   },
   "homepage": "https://github.com/webpack-contrib/extract-text-webpack-plugin",
   "repository": "https://github.com/webpack-contrib/extract-text-webpack-plugin",
-  "bugs": "https://github.com/webpack-contrib/extract-text-webpack-plugin",
+  "bugs": "https://github.com/webpack-contrib/extract-text-webpack-plugin/issues",
   "pre-commit": "lint-staged",
   "lint-staged": {
     "*.js": [
