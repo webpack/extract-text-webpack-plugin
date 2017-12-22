@@ -65,7 +65,7 @@
     "raw-loader": "^0.5.1",
     "standard-version": "^4.2.0",
     "style-loader": "^0.19.1",
-    "webpack": "^4.0.0-alpha.1",
+    "webpack": "^4.0.0-alpha.2",
     "webpack-defaults": "^2.0.0-rc.3"
   },
   "engines": {
