@@ -16,12 +16,11 @@ export function pitch(request) {
   let loaders = this.loaders.slice(this.loaderIndex + 1);
   this.addDependency(this.resourcePath);
   // We already in child compiler, return empty bundle
-  if (this[NS] === undefined) { // eslint-disable-line no-undefined
-    throw new Error(
+  if (this[NS] === undefined || this[NS] === false) { // eslint-disable-line no-undefined
+    this.emitWarning(
       '"extract-text-webpack-plugin" loader is used without the corresponding plugin, ' +
       'refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example',
     );
-  } else if (this[NS] === false) {
     return '';
   } else if (this[NS](null, query)) {
     if (query.omit) {
