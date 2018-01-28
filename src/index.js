@@ -45,7 +45,7 @@ class ExtractTextPlugin {
     return { loader: require.resolve('./loader'), options };
   }
 
-  applyAdditionalInformation(source, info) {
+  static applyAdditionalInformation(source, info) {
     if (info) {
       return new ConcatSource(`@media ${info[0]} {`, source, '}');
     }
@@ -68,10 +68,10 @@ class ExtractTextPlugin {
       }
     } else if (checkedChunks.indexOf(chunk) < 0) {
       checkedChunks.push(chunk);
-      chunk.forEachModule((module) => {
-        intoChunk.addModule(module);
-        module.addChunk(intoChunk);
-      });
+      for (const chunkModule of chunk.modulesIterable) {
+        intoChunk.addModule(chunkModule);
+        chunkModule.addChunk(intoChunk);
+      }
       chunk.getChunks().forEach((c) => {
         if (isInitialOrHasNoParents(c)) return;
         this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
@@ -81,15 +81,15 @@ class ExtractTextPlugin {
 
   renderExtractedChunk(chunk) {
     const source = new ConcatSource();
-    chunk.forEachModule((module) => {
-      const moduleSource = module.source();
+    for (const chunkModule of chunk.modulesIterable) {
+      const moduleSource = chunkModule.source();
       source.add(
-        this.applyAdditionalInformation(
+        ExtractTextPlugin.applyAdditionalInformation(
           moduleSource,
-          module.additionalInformation
+          chunkModule.additionalInformation
         )
       );
-    }, this);
+    }
     return source;
   }
 
@@ -128,90 +128,108 @@ class ExtractTextPlugin {
     const options = this.options;
     compiler.plugin('this-compilation', (compilation) => {
       const extractCompilation = new ExtractTextPluginCompilation();
-      compilation.plugin('normal-module-loader', (loaderContext, module) => {
-        loaderContext[NS] = (content, opt) => {
-          if (options.disable) {
-            return false;
-          }
-          if (!Array.isArray(content) && content != null) {
-            throw new Error(
-              `Exported value was not extracted as an array: ${JSON.stringify(
-                content
-              )}`
-            );
-          }
-          module[NS] = {
-            content,
-            options: opt || {},
+      compilation.hooks.normalModuleLoader.tap(
+        'normal-module-loader',
+        (loaderContext, module) => {
+          loaderContext[NS] = (content, opt) => {
+            if (options.disable) {
+              return false;
+            }
+            if (!Array.isArray(content) && content != null) {
+              throw new Error(
+                `Exported value was not extracted as an array: ${JSON.stringify(
+                  content
+                )}`
+              );
+            }
+            module[NS] = {
+              content,
+              options: opt || {},
+            };
+            return options.allChunks || module[`${NS}/extract`]; // eslint-disable-line no-path-concat
           };
-          return options.allChunks || module[`${NS}/extract`]; // eslint-disable-line no-path-concat
-        };
-      });
+        }
+      );
       const filename = this.filename;
       const id = this.id;
       let extractedChunks;
-      compilation.plugin('optimize-tree', (chunks, modules, callback) => {
-        extractedChunks = chunks.map(() => new Chunk());
-        chunks.forEach((chunk, i) => {
-          const extractedChunk = extractedChunks[i];
-          extractedChunk.index = i;
-          extractedChunk.originalChunk = chunk;
-          extractedChunk.name = chunk.name;
+      compilation.hooks.optimizeTree.tapAsync(
+        'optimize-tree',
+        (chunks, modules, callback) => {
+          extractedChunks = chunks.map(() => new Chunk());
+          chunks.forEach((chunk, i) => {
+            const extractedChunk = extractedChunks[i];
+            extractedChunk.index = i;
+            extractedChunk.originalChunk = chunk;
+            extractedChunk.name = chunk.name;
 
-          for (const chunkGroup of chunk.groupsIterable) {
-            if (chunkGroup instanceof Entrypoint) {
-              extractedChunk.addGroup(chunkGroup);
+            for (const chunkGroup of chunk.groupsIterable) {
+              if (chunkGroup instanceof Entrypoint) {
+                extractedChunk.addGroup(chunkGroup);
+              }
+
+              for (const chunkGroupChunk of chunkGroup.chunksIterable) {
+                extractedChunk.addChunk(
+                  extractedChunks[chunks.indexOf(chunkGroupChunk)]
+                );
+              }
+
+              for (const chunkGroupParent of chunkGroup.parentsIterable) {
+                extractedChunk.addParent(
+                  extractedChunks[chunks.indexOf(chunkGroupParent)]
+                );
+              }
             }
-
-            for (const chunkGroupChunk of chunkGroup.chunksIterable) {
-              extractedChunk.addChunk(
-                extractedChunks[chunks.indexOf(chunkGroupChunk)]
+          });
+          async.forEach(
+            chunks,
+            (chunk, callback) => {
+              // eslint-disable-line no-shadow
+              const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
+              const shouldExtract = !!(
+                options.allChunks || isInitialOrHasNoParents(chunk)
               );
-            }
-
-            for (const chunkGroupParent of chunkGroup.parentsIterable) {
-              extractedChunk.addParent(extractedChunks[chunks.indexOf(chunkGroupParent)]);
-            }
-          }
-        });
-        async.forEach(
-          chunks,
-          (chunk, callback) => {
-            // eslint-disable-line no-shadow
-            const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
-            const shouldExtract = !!(
-              options.allChunks || isInitialOrHasNoParents(chunk)
-            );
-            chunk.sortModules();
-            async.forEach(
-              chunk.mapModules((c) => c),
-              (module, callback) => {
-                // eslint-disable-line no-shadow
-                let meta = module[NS];
-                if (meta && (!meta.options.id || meta.options.id === id)) {
-                  const wasExtracted = Array.isArray(meta.content);
-                  // A stricter `shouldExtract !== wasExtracted` check to guard against cases where a previously extracted
-                  // module would be extracted twice. Happens when a module is a dependency of an initial and a non-initial
-                  // chunk. See issue #604
-                  if (shouldExtract && !wasExtracted) {
-                    module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
-                    compilation.rebuildModule(module, (err) => {
-                      if (err) {
-                        compilation.errors.push(err);
-                        return callback();
-                      }
-                      meta = module[NS];
-                      // Error out if content is not an array and is not null
-                      if (
-                        !Array.isArray(meta.content) &&
-                        meta.content != null
-                      ) {
-                        err = new Error(
-                          `${module.identifier()} doesn't export content`
-                        );
-                        compilation.errors.push(err);
-                        return callback();
-                      }
+              chunk.sortModules();
+              async.forEach(
+                chunk.mapModules((c) => c),
+                (module, callback) => {
+                  // eslint-disable-line no-shadow
+                  let meta = module[NS];
+                  if (meta && (!meta.options.id || meta.options.id === id)) {
+                    const wasExtracted = Array.isArray(meta.content);
+                    // A stricter `shouldExtract !== wasExtracted` check to guard against cases where a previously extracted
+                    // module would be extracted twice. Happens when a module is a dependency of an initial and a non-initial
+                    // chunk. See issue #604
+                    if (shouldExtract && !wasExtracted) {
+                      module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
+                      compilation.rebuildModule(module, (err) => {
+                        if (err) {
+                          compilation.errors.push(err);
+                          return callback();
+                        }
+                        meta = module[NS];
+                        // Error out if content is not an array and is not null
+                        if (
+                          !Array.isArray(meta.content) &&
+                          meta.content != null
+                        ) {
+                          err = new Error(
+                            `${module.identifier()} doesn't export content`
+                          );
+                          compilation.errors.push(err);
+                          return callback();
+                        }
+                        if (meta.content) {
+                          extractCompilation.addResultToChunk(
+                            module.identifier(),
+                            meta.content,
+                            module,
+                            extractedChunk
+                          );
+                        }
+                        callback();
+                      });
+                    } else {
                       if (meta.content) {
                         extractCompilation.addResultToChunk(
                           module.identifier(),
@@ -221,93 +239,83 @@ class ExtractTextPlugin {
                         );
                       }
                       callback();
-                    });
-                  } else {
-                    if (meta.content) {
-                      extractCompilation.addResultToChunk(
-                        module.identifier(),
-                        meta.content,
-                        module,
-                        extractedChunk
+                    }
+                  } else callback();
+                },
+                (err) => {
+                  if (err) return callback(err);
+                  callback();
+                }
+              );
+            },
+            (err) => {
+              if (err) return callback(err);
+              extractedChunks.forEach((extractedChunk) => {
+                if (isInitialOrHasNoParents(extractedChunk)) {
+                  this.mergeNonInitialChunks(extractedChunk);
+                }
+              }, this);
+              extractedChunks.forEach((extractedChunk) => {
+                if (!isInitialOrHasNoParents(extractedChunk)) {
+                  for (const chunkModule of extractedChunk.modulesIterable) {
+                    extractedChunk.removeModule(chunkModule);
+                  }
+                }
+              });
+              compilation.hooks.optimizeExtractedChunks.call(extractedChunks);
+              callback();
+            }
+          );
+        }
+      );
+      compilation.hooks.additionalAssets.tapAsync(
+        'additional-assets',
+        (callback) => {
+          extractedChunks.forEach((extractedChunk) => {
+            if (extractedChunk.getNumberOfModules()) {
+              extractedChunk.sortModules((a, b) => {
+                if (!options.ignoreOrder && isInvalidOrder(a, b)) {
+                  compilation.errors.push(
+                    new OrderUndefinedError(a.getOriginalModule())
+                  );
+                  compilation.errors.push(
+                    new OrderUndefinedError(b.getOriginalModule())
+                  );
+                }
+                return getOrder(a, b);
+              });
+              const chunk = extractedChunk.originalChunk;
+              const source = this.renderExtractedChunk(extractedChunk);
+
+              const getPath = (format) =>
+                compilation
+                  .getPath(format, {
+                    chunk,
+                  })
+                  .replace(
+                    /\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/gi,
+                    function() {
+                      // eslint-disable-line func-names
+                      return loaderUtils.getHashDigest(
+                        source.source(),
+                        arguments[1],
+                        arguments[2],
+                        parseInt(arguments[3], 10)
                       );
                     }
-                    callback();
-                  }
-                } else callback();
-              },
-              (err) => {
-                if (err) return callback(err);
-                callback();
-              }
-            );
-          },
-          (err) => {
-            if (err) return callback(err);
-            extractedChunks.forEach((extractedChunk) => {
-              if (isInitialOrHasNoParents(extractedChunk)) {
-                this.mergeNonInitialChunks(extractedChunk);
-              }
-            }, this);
-            extractedChunks.forEach((extractedChunk) => {
-              if (!isInitialOrHasNoParents(extractedChunk)) {
-                extractedChunk.forEachModule((module) => {
-                  extractedChunk.removeModule(module);
-                });
-              }
-            });
-            compilation.applyPlugins(
-              'optimize-extracted-chunks',
-              extractedChunks
-            );
-            callback();
-          }
-        );
-      });
-      compilation.plugin('additional-assets', (callback) => {
-        extractedChunks.forEach((extractedChunk) => {
-          if (extractedChunk.getNumberOfModules()) {
-            extractedChunk.sortModules((a, b) => {
-              if (!options.ignoreOrder && isInvalidOrder(a, b)) {
-                compilation.errors.push(
-                  new OrderUndefinedError(a.getOriginalModule())
-                );
-                compilation.errors.push(
-                  new OrderUndefinedError(b.getOriginalModule())
-                );
-              }
-              return getOrder(a, b);
-            });
-            const chunk = extractedChunk.originalChunk;
-            const source = this.renderExtractedChunk(extractedChunk);
+                  );
 
-            const getPath = (format) =>
-              compilation
-                .getPath(format, {
-                  chunk,
-                })
-                .replace(
-                  /\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/gi,
-                  function() {
-                    // eslint-disable-line func-names
-                    return loaderUtils.getHashDigest(
-                      source.source(),
-                      arguments[1],
-                      arguments[2],
-                      parseInt(arguments[3], 10)
-                    );
-                  }
-                );
+              const file = isFunction(filename)
+                ? filename(getPath)
+                : getPath(filename);
 
-            const file = isFunction(filename)
-              ? filename(getPath)
-              : getPath(filename);
-
-            compilation.assets[file] = source;
-            chunk.files.push(file);
-          }
-        }, this);
-        callback();
-      });
+              compilation.assets[file] = source;
+              chunk.files.push(file);
+            }
+          }, this);
+          callback();
+        }
+      );
     });
   }
 }
