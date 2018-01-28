@@ -1,5 +1,10 @@
 export function isInitialOrHasNoParents(chunk) {
-  return chunk.isInitial() || chunk.getParents().length === 0;
+  let parentCount = 0;
+  for (const chunkGroup of chunk.groupsIterable) {
+    parentCount += chunkGroup.getParents().length;
+  }
+
+  return chunk.isOnlyInitial() || parentCount === 0;
 }
 
 export function isInvalidOrder(a, b) {

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import Chunk from 'webpack/lib/Chunk';
+import Entrypoint from 'webpack/lib/Entrypoint';
 import { ConcatSource } from 'webpack-sources';
 import async from 'async';
 import loaderUtils from 'loader-utils';
@@ -58,10 +59,13 @@ class ExtractTextPlugin {
   mergeNonInitialChunks(chunk, intoChunk, checkedChunks) {
     if (!intoChunk) {
       checkedChunks = [];
-      chunk.getChunks().forEach((c) => {
-        if (isInitialOrHasNoParents(c)) return;
-        this.mergeNonInitialChunks(c, chunk, checkedChunks);
-      }, this);
+
+      for (const chunkGroup of chunk.groupsIterable) {
+        for (const chunkGroupChunk of chunkGroup.getChildren()) {
+          if (isInitialOrHasNoParents(chunkGroupChunk)) return;
+          this.mergeNonInitialChunks(chunkGroupChunk, chunk, checkedChunks);
+        }
+      }
     } else if (checkedChunks.indexOf(chunk) < 0) {
       checkedChunks.push(chunk);
       chunk.forEachModule((module) => {
@@ -153,13 +157,22 @@ class ExtractTextPlugin {
           extractedChunk.index = i;
           extractedChunk.originalChunk = chunk;
           extractedChunk.name = chunk.name;
-          extractedChunk.setEntrypoints(chunk.getEntrypoints());
-          chunk.getChunks().forEach((c) => {
-            extractedChunk.addChunk(extractedChunks[chunks.indexOf(c)]);
-          });
-          chunk.getParents().forEach((c) => {
-            extractedChunk.addParent(extractedChunks[chunks.indexOf(c)]);
-          });
+
+          for (const chunkGroup of chunk.groupsIterable) {
+            if (chunkGroup instanceof Entrypoint) {
+              extractedChunk.addGroup(chunkGroup);
+            }
+
+            for (const chunkGroupChunk of chunkGroup.chunksIterable) {
+              extractedChunk.addChunk(
+                extractedChunks[chunks.indexOf(chunkGroupChunk)]
+              );
+            }
+
+            for (const parent of chunkGroup.parentsIterable) {
+              extractedChunk.addParent(extractedChunks[chunks.indexOf(parent)]);
+            }
+          }
         });
         async.forEach(
           chunks,
