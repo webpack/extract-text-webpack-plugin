@@ -53,25 +53,28 @@ export function pitch(request) {
       `extract-text-webpack-plugin ${NS} ${request}`,
       outputOptions
     );
-    childCompiler.apply(new NodeTemplatePlugin(outputOptions));
-    childCompiler.apply(new LibraryTemplatePlugin(null, 'commonjs2'));
-    childCompiler.apply(new NodeTargetPlugin());
-    childCompiler.apply(new SingleEntryPlugin(this.context, `!!${request}`));
-    childCompiler.apply(new LimitChunkCountPlugin({ maxChunks: 1 }));
+    new NodeTemplatePlugin(outputOptions).apply(childCompiler);
+    new LibraryTemplatePlugin(null, 'commonjs2').apply(childCompiler);
+    new NodeTargetPlugin().apply(childCompiler);
+    new SingleEntryPlugin(this.context, `!!${request}`).apply(childCompiler);
+    new LimitChunkCountPlugin({ maxChunks: 1 }).apply(childCompiler);
     // We set loaderContext[NS] = false to indicate we already in
     // a child compiler so we don't spawn another child compilers from there.
     childCompiler.plugin('this-compilation', (compilation) => {
-      compilation.plugin('normal-module-loader', (loaderContext, module) => {
-        loaderContext[NS] = false;
-        if (module.request === request) {
-          module.loaders = loaders.map((loader) => {
-            return {
-              loader: loader.path,
-              options: loader.options,
-            };
-          });
+      compilation.hooks.normalModuleLoader.tap(
+        'normal-module-loader',
+        (loaderContext, module) => {
+          loaderContext[NS] = false;
+          if (module.request === request) {
+            module.loaders = loaders.map((loader) => {
+              return {
+                loader: loader.path,
+                options: loader.options,
+              };
+            });
+          }
         }
-      });
+      );
     });
 
     let source;
