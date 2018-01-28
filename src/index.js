@@ -168,13 +168,13 @@ class ExtractTextPlugin {
                 extractedChunk.addGroup(chunkGroup);
               }
 
-              for (const chunkGroupChunk of chunkGroup.chunksIterable) {
+              for (const chunkGroupChunk of chunkGroup.getChildren()) {
                 extractedChunk.addChunk(
                   extractedChunks[chunks.indexOf(chunkGroupChunk)]
                 );
               }
 
-              for (const chunkGroupParent of chunkGroup.parentsIterable) {
+              for (const chunkGroupParent of chunkGroup.getParents()) {
                 extractedChunk.addParent(
                   extractedChunks[chunks.indexOf(chunkGroupParent)]
                 );
