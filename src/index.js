@@ -169,8 +169,8 @@ class ExtractTextPlugin {
               );
             }
 
-            for (const parent of chunkGroup.parentsIterable) {
-              extractedChunk.addParent(extractedChunks[chunks.indexOf(parent)]);
+            for (const chunkGroupParent of chunkGroup.parentsIterable) {
+              extractedChunk.addParent(extractedChunks[chunks.indexOf(chunkGroupParent)]);
             }
           }
         });
