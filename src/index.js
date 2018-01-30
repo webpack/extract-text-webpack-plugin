@@ -60,29 +60,51 @@ class ExtractTextPlugin {
     if (!intoChunk) {
       checkedChunks = [];
 
-      for (const chunkGroup of chunk.groupsIterable) {
-        for (const chunkGroupChunk of chunkGroup.getChildren()) {
-          if (isInitialOrHasNoParents(chunkGroupChunk)) return;
-          this.mergeNonInitialChunks(chunkGroupChunk, chunk, checkedChunks);
-        }
+      if (chunk.isOnlyInitial()) return;
+
+      for (const asyncChunks of chunk.getAllAsyncChunks()) {
+        this.mergeNonInitialChunks(asyncChunks, chunk, checkedChunks);
       }
-    } else if (checkedChunks.indexOf(chunk) < 0) {
+
+      // for (const chunkGroup of chunk.groupsIterable) {
+      //   for (const chunkGroupChunk of chunkGroup.getChildren()) {
+      //     if (isInitialOrHasNoParents(chunkGroupChunk)) return;
+      //     this.mergeNonInitialChunks(chunkGroupChunk, chunk, checkedChunks);
+      //   }
+      // }
+    } else if (!checkedChunks.includes(chunk)) {
       checkedChunks.push(chunk);
-      for (const chunkModule of chunk.modulesIterable) {
-        intoChunk.addModule(chunkModule);
-        chunkModule.addChunk(intoChunk);
+
+      // for (const chunkModule of chunk.modulesIterable) {
+      //   intoChunk.addModule(chunkModule);
+      //   chunkModule.addChunk(intoChunk);
+      // }
+
+      for (const chunkGroup of chunk.getChildren()) {
+        for (const chunkGroupChunk of chunkGroup.getChildren()) {
+          for (const chunkModule of chunkGroupChunk.getModules()) {
+            intoChunk.addModule(chunkModule);
+            chunkModule.addChunk(intoChunk);
+          }
+        }
+
+        if (chunkGroup.isInitial()) return;
+        this.mergeNonInitialChunks(chunkGroup, intoChunk, checkedChunks);
       }
-      chunk.getChunks().forEach((c) => {
-        if (isInitialOrHasNoParents(c)) return;
-        this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
-      }, this);
+
+      // chunk.getChunks().forEach((c) => {
+      //   if (isInitialOrHasNoParents(c)) return;
+      //   this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
+      // }, this);
     }
   }
 
   renderExtractedChunk(chunk) {
     const source = new ConcatSource();
-    for (const chunkModule of chunk.modulesIterable) {
+
+    for (const chunkModule of chunk.getModules()) {
       const moduleSource = chunkModule.source();
+
       source.add(
         ExtractTextPlugin.applyAdditionalInformation(
           moduleSource,
@@ -108,16 +130,20 @@ class ExtractTextPlugin {
         'Extract Text Plugin (Loader)'
       );
     }
+
     let loader = options.use;
     let before = options.fallback || [];
+
     if (isString(loader)) {
       loader = loader.split('!');
     }
+
     if (isString(before)) {
       before = before.split('!');
     } else if (!Array.isArray(before)) {
       before = [before];
     }
+
     options = mergeOptions({ omit: before.length, remove: true }, options);
     delete options.use;
     delete options.fallback;
@@ -126,8 +152,10 @@ class ExtractTextPlugin {
 
   apply(compiler) {
     const options = this.options;
+
     compiler.plugin('this-compilation', (compilation) => {
       const extractCompilation = new ExtractTextPluginCompilation();
+
       compilation.hooks.normalModuleLoader.tap(
         'normal-module-loader',
         (loaderContext, module) => {
@@ -135,6 +163,7 @@ class ExtractTextPlugin {
             if (options.disable) {
               return false;
             }
+
             if (!Array.isArray(content) && content != null) {
               throw new Error(
                 `Exported value was not extracted as an array: ${JSON.stringify(
@@ -142,14 +171,17 @@ class ExtractTextPlugin {
                 )}`
               );
             }
+
             module[NS] = {
               content,
               options: opt || {},
             };
+
             return options.allChunks || module[`${NS}/extract`]; // eslint-disable-line no-path-concat
           };
         }
       );
+
       const filename = this.filename;
       const id = this.id;
       let extractedChunks;
@@ -157,6 +189,7 @@ class ExtractTextPlugin {
         'optimize-tree',
         (chunks, modules, callback) => {
           extractedChunks = chunks.map(() => new Chunk());
+
           chunks.forEach((chunk, i) => {
             const extractedChunk = extractedChunks[i];
             extractedChunk.index = i;
@@ -168,19 +201,20 @@ class ExtractTextPlugin {
                 extractedChunk.addGroup(chunkGroup);
               }
 
-              for (const chunkGroupChunk of chunkGroup.getChildren()) {
-                extractedChunk.addChunk(
-                  extractedChunks[chunks.indexOf(chunkGroupChunk)]
-                );
-              }
-
-              for (const chunkGroupParent of chunkGroup.getParents()) {
-                extractedChunk.addParent(
-                  extractedChunks[chunks.indexOf(chunkGroupParent)]
-                );
-              }
+              // for (const chunkGroupChunk of chunkGroup.getChildren()) {
+              //   extractedChunk.addChunk(
+              //     extractedChunks[chunks.indexOf(chunkGroupChunk)]
+              //   );
+              // }
+              //
+              // for (const chunkGroupParent of chunkGroup.getParents()) {
+              //   extractedChunk.addParent(
+              //     extractedChunks[chunks.indexOf(chunkGroupParent)]
+              //   );
+              // }
             }
           });
+
           async.forEach(
             chunks,
             (chunk, callback) => {
@@ -190,6 +224,7 @@ class ExtractTextPlugin {
                 options.allChunks || isInitialOrHasNoParents(chunk)
               );
               chunk.sortModules();
+
               async.forEach(
                 chunk.mapModules((c) => c),
                 (module, callback) => {
@@ -257,7 +292,7 @@ class ExtractTextPlugin {
               }, this);
               extractedChunks.forEach((extractedChunk) => {
                 if (!isInitialOrHasNoParents(extractedChunk)) {
-                  for (const chunkModule of extractedChunk.modulesIterable) {
+                  for (const chunkModule of extractedChunk.getModules()) {
                     extractedChunk.removeModule(chunkModule);
                   }
                 }
