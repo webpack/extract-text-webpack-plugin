@@ -7,11 +7,11 @@ import async from 'async';
 import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
 import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';
-import OrderUndefinedError from './lib/OrderUndefinedError';
+// import OrderUndefinedError from './lib/OrderUndefinedError';
 import {
   isInitialOrHasNoParents,
-  isInvalidOrder,
-  getOrder,
+  // isInvalidOrder,
+  // getOrder,
   getLoaderObject,
   mergeOptions,
   isString,
@@ -308,17 +308,17 @@ class ExtractTextPlugin {
         (callback) => {
           extractedChunks.forEach((extractedChunk) => {
             if (extractedChunk.getNumberOfModules()) {
-              extractedChunk.sortModules((a, b) => {
-                if (!options.ignoreOrder && isInvalidOrder(a, b)) {
-                  compilation.errors.push(
-                    new OrderUndefinedError(a.getOriginalModule())
-                  );
-                  compilation.errors.push(
-                    new OrderUndefinedError(b.getOriginalModule())
-                  );
-                }
-                return getOrder(a, b);
-              });
+              // extractedChunk.sortModules((a, b) => {
+              //   if (!options.ignoreOrder && isInvalidOrder(a, b)) {
+              //     compilation.errors.push(
+              //       new OrderUndefinedError(a.getOriginalModule())
+              //     );
+              //     compilation.errors.push(
+              //       new OrderUndefinedError(b.getOriginalModule())
+              //     );
+              //   }
+              //   return getOrder(a, b);
+              // });
               const chunk = extractedChunk.originalChunk;
               const source = this.renderExtractedChunk(extractedChunk);
 
