@@ -99,9 +99,9 @@ export function pitch(request) {
           text = [[compilation.entries[0].identifier(), text]];
         } else {
           text.forEach((item) => {
-            const id = item[0];
+            const group = item[0];
             compilation.modules.forEach((module) => {
-              if (module.id === id) { item[0] = module.identifier(); }
+              if (module.group === group) { item[0] = module.identifier(); }
             });
           });
         }
