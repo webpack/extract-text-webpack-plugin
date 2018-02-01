@@ -19,7 +19,7 @@ import {
 
 const NS = path.dirname(fs.realpathSync(__filename));
 
-let nextId = 0;
+let nextGroupId = 0;
 
 class ExtractTextPlugin {
   constructor(options) {
@@ -29,11 +29,11 @@ class ExtractTextPlugin {
       validateOptions(path.resolve(__dirname, '../schema/plugin.json'), options, 'Extract Text Plugin');
     }
     this.filename = options.filename;
-    this.id = options.id != null ? options.id : ++nextId;
+    this.group = options.group != null ? options.group : ++nextGroupId;
     this.options = {};
     mergeOptions(this.options, options);
     delete this.options.filename;
-    delete this.options.id;
+    delete this.options.group;
   }
 
   static loader(options) {
@@ -52,7 +52,7 @@ class ExtractTextPlugin {
   }
 
   loader(options) {
-    return ExtractTextPlugin.loader(mergeOptions({ id: this.id }, options));
+    return ExtractTextPlugin.loader(mergeOptions({ group: this.group }, options));
   }
 
   mergeNonInitialChunks(chunk, intoChunk, checkedChunks) {
@@ -124,7 +124,7 @@ class ExtractTextPlugin {
         };
       });
       const filename = this.filename;
-      const id = this.id;
+      const group = this.group;
       let extractedChunks;
       compilation.plugin('optimize-tree', (chunks, modules, callback) => {
         extractedChunks = chunks.map(() => new Chunk());
@@ -147,7 +147,7 @@ class ExtractTextPlugin {
           chunk.sortModules();
           async.forEach(chunk.mapModules(c => c), (module, callback) => { // eslint-disable-line no-shadow
             let meta = module[NS];
-            if (meta && (!meta.options.id || meta.options.id === id)) {
+            if (meta && (!meta.options.group || meta.options.group === group)) {
               const wasExtracted = Array.isArray(meta.content);
               // A stricter `shouldExtract !== wasExtracted` check to guard against cases where a previously extracted
               // module would be extracted twice. Happens when a module is a dependency of an initial and a non-initial
