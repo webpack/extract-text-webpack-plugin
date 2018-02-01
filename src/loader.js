@@ -31,7 +31,7 @@ export function pitch(request) {
     }
     let resultSource;
     if (query.remove) {
-      resultSource = '// removed by extract-text-webpack-plugin';
+      resultSource = '/* removed by extract-text-webpack-plugin */';
     } else {
       resultSource = undefined; // eslint-disable-line no-undefined
     }
