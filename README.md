@@ -70,8 +70,8 @@ new ExtractTextPlugin(options: filename | object)
 
 |Name|Type|Description|
 |:--:|:--:|:----------|
-|**`id`**|`{String}`|Unique ident for this plugin instance. (For advanced usage only, by default automatically generated)|
-|**`filename`**|`{String\|Function}`|Name of the result file. May contain `[name]`, `[id]` and `[contenthash]`|
+|**`group`**|`{String}`|Unique group ident for this plugin instance. (For advanced usage only, by default automatically generated)|
+|**`filename`**|`{String}`/`{Function}`|Name of the result file. May contain `[name]`, `[id]` and `[contenthash]`|
 |**`allChunks`**|`{Boolean}`|Extract from all additional chunks too (by default it extracts only from the initial chunk(s))<br />When using `CommonsChunkPlugin` and there are extracted chunks (from `ExtractTextPlugin.extract`) in the commons chunk, `allChunks` **must** be set to `true`|
 |**`disable`**|`{Boolean}`|Disables the plugin|
 |**`ignoreOrder`**|`{Boolean}`|Disables order check (useful for CSS Modules!), `false` by default|
@@ -96,6 +96,7 @@ Creates an extracting loader from an existing loader. Supports loaders of type `
 
 |Name|Type|Description|
 |:--:|:--:|:----------|
+|**`options.group`**|`{String}`|Unique group ident same as the target plugin instance. (For advanced usage only, by default automatically generated)|
 |**`options.use`**|`{String}`/`{Array}`/`{Object}`|Loader(s) that should be used for converting the resource to a CSS exporting module _(required)_|
 |**`options.fallback`**|`{String}`/`{Array}`/`{Object}`|loader(e.g `'style-loader'`) that should be used when the CSS is not extracted (i.e. in an additional chunk when `allChunks: false`)|
 |**`options.publicPath`**|`{String}`|Override the `publicPath` setting for this loader|
@@ -103,7 +104,7 @@ Creates an extracting loader from an existing loader. Supports loaders of type `
 
 #### Multiple Instances
 
-There is also an `extract` function on the instance. You should use this if you have more than one instance of  `ExtractTextPlugin`.
+There is also an `extract` function on each instance. You should use this if you have more than one instance of  `ExtractTextPlugin`.
 
 ```js
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -128,6 +129,57 @@ module.exports = {
   plugins: [
     extractCSS,
     extractLESS
+  ]
+};
+```
+
+Or, you can use [`options.group`](#extract) key to distinguish instance.
+
+```js
+/*
+ * This example will boundle all css file(include .css and .less) in one file
+ * and all markdown file in another file.
+ * 
+ * !!!Attention: All loader's group key must paired with just only one instance.
+ * By default, `group` value automatically generated.
+ */
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          group: 'css',
+          use: ['css-loader', 'postcss-loader']
+        })
+      },
+      {
+        test: /\.less$/i,
+        use: ExtractTextPlugin.extract({
+          group: 'css',
+          use: ['css-loader', 'less-loader']
+        })
+      },
+      {
+        test: /\.md$/i,
+        use: ExtractTextPlugin.extract({
+          group: 'doc',
+          use: ['raw-loader']
+        })
+      },
+    ]
+  },
+  plugins: [
+    new ExtractTextPlugin({
+      group: 'css',
+      filename: 'stylesheets/[name]-one.css'
+    }),
+    new ExtractTextPlugin({
+      group: 'doc',
+      filename: 'docs/[name].md'
+    })
   ]
 };
 ```

@@ -2,6 +2,9 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "group": {
+      "type": "string"
+    },
     "allChunks": {
       "description": "",
       "type": "boolean"
