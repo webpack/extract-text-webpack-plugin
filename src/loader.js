@@ -11,6 +11,36 @@ const NS = path.dirname(fs.realpathSync(__filename));
 
 export default source => source;
 
+function hmrCode() {
+  return (`
+if (module.hot) {
+  var injectCss = function injectCss(prev, href) {
+    var link = prev.cloneNode();
+    link.href = href;
+    link.onload = function() {
+      prev.parentNode.removeChild(prev);
+    };
+    prev.stale = true;
+    prev.parentNode.insertBefore(link, prev);
+  };
+  module.hot.dispose(function() {
+    window.__webpack_reload_css__ = true;
+  });
+  if (window.__webpack_reload_css__) {
+    module.hot.__webpack_reload_css__ = false;
+    console.log("[HMR] Reloading stylesheets...");
+    var prefix = document.location.protocol + '//' + document.location.host;
+    document
+      .querySelectorAll("link[href][rel=stylesheet]")
+      .forEach(function(link) {
+        if (!link.href.match(prefix) || link.stale) return;
+        injectCss(link, link.href.split("?")[0] + "?unix=${+new Date()}");
+      });
+  }
+}
+  `);
+}
+
 export function pitch(request) {
   const query = loaderUtils.getOptions(this) || {};
   let loaders = this.loaders.slice(this.loaderIndex + 1);
@@ -32,6 +62,9 @@ export function pitch(request) {
     let resultSource;
     if (query.remove) {
       resultSource = '// removed by extract-text-webpack-plugin';
+      if (process.env.NODE_ENV === 'development') {
+        resultSource += hmrCode();
+      }
     } else {
       resultSource = undefined; // eslint-disable-line no-undefined
     }
