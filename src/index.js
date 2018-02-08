@@ -1,17 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import Chunk from 'webpack/lib/Chunk';
-import Entrypoint from 'webpack/lib/Entrypoint';
 import { ConcatSource } from 'webpack-sources';
 import async from 'async';
 import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
 import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';
-// import OrderUndefinedError from './lib/OrderUndefinedError';
+
 import {
   isInitialOrHasNoParents,
-  // isInvalidOrder,
-  // getOrder,
   getLoaderObject,
   mergeOptions,
   isString,
@@ -19,6 +16,7 @@ import {
 } from './lib/helpers';
 
 const NS = path.dirname(fs.realpathSync(__filename));
+const pluginName = 'ExtractTextPlugin';
 
 let nextId = 0;
 
@@ -65,44 +63,26 @@ class ExtractTextPlugin {
       for (const asyncChunks of chunk.getAllAsyncChunks()) {
         this.mergeNonInitialChunks(asyncChunks, chunk, checkedChunks);
       }
-
-      // for (const chunkGroup of chunk.groupsIterable) {
-      //   for (const chunkGroupChunk of chunkGroup.getChildren()) {
-      //     if (isInitialOrHasNoParents(chunkGroupChunk)) return;
-      //     this.mergeNonInitialChunks(chunkGroupChunk, chunk, checkedChunks);
-      //   }
-      // }
     } else if (!checkedChunks.includes(chunk)) {
       checkedChunks.push(chunk);
 
-      // for (const chunkModule of chunk.modulesIterable) {
-      //   intoChunk.addModule(chunkModule);
-      //   chunkModule.addChunk(intoChunk);
-      // }
-
-      for (const chunkGroup of chunk.getChildren()) {
-        for (const chunkGroupChunk of chunkGroup.getChildren()) {
-          for (const chunkModule of chunkGroupChunk.getModules()) {
-            intoChunk.addModule(chunkModule);
-            chunkModule.addChunk(intoChunk);
-          }
-        }
-
-        if (chunkGroup.isInitial()) return;
-        this.mergeNonInitialChunks(chunkGroup, intoChunk, checkedChunks);
+      for (const chunkModule of chunk.modulesIterable) {
+        intoChunk.addModule(chunkModule);
+        chunkModule.addChunk(intoChunk);
       }
 
-      // chunk.getChunks().forEach((c) => {
-      //   if (isInitialOrHasNoParents(c)) return;
-      //   this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
-      // }, this);
+      for (const chunkEntry of chunk.getAllAsyncChunks()) {
+        if (!chunkEntry.isOnlyInitial()) {
+          this.mergeNonInitialChunks(chunkEntry, intoChunk, checkedChunks);
+        }
+      }
     }
   }
 
   renderExtractedChunk(chunk) {
     const source = new ConcatSource();
 
-    for (const chunkModule of chunk.getModules()) {
+    for (const chunkModule of chunk.modulesIterable) {
       const moduleSource = chunkModule.source();
 
       source.add(
@@ -153,11 +133,11 @@ class ExtractTextPlugin {
   apply(compiler) {
     const options = this.options;
 
-    compiler.plugin('this-compilation', (compilation) => {
+    compiler.hooks.thisCompilation.tap(pluginName, (compilation) => {
       const extractCompilation = new ExtractTextPluginCompilation();
 
       compilation.hooks.normalModuleLoader.tap(
-        'normal-module-loader',
+        pluginName,
         (loaderContext, module) => {
           loaderContext[NS] = (content, opt) => {
             if (options.disable) {
@@ -186,7 +166,7 @@ class ExtractTextPlugin {
       const id = this.id;
       let extractedChunks;
       compilation.hooks.optimizeTree.tapAsync(
-        'optimize-tree',
+        pluginName,
         (chunks, modules, callback) => {
           extractedChunks = chunks.map(() => new Chunk());
 
@@ -197,17 +177,17 @@ class ExtractTextPlugin {
             extractedChunk.name = chunk.name;
 
             for (const chunkGroup of chunk.groupsIterable) {
-              if (chunkGroup instanceof Entrypoint) {
+              if (chunkGroup.isInitial()) {
                 extractedChunk.addGroup(chunkGroup);
               }
 
-              // for (const chunkGroupChunk of chunkGroup.getChildren()) {
+              // for (const chunkGroupChunk of chunkGroup.childrenIterable) {
               //   extractedChunk.addChunk(
               //     extractedChunks[chunks.indexOf(chunkGroupChunk)]
               //   );
               // }
               //
-              // for (const chunkGroupParent of chunkGroup.getParents()) {
+              // for (const chunkGroupParent of chunkGroup.parentsIterable) {
               //   extractedChunk.addParent(
               //     extractedChunks[chunks.indexOf(chunkGroupParent)]
               //   );
@@ -226,12 +206,14 @@ class ExtractTextPlugin {
               chunk.sortModules();
 
               async.forEach(
-                chunk.mapModules((c) => c),
+                Array.from(chunk.modulesIterable),
                 (module, callback) => {
                   // eslint-disable-line no-shadow
                   let meta = module[NS];
+
                   if (meta && (!meta.options.id || meta.options.id === id)) {
                     const wasExtracted = Array.isArray(meta.content);
+
                     // A stricter `shouldExtract !== wasExtracted` check to guard against cases where a previously extracted
                     // module would be extracted twice. Happens when a module is a dependency of an initial and a non-initial
                     // chunk. See issue #604
@@ -240,8 +222,10 @@ class ExtractTextPlugin {
                       compilation.rebuildModule(module, (err) => {
                         if (err) {
                           compilation.errors.push(err);
+
                           return callback();
                         }
+
                         meta = module[NS];
                         // Error out if content is not an array and is not null
                         if (
@@ -252,8 +236,10 @@ class ExtractTextPlugin {
                             `${module.identifier()} doesn't export content`
                           );
                           compilation.errors.push(err);
+
                           return callback();
                         }
+
                         if (meta.content) {
                           extractCompilation.addResultToChunk(
                             module.identifier(),
@@ -262,37 +248,42 @@ class ExtractTextPlugin {
                             extractedChunk
                           );
                         }
-                        callback();
                       });
-                    } else {
-                      if (meta.content) {
-                        extractCompilation.addResultToChunk(
-                          module.identifier(),
-                          meta.content,
-                          module,
-                          extractedChunk
-                        );
-                      }
-                      callback();
+                    } else if (meta.content) {
+                      extractCompilation.addResultToChunk(
+                        module.identifier(),
+                        meta.content,
+                        module,
+                        extractedChunk
+                      );
                     }
-                  } else callback();
+                  }
+
+                  callback();
                 },
                 (err) => {
-                  if (err) return callback(err);
+                  if (err) {
+                    return callback(err);
+                  }
+
                   callback();
                 }
               );
             },
             (err) => {
-              if (err) return callback(err);
+              if (err) {
+                return callback(err);
+              }
+
               extractedChunks.forEach((extractedChunk) => {
                 if (isInitialOrHasNoParents(extractedChunk)) {
                   this.mergeNonInitialChunks(extractedChunk);
                 }
               }, this);
+
               extractedChunks.forEach((extractedChunk) => {
                 if (!isInitialOrHasNoParents(extractedChunk)) {
-                  for (const chunkModule of extractedChunk.getModules()) {
+                  for (const chunkModule of extractedChunk.modulesIterable) {
                     extractedChunk.removeModule(chunkModule);
                   }
                 }
@@ -303,54 +294,51 @@ class ExtractTextPlugin {
           );
         }
       );
-      compilation.hooks.additionalAssets.tapAsync(
-        'additional-assets',
-        (callback) => {
-          extractedChunks.forEach((extractedChunk) => {
-            if (extractedChunk.getNumberOfModules()) {
-              // extractedChunk.sortModules((a, b) => {
-              //   if (!options.ignoreOrder && isInvalidOrder(a, b)) {
-              //     compilation.errors.push(
-              //       new OrderUndefinedError(a.getOriginalModule())
-              //     );
-              //     compilation.errors.push(
-              //       new OrderUndefinedError(b.getOriginalModule())
-              //     );
-              //   }
-              //   return getOrder(a, b);
-              // });
-              const chunk = extractedChunk.originalChunk;
-              const source = this.renderExtractedChunk(extractedChunk);
+      compilation.hooks.additionalAssets.tap(pluginName, () => {
+        extractedChunks.forEach((extractedChunk) => {
+          if (extractedChunk.getNumberOfModules()) {
+            // extractedChunk.sortModules((a, b) => {
+            //   if (!options.ignoreOrder && isInvalidOrder(a, b)) {
+            //     compilation.errors.push(
+            //       new OrderUndefinedError(a.getOriginalModule())
+            //     );
+            //     compilation.errors.push(
+            //       new OrderUndefinedError(b.getOriginalModule())
+            //     );
+            //   }
+            //   return getOrder(a, b);
+            // });
 
-              const getPath = (format) =>
-                compilation
-                  .getPath(format, {
-                    chunk,
-                  })
-                  .replace(
-                    /\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/gi,
-                    function() {
-                      // eslint-disable-line func-names
-                      return loaderUtils.getHashDigest(
-                        source.source(),
-                        arguments[1],
-                        arguments[2],
-                        parseInt(arguments[3], 10)
-                      );
-                    }
-                  );
+            const chunk = extractedChunk.originalChunk;
+            const source = this.renderExtractedChunk(extractedChunk);
 
-              const file = isFunction(filename)
-                ? filename(getPath)
-                : getPath(filename);
+            const getPath = (format) =>
+              compilation
+                .getPath(format, {
+                  chunk,
+                })
+                .replace(
+                  /\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/gi,
+                  function() {
+                    // eslint-disable-line func-names
+                    return loaderUtils.getHashDigest(
+                      source.source(),
+                      arguments[1],
+                      arguments[2],
+                      parseInt(arguments[3], 10)
+                    );
+                  }
+                );
 
-              compilation.assets[file] = source;
-              chunk.files.push(file);
-            }
-          }, this);
-          callback();
-        }
-      );
+            const file = isFunction(filename)
+              ? filename(getPath)
+              : getPath(filename);
+
+            compilation.assets[file] = source;
+            chunk.files.push(file);
+          }
+        }, this);
+      });
     });
   }
 }

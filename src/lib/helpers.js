@@ -2,7 +2,7 @@ export function isInitialOrHasNoParents(chunk) {
   let parentCount = 0;
 
   for (const chunkGroup of chunk.groupsIterable) {
-    parentCount += chunkGroup.getParents().length;
+    parentCount += chunkGroup.getNumberOfParents();
   }
 
   return chunk.isOnlyInitial() || parentCount === 0;

@@ -15,6 +15,7 @@ class ExtractTextPluginCompilation {
     prevModules
   ) {
     let m;
+
     if (!this.modulesByIdentifier[identifier]) {
       m = this.modulesByIdentifier[identifier] = new ExtractedModule(
         identifier,
@@ -27,10 +28,12 @@ class ExtractTextPluginCompilation {
     } else {
       m = this.modulesByIdentifier[identifier];
       m.addPrevModules(prevModules);
+
       if (originalModule.index2 < m.getOriginalModule().index2) {
         m.setOriginalModule(originalModule);
       }
     }
+
     return m;
   }
 
@@ -38,8 +41,10 @@ class ExtractTextPluginCompilation {
     if (!Array.isArray(result)) {
       result = [[identifier, result]];
     }
+
     const counterMap = {};
     const prevModules = [];
+
     result.forEach((item) => {
       const c = counterMap[item[0]];
       const module = this.addModule.call(
@@ -51,6 +56,7 @@ class ExtractTextPluginCompilation {
         item[3],
         prevModules.slice()
       );
+
       extractedChunk.addModule(module);
       module.addChunk(extractedChunk);
       counterMap[item[0]] = (c || 0) + 1;
