@@ -6,7 +6,6 @@ import async from 'async';
 import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
 import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';
-
 import {
   isInitialOrHasNoParents,
   getLoaderObject,
@@ -32,7 +31,7 @@ class ExtractTextPlugin {
       );
     }
     this.filename = options.filename;
-    this.id = options.id != null ? options.id : ++nextId;
+    this.id = options.id != null ? options.id : (nextId += 1);
     this.options = {};
     mergeOptions(this.options, options);
     delete this.options.filename;
@@ -56,15 +55,15 @@ class ExtractTextPlugin {
 
   mergeNonInitialChunks(chunk, intoChunk, checkedChunks) {
     if (!intoChunk) {
-      checkedChunks = [];
+      const newCheckedChunks = [];
 
       if (chunk.isOnlyInitial()) return;
 
       for (const asyncChunks of chunk.getAllAsyncChunks()) {
-        this.mergeNonInitialChunks(asyncChunks, chunk, checkedChunks);
+        this.mergeNonInitialChunks(asyncChunks, chunk, newCheckedChunks);
       }
     } else if (!checkedChunks.includes(chunk)) {
-      checkedChunks.push(chunk);
+      const newCheckedChunks = checkedChunks.concat(chunk);
 
       for (const chunkModule of chunk.modulesIterable) {
         intoChunk.addModule(chunkModule);
@@ -73,13 +72,13 @@ class ExtractTextPlugin {
 
       for (const chunkEntry of chunk.getAllAsyncChunks()) {
         if (!chunkEntry.isOnlyInitial()) {
-          this.mergeNonInitialChunks(chunkEntry, intoChunk, checkedChunks);
+          this.mergeNonInitialChunks(chunkEntry, intoChunk, newCheckedChunks);
         }
       }
     }
   }
 
-  renderExtractedChunk(chunk) {
+  static renderExtractedChunk(chunk) {
     const source = new ConcatSource();
 
     for (const chunkModule of chunk.modulesIterable) {
@@ -131,7 +130,7 @@ class ExtractTextPlugin {
   }
 
   apply(compiler) {
-    const options = this.options;
+    const { options } = this;
 
     compiler.hooks.thisCompilation.tap(pluginName, (compilation) => {
       const extractCompilation = new ExtractTextPluginCompilation();
@@ -162,8 +161,7 @@ class ExtractTextPlugin {
         }
       );
 
-      const filename = this.filename;
-      const id = this.id;
+      const { filename, id } = this;
       let extractedChunks;
       compilation.hooks.optimizeTree.tapAsync(
         pluginName,
@@ -197,7 +195,7 @@ class ExtractTextPlugin {
 
           async.forEach(
             chunks,
-            (chunk, callback) => {
+            (chunk, chunkCallback) => {
               // eslint-disable-line no-shadow
               const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
               const shouldExtract = !!(
@@ -207,7 +205,7 @@ class ExtractTextPlugin {
 
               async.forEach(
                 Array.from(chunk.modulesIterable),
-                (module, callback) => {
+                (module, moduleCallback) => {
                   // eslint-disable-line no-shadow
                   let meta = module[NS];
 
@@ -223,7 +221,7 @@ class ExtractTextPlugin {
                         if (err) {
                           compilation.errors.push(err);
 
-                          return callback();
+                          return moduleCallback();
                         }
 
                         meta = module[NS];
@@ -237,7 +235,7 @@ class ExtractTextPlugin {
                           );
                           compilation.errors.push(err);
 
-                          return callback();
+                          return moduleCallback();
                         }
 
                         if (meta.content) {
@@ -259,14 +257,14 @@ class ExtractTextPlugin {
                     }
                   }
 
-                  callback();
+                  moduleCallback();
                 },
                 (err) => {
                   if (err) {
-                    return callback(err);
+                    return chunkCallback(err);
                   }
 
-                  callback();
+                  chunkCallback();
                 }
               );
             },
@@ -310,7 +308,9 @@ class ExtractTextPlugin {
             // });
 
             const chunk = extractedChunk.originalChunk;
-            const source = this.renderExtractedChunk(extractedChunk);
+            const source = ExtractTextPlugin.renderExtractedChunk(
+              extractedChunk
+            );
 
             const getPath = (format) =>
               compilation
@@ -319,8 +319,8 @@ class ExtractTextPlugin {
                 })
                 .replace(
                   /\[(?:(\w+):)?contenthash(?::([a-z]+\d*))?(?::(\d+))?\]/gi,
+                  // eslint-disable-next-line func-names
                   function() {
-                    // eslint-disable-line func-names
                     return loaderUtils.getHashDigest(
                       source.source(),
                       arguments[1],

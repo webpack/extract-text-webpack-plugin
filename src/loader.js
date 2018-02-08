@@ -18,8 +18,8 @@ export function pitch(request) {
   this.addDependency(this.resourcePath);
 
   // We already in child compiler, return empty bundle
+  // eslint-disable-next-line no-undefined
   if (this[NS] === undefined) {
-    // eslint-disable-line no-undefined
     throw new Error(
       '"extract-text-webpack-plugin" loader is used without the corresponding plugin, ' +
         'refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example'
@@ -124,7 +124,7 @@ export function pitch(request) {
           text = [[compilation.entries[0].identifier(), text]];
         } else {
           text.forEach((item) => {
-            const id = item[0];
+            const [id] = item;
 
             compilation.modules.forEach((module) => {
               if (module.id === id) {

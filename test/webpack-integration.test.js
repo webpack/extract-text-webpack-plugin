@@ -29,6 +29,7 @@ describe('Webpack Integration Tests', () => {
       if (!options.output) options.output = { filename: '[name].js' };
       if (!options.output.path) options.output.path = outputDirectory;
       if (process.env.CASES) {
+        // eslint-disable-next-line
         console.log(
           `\nwebpack.${testCase}.config.js ${JSON.stringify(options, null, 2)}`
         );
@@ -56,9 +57,9 @@ describe('Webpack Integration Tests', () => {
   });
 });
 
-function readFileOrEmpty(path) {
+function readFileOrEmpty(filePath) {
   try {
-    return fs.readFileSync(path, 'utf-8');
+    return fs.readFileSync(filePath, 'utf-8');
   } catch (e) {
     return '';
   }
