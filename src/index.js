@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import Chunk from 'webpack/lib/Chunk';
-import { ConcatSource } from 'webpack-sources';
+import { ConcatSource, RawSource, CachedSource } from 'webpack-sources';
 import async from 'async';
 import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
@@ -83,7 +83,15 @@ class ExtractTextPlugin {
     const source = new ConcatSource();
 
     for (const chunkModule of chunk.modulesIterable) {
-      const moduleSource = chunkModule.source();
+      let moduleSource = chunkModule.source();
+
+      if (moduleSource instanceof CachedSource) {
+        if (chunkModule[NS] && chunkModule[NS].content) {
+          moduleSource = new RawSource(chunkModule[NS].content[0][1]);
+        } else {
+          continue;
+        }
+      }
 
       source.add(
         ExtractTextPlugin.applyAdditionalInformation(
