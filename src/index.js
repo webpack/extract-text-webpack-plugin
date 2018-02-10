@@ -235,7 +235,11 @@ class ExtractTextPlugin {
                             extractedChunk
                           );
                         }
+
+                        moduleCallback();
                       });
+
+                      return;
                     } else if (meta.content) {
                       extractCompilation.addResultToChunk(
                         module.identifier(),
