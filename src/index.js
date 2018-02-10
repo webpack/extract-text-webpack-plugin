@@ -15,7 +15,7 @@ import {
 } from './lib/helpers';
 
 const NS = path.dirname(fs.realpathSync(__filename));
-const pluginName = 'ExtractTextPlugin';
+const plugin = { name: 'ExtractTextPlugin' };
 
 let nextId = 0;
 
@@ -46,6 +46,7 @@ class ExtractTextPlugin {
     if (info) {
       return new ConcatSource(`@media ${info[0]} {`, source, '}');
     }
+
     return source;
   }
 
@@ -57,10 +58,10 @@ class ExtractTextPlugin {
     if (!intoChunk) {
       const newCheckedChunks = [];
 
-      if (chunk.isOnlyInitial()) return;
-
-      for (const asyncChunks of chunk.getAllAsyncChunks()) {
-        this.mergeNonInitialChunks(asyncChunks, chunk, newCheckedChunks);
+      for (const asyncChunk of chunk.getAllAsyncChunks()) {
+        if (!asyncChunk.isOnlyInitial()) {
+          this.mergeNonInitialChunks(asyncChunk, chunk, newCheckedChunks);
+        }
       }
     } else if (!checkedChunks.includes(chunk)) {
       const newCheckedChunks = checkedChunks.concat(chunk);
@@ -70,9 +71,9 @@ class ExtractTextPlugin {
         chunkModule.addChunk(intoChunk);
       }
 
-      for (const chunkEntry of chunk.getAllAsyncChunks()) {
-        if (!chunkEntry.isOnlyInitial()) {
-          this.mergeNonInitialChunks(chunkEntry, intoChunk, newCheckedChunks);
+      for (const asyncChunk of chunk.getAllAsyncChunks()) {
+        if (!asyncChunk.isOnlyInitial()) {
+          this.mergeNonInitialChunks(asyncChunk, intoChunk, newCheckedChunks);
         }
       }
     }
@@ -91,6 +92,7 @@ class ExtractTextPlugin {
         )
       );
     }
+
     return source;
   }
 
@@ -126,17 +128,18 @@ class ExtractTextPlugin {
     options = mergeOptions({ omit: before.length, remove: true }, options);
     delete options.use;
     delete options.fallback;
+
     return [this.loader(options)].concat(before, loader).map(getLoaderObject);
   }
 
   apply(compiler) {
-    const { options } = this;
+    const { options, filename, id } = this;
 
-    compiler.hooks.thisCompilation.tap(pluginName, (compilation) => {
+    compiler.hooks.thisCompilation.tap(plugin.name, (compilation) => {
       const extractCompilation = new ExtractTextPluginCompilation();
 
       compilation.hooks.normalModuleLoader.tap(
-        pluginName,
+        plugin.name,
         (loaderContext, module) => {
           loaderContext[NS] = (content, opt) => {
             if (options.disable) {
@@ -161,10 +164,9 @@ class ExtractTextPlugin {
         }
       );
 
-      const { filename, id } = this;
       let extractedChunks;
       compilation.hooks.optimizeTree.tapAsync(
-        pluginName,
+        plugin.name,
         (chunks, modules, callback) => {
           extractedChunks = chunks.map(() => new Chunk());
 
@@ -173,23 +175,10 @@ class ExtractTextPlugin {
             extractedChunk.index = i;
             extractedChunk.originalChunk = chunk;
             extractedChunk.name = chunk.name;
+            // extractedChunk.entryModule = chunk.entryModule;
 
             for (const chunkGroup of chunk.groupsIterable) {
-              if (chunkGroup.isInitial()) {
-                extractedChunk.addGroup(chunkGroup);
-              }
-
-              // for (const chunkGroupChunk of chunkGroup.childrenIterable) {
-              //   extractedChunk.addChunk(
-              //     extractedChunks[chunks.indexOf(chunkGroupChunk)]
-              //   );
-              // }
-              //
-              // for (const chunkGroupParent of chunkGroup.parentsIterable) {
-              //   extractedChunk.addParent(
-              //     extractedChunks[chunks.indexOf(chunkGroupParent)]
-              //   );
-              // }
+              extractedChunk.addGroup(chunkGroup);
             }
           });
 
@@ -286,26 +275,18 @@ class ExtractTextPlugin {
                   }
                 }
               });
+
               compilation.hooks.optimizeExtractedChunks.call(extractedChunks);
               callback();
             }
           );
         }
       );
-      compilation.hooks.additionalAssets.tap(pluginName, () => {
+
+      compilation.hooks.additionalAssets.tapAsync(plugin.name, (assetCb) => {
         extractedChunks.forEach((extractedChunk) => {
           if (extractedChunk.getNumberOfModules()) {
-            // extractedChunk.sortModules((a, b) => {
-            //   if (!options.ignoreOrder && isInvalidOrder(a, b)) {
-            //     compilation.errors.push(
-            //       new OrderUndefinedError(a.getOriginalModule())
-            //     );
-            //     compilation.errors.push(
-            //       new OrderUndefinedError(b.getOriginalModule())
-            //     );
-            //   }
-            //   return getOrder(a, b);
-            // });
+            extractedChunk.sortModules();
 
             const chunk = extractedChunk.originalChunk;
             const source = ExtractTextPlugin.renderExtractedChunk(
@@ -338,6 +319,8 @@ class ExtractTextPlugin {
             chunk.files.push(file);
           }
         }, this);
+
+        assetCb();
       });
     });
   }

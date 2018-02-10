@@ -8,7 +8,7 @@ import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin';
 
 const NS = path.dirname(fs.realpathSync(__filename));
-const pluginName = 'ExtractTextPlugin';
+const plugin = { name: 'ExtractTextPlugin' };
 
 export default (source) => source;
 
@@ -66,9 +66,9 @@ export function pitch(request) {
 
     // We set loaderContext[NS] = false to indicate we already in
     // a child compiler so we don't spawn other child compilers from there.
-    childCompiler.hooks.thisCompilation.tap(pluginName, (compilation) => {
+    childCompiler.hooks.thisCompilation.tap(plugin.name, (compilation) => {
       compilation.hooks.normalModuleLoader.tap(
-        pluginName,
+        plugin.name,
         (loaderContext, module) => {
           loaderContext[NS] = false;
           if (module.request === request) {
@@ -84,7 +84,7 @@ export function pitch(request) {
     });
 
     let source;
-    childCompiler.hooks.afterCompile.tap(pluginName, (compilation) => {
+    childCompiler.hooks.afterCompile.tap(plugin.name, (compilation) => {
       source =
         compilation.assets[childFilename] &&
         compilation.assets[childFilename].source();

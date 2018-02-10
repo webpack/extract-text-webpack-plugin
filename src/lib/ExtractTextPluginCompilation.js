@@ -58,6 +58,7 @@ class ExtractTextPluginCompilation {
       );
 
       extractedChunk.addModule(module);
+      // extractedChunk.removeModule(originalModule);
       module.addChunk(extractedChunk);
       counterMap[item[0]] = (c || 0) + 1;
       prevModules.push(module);

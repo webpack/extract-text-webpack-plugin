@@ -6,7 +6,7 @@ class ExtractedModule {
     originalModule,
     source,
     sourceMap,
-    addtitionalInformation,
+    additionalInformation,
     prevModules
   ) {
     this._identifier = identifier;
@@ -14,7 +14,7 @@ class ExtractedModule {
     this._source = source;
     this._sourceMap = sourceMap;
     this._prevModules = prevModules;
-    this.addtitionalInformation = addtitionalInformation;
+    this.additionalInformation = additionalInformation;
     this.chunks = [];
   }
 
