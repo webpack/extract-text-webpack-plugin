@@ -89,16 +89,18 @@ class ExtractTextPlugin {
         if (chunkModule[NS] && chunkModule[NS].content) {
           moduleSource = new RawSource(chunkModule[NS].content[0][1]);
         } else {
-          continue;
+          moduleSource = null;
         }
       }
 
-      source.add(
-        ExtractTextPlugin.applyAdditionalInformation(
-          moduleSource,
-          chunkModule.additionalInformation
-        )
-      );
+      if (moduleSource) {
+        source.add(
+          ExtractTextPlugin.applyAdditionalInformation(
+            moduleSource,
+            chunkModule.additionalInformation
+          )
+        );
+      }
     }
 
     return source;
