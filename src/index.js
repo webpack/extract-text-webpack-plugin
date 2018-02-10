@@ -200,7 +200,7 @@ class ExtractTextPlugin {
               const shouldExtract = !!(
                 options.allChunks || isInitialOrHasNoParents(chunk)
               );
-              chunk.sortModules();
+              // chunk.sortModules();
 
               async.forEach(
                 Array.from(chunk.modulesIterable),
@@ -300,7 +300,7 @@ class ExtractTextPlugin {
       compilation.hooks.additionalAssets.tapAsync(plugin.name, (assetCb) => {
         extractedChunks.forEach((extractedChunk) => {
           if (extractedChunk.getNumberOfModules()) {
-            extractedChunk.sortModules();
+            // extractedChunk.sortModules();
 
             const chunk = extractedChunk.originalChunk;
             const source = ExtractTextPlugin.renderExtractedChunk(

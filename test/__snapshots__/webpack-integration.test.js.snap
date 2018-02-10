@@ -25,6 +25,20 @@ exports[`Webpack Integration Tests chunk-modules-ordered-by-id 1`] = `
 "
 `;
 
+exports[`Webpack Integration Tests common-async 1`] = `
+"a
+b
+c
+"
+`;
+
+exports[`Webpack Integration Tests merging-chunk 1`] = `
+"a
+b
+c
+"
+`;
+
 exports[`Webpack Integration Tests merging-multiple-entries 1`] = `
 "a
 b
@@ -78,6 +92,13 @@ exports[`Webpack Integration Tests nested 1`] = `
 b
 c
 d
+"
+`;
+
+exports[`Webpack Integration Tests optimize-tree 1`] = `
+"index
+a
+b
 "
 `;
 
