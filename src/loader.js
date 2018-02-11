@@ -66,9 +66,9 @@ export function pitch(request) {
 
     // We set loaderContext[NS] = false to indicate we already in
     // a child compiler so we don't spawn other child compilers from there.
-    childCompiler.hooks.thisCompilation.tap(plugin.name, (compilation) => {
+    childCompiler.hooks.thisCompilation.tap(plugin, (compilation) => {
       compilation.hooks.normalModuleLoader.tap(
-        plugin.name,
+        plugin,
         (loaderContext, module) => {
           loaderContext[NS] = false;
           if (module.request === request) {
@@ -84,7 +84,7 @@ export function pitch(request) {
     });
 
     let source;
-    childCompiler.hooks.afterCompile.tap(plugin.name, (compilation) => {
+    childCompiler.hooks.afterCompile.tap(plugin, (compilation) => {
       source =
         compilation.assets[childFilename] &&
         compilation.assets[childFilename].source();

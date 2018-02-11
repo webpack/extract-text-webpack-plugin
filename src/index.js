@@ -145,11 +145,11 @@ class ExtractTextPlugin {
   apply(compiler) {
     const { options, filename, id } = this;
 
-    compiler.hooks.thisCompilation.tap(plugin.name, (compilation) => {
+    compiler.hooks.thisCompilation.tap(plugin, (compilation) => {
       const extractCompilation = new ExtractTextPluginCompilation();
 
       compilation.hooks.normalModuleLoader.tap(
-        plugin.name,
+        plugin,
         (loaderContext, module) => {
           loaderContext[NS] = (content, opt) => {
             if (options.disable) {
@@ -176,7 +176,7 @@ class ExtractTextPlugin {
 
       let extractedChunks;
       compilation.hooks.optimizeTree.tapAsync(
-        plugin.name,
+        plugin,
         (chunks, modules, callback) => {
           extractedChunks = chunks.map(() => new Chunk());
 
@@ -216,7 +216,7 @@ class ExtractTextPlugin {
                     // chunk. See issue #604
                     if (shouldExtract && !wasExtracted) {
                       module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
-                      compilation.rebuildModule(module, (err) => {
+                      return compilation.rebuildModule(module, (err) => {
                         if (err) {
                           compilation.errors.push(err);
 
@@ -246,10 +246,8 @@ class ExtractTextPlugin {
                           );
                         }
 
-                        moduleCallback();
+                        return moduleCallback();
                       });
-
-                      return;
                     } else if (meta.content) {
                       extractCompilation.addResultToChunk(
                         module.identifier(),
@@ -260,7 +258,7 @@ class ExtractTextPlugin {
                     }
                   }
 
-                  moduleCallback();
+                  return moduleCallback();
                 },
                 (err) => {
                   if (err) {
@@ -280,7 +278,7 @@ class ExtractTextPlugin {
                 if (isInitialOrHasNoParents(extractedChunk)) {
                   this.mergeNonInitialChunks(extractedChunk);
                 }
-              }, this);
+              });
 
               extractedChunks.forEach((extractedChunk) => {
                 if (!isInitialOrHasNoParents(extractedChunk)) {
@@ -297,7 +295,7 @@ class ExtractTextPlugin {
         }
       );
 
-      compilation.hooks.additionalAssets.tapAsync(plugin.name, (assetCb) => {
+      compilation.hooks.additionalAssets.tapAsync(plugin, (assetCb) => {
         extractedChunks.forEach((extractedChunk) => {
           if (extractedChunk.getNumberOfModules()) {
             // extractedChunk.sortModules();
