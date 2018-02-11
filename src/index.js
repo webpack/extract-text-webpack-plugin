@@ -6,7 +6,10 @@ import async from 'async';
 import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
 import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';
+import OrderUndefinedError from './lib/OrderUndefinedError';
 import {
+  isInvalidOrder,
+  getOrder,
   isInitialOrHasNoParents,
   getLoaderObject,
   mergeOptions,
@@ -85,6 +88,13 @@ class ExtractTextPlugin {
     for (const chunkModule of chunk.modulesIterable) {
       let moduleSource = chunkModule.source();
 
+      // Async imports (require.ensure(), import().then) are CachedSource module
+      // instances caching a ReplaceSource instance, which breaks the plugin
+      // because their .source() is the cached "// removed by ..." text.
+      // The issue lies elsewhere, this is just a temporary fix that
+      // creates a new RawSource with the extracted text. If it's
+      // a CachedSource instance but there's no extracted text
+      // it's "__webpack_require__();" statements. Skip it.
       if (moduleSource instanceof CachedSource) {
         if (chunkModule[NS] && chunkModule[NS].content) {
           moduleSource = new RawSource(chunkModule[NS].content[0][1]);
@@ -298,7 +308,18 @@ class ExtractTextPlugin {
       compilation.hooks.additionalAssets.tapAsync(plugin, (assetCb) => {
         extractedChunks.forEach((extractedChunk) => {
           if (extractedChunk.getNumberOfModules()) {
-            // extractedChunk.sortModules();
+            extractedChunk.sortModules((a, b) => {
+              if (!options.ignoreOrder && isInvalidOrder(a, b)) {
+                compilation.errors.push(
+                  new OrderUndefinedError(a.getOriginalModule())
+                );
+                compilation.errors.push(
+                  new OrderUndefinedError(b.getOriginalModule())
+                );
+              }
+
+              return getOrder(a, b);
+            });
 
             const chunk = extractedChunk.originalChunk;
             const source = ExtractTextPlugin.renderExtractedChunk(
