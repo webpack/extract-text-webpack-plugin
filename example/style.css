@@ -3,3 +3,7 @@ body {
 	background: url(image.png);
 	correct: a;
 }
+
+html {
+	background-color: lime;
+}
