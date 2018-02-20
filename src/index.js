@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import Chunk from 'webpack/lib/Chunk';
 import { ConcatSource } from 'webpack-sources';
-import async from 'async';
+import async from 'neo-async';
 import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
 import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';

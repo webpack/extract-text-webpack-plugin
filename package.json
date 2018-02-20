@@ -30,8 +30,8 @@
     "webpack-defaults": "webpack-defaults"
   },
   "dependencies": {
-    "async": "^2.4.1",
     "loader-utils": "^1.1.0",
+    "neo-async": "^2.5.0",
     "schema-utils": "^0.3.0",
     "webpack-sources": "^1.0.1"
   },
