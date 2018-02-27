@@ -87,11 +87,21 @@ class ExtractTextPlugin {
     }
   }
 
-  static renderExtractedChunk(chunk) {
+  static renderExtractedChunk(compilation, chunk) {
     const source = new ConcatSource();
 
     for (const chunkModule of chunk.modulesIterable) {
-      let moduleSource = chunkModule.source();
+      let moduleSource = chunkModule.source(
+        compilation.dependencyTemplates,
+        compilation.runtimeTemplate
+      );
+
+      // This module was concatenated by the ModuleConcatenationPlugin; because the pitching loader
+      // only produces commonjs results, at least for now things we want to extract can't be in them.
+      // NOTE: if ESM support is added, _this workaround will break_.
+      if (moduleSource instanceof ConcatSource) {
+        moduleSource = null;
+      }
 
       // Async imports (require.ensure(), import().then) are CachedSource module
       // instances caching a ReplaceSource instance, which breaks the plugin
@@ -102,7 +112,13 @@ class ExtractTextPlugin {
       // it's "__webpack_require__();" statements. Skip it.
       if (moduleSource instanceof CachedSource) {
         if (chunkModule[NS] && chunkModule[NS].content) {
-          moduleSource = new RawSource(chunkModule[NS].content[0][1]);
+          moduleSource = new ConcatSource();
+          if (chunkModule[NS].content.length > 1) {
+            console.error(chunkModule[NS].content);
+          }
+          for (const content of chunkModule[NS].content) {
+            moduleSource.add(new RawSource(content[1]));
+          }
         } else {
           moduleSource = null;
         }
@@ -215,10 +231,12 @@ class ExtractTextPlugin {
               const shouldExtract = !!(
                 options.allChunks || isInitialOrHasNoParents(chunk)
               );
-              // chunk.sortModules();
 
               async.forEach(
-                Array.from(chunk.modulesIterable),
+                Array.from(chunk.modulesIterable).sort(
+                  // NOTE: .index should be .index2 once ESM support is added
+                  (a, b) => a.index - b.index
+                ),
                 (module, moduleCallback) => {
                   // eslint-disable-line no-shadow
                   let meta = module[NS];
@@ -231,6 +249,7 @@ class ExtractTextPlugin {
                     // chunk. See issue #604
                     if (shouldExtract && !wasExtracted) {
                       module[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
+
                       return compilation.rebuildModule(module, (err) => {
                         if (err) {
                           compilation.errors.push(err);
@@ -328,6 +347,7 @@ class ExtractTextPlugin {
 
             const chunk = extractedChunk.originalChunk;
             const source = ExtractTextPlugin.renderExtractedChunk(
+              compilation,
               extractedChunk
             );
 

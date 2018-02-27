@@ -140,6 +140,7 @@ export function pitch(request) {
 
         this[NS](text, query);
 
+        // NOTE: converting this to ESM will require changes to renderExtractedChunk
         if (text.locals && typeof resultSource !== 'undefined') {
           resultSource += `\nmodule.exports = ${JSON.stringify(text.locals)};`;
         }
