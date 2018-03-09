@@ -351,6 +351,10 @@ class ExtractTextPlugin {
               extractedChunk
             );
 
+            if (!source.size()) {
+              return;
+            }
+
             const getPath = (format) =>
               compilation
                 .getPath(format, {
