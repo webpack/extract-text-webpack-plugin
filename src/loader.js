@@ -7,6 +7,8 @@ import LibraryTemplatePlugin from 'webpack/lib/LibraryTemplatePlugin';
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin';
 
+const thisPluginName = 'extractTextWebpackPlugin';
+
 const NS = path.dirname(fs.realpathSync(__filename));
 
 export default source => source;
@@ -43,15 +45,15 @@ export function pitch(request) {
       publicPath,
     };
     const childCompiler = this._compilation.createChildCompiler(`extract-text-webpack-plugin ${NS} ${request}`, outputOptions);
-    childCompiler.apply(new NodeTemplatePlugin(outputOptions));
-    childCompiler.apply(new LibraryTemplatePlugin(null, 'commonjs2'));
-    childCompiler.apply(new NodeTargetPlugin());
-    childCompiler.apply(new SingleEntryPlugin(this.context, `!!${request}`));
-    childCompiler.apply(new LimitChunkCountPlugin({ maxChunks: 1 }));
+    new NodeTemplatePlugin(outputOptions).apply(childCompiler);
+    new LibraryTemplatePlugin(null, 'commonjs2').apply(childCompiler);
+    new NodeTargetPlugin().apply(childCompiler);
+    new SingleEntryPlugin(this.context, `!!${request}`).apply(childCompiler);
+    new LimitChunkCountPlugin({ maxChunks: 1 }).apply(childCompiler);
     // We set loaderContext[NS] = false to indicate we already in
     // a child compiler so we don't spawn another child compilers from there.
-    childCompiler.plugin('this-compilation', (compilation) => {
-      compilation.plugin('normal-module-loader', (loaderContext, module) => {
+    childCompiler.hooks.thisCompilation.tap(thisPluginName, (compilation) => {
+      compilation.hooks.normalModuleLoader.tap(thisPluginName, (loaderContext, module) => {
         loaderContext[NS] = false;
         if (module.request === request) {
           module.loaders = loaders.map((loader) => {
@@ -65,7 +67,7 @@ export function pitch(request) {
     });
 
     let source;
-    childCompiler.plugin('after-compile', (compilation, callback) => {
+    childCompiler.hooks.afterCompile.tap(thisPluginName, (compilation) => {
       source = compilation.assets[childFilename] && compilation.assets[childFilename].source();
 
       // Remove all chunk assets
@@ -74,8 +76,6 @@ export function pitch(request) {
           delete compilation.assets[file];
         });
       });
-
-      callback();
     });
     const callback = this.async();
     childCompiler.runAsChild((err, entries, compilation) => {
