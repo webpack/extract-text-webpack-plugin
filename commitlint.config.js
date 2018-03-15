@@ -12,7 +12,7 @@ const Configuration = {
     'subject-full-stop': [2, 'never', '.'],
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
-    'type-enum': [2, 'always', [
+    'type-enum': [
       'build',
       'chore',
       'ci',
@@ -24,7 +24,7 @@ const Configuration = {
       'revert',
       'style',
       'test',
-    ]],
+    ],
   },
 };
 
