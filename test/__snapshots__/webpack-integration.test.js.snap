@@ -42,7 +42,10 @@ c
 "
 `;
 
-exports[`Webpack Integration Tests empty-chunk 1`] = `"a"`;
+exports[`Webpack Integration Tests empty-chunk 1`] = `
+"a
+"
+`;
 
 exports[`Webpack Integration Tests merging-chunk 1`] = `
 "a
