@@ -116,7 +116,9 @@ class ExtractTextPlugin {
       compilation.plugin('normal-module-loader', (loaderContext, module) => {
         loaderContext[NS] = (content, opt) => {
           if (options.disable) { return false; }
-          if (!Array.isArray(content) && content != null) { throw new Error(`Exported value was not extracted as an array: ${JSON.stringify(content)}`); }
+          if (!Array.isArray(content) && content != null) {
+            throw new Error(`Exported value was not extracted as an array: ${JSON.stringify(content)}`);
+          }
           module[NS] = {
             content,
             options: opt || {},
@@ -128,9 +130,11 @@ class ExtractTextPlugin {
       const id = this.id;
       let extractedChunks;
       let toRemoveModules;
+
       compilation.plugin('optimize-tree', (chunks, modules, callback) => {
         extractedChunks = chunks.map(() => new Chunk());
         toRemoveModules = [];
+
         chunks.forEach((chunk, i) => {
           const extractedChunk = extractedChunks[i];
           extractedChunk.index = i;
@@ -148,7 +152,7 @@ class ExtractTextPlugin {
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
           const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
           chunk.sortModules();
-          async.forEach(chunk.mapModules(c => c), (module, callback) => { // eslint-disable-line no-shadow, arrow-body-style
+          async.forEach(chunk.mapModules(c => c), (module, callback) => { // eslint-disable-line no-shadow
             let meta = module[NS];
             if (meta && (!meta.options.id || meta.options.id === id)) {
               const wasExtracted = Array.isArray(meta.content);
@@ -164,6 +168,7 @@ class ExtractTextPlugin {
                     return callback();
                   }
                   meta = newModule[NS];
+
                   const identifier = module.identifier();
                   // Error out if content is not an array and is not null
                   if (!Array.isArray(meta.content) && meta.content != null) {
@@ -186,7 +191,9 @@ class ExtractTextPlugin {
                   callback();
                 });
               } else {
-                if (meta.content) { extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk); }
+                if (meta.content) {
+                  extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+                }
                 callback();
               }
             } else callback();
@@ -214,6 +221,7 @@ class ExtractTextPlugin {
       compilation.plugin('optimize-module-ids', (modules) => {
         modules.forEach((module) => {
           const data = toRemoveModules[module.identifier()];
+
           if (data) {
             const oldModuleId = module.id;
             const newModule = cloneModule(module);
