@@ -27,7 +27,7 @@ class ExtractTextPlugin {
     if (isString(options)) {
       options = { filename: options };
     } else {
-      validateOptions(path.resolve(__dirname, './schema/plugin.json'), options, 'Extract Text Plugin');
+      validateOptions(path.resolve(__dirname, './plugin.json'), options, 'Extract Text Plugin');
     }
     this.filename = options.filename;
     this.id = options.id != null ? options.id : ++nextId;
@@ -89,7 +89,7 @@ class ExtractTextPlugin {
     if (Array.isArray(options) || isString(options) || typeof options.options === 'object' || typeof options.query === 'object') {
       options = { use: options };
     } else {
-      validateOptions(path.resolve(__dirname, './schema/loader.json'), options, 'Extract Text Plugin (Loader)');
+      validateOptions(path.resolve(__dirname, './loader.json'), options, 'Extract Text Plugin (Loader)');
     }
     let loader = options.use;
     let before = options.fallback || [];

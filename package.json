@@ -12,7 +12,7 @@
   "scripts": {
     "start": "npm run build -- -w",
     "appveyor:test": "npm run test",
-    "build": "cross-env NODE_ENV=production babel src -d dist --ignore 'src/**/*.test.js'",
+    "build": "cross-env NODE_ENV=production babel src -d dist --ignore 'src/**/*.test.js' --copy-files",
     "build:example": "(cd example && webpack)",
     "clean": "del-cli dist",
     "lint": "eslint --cache src test",
