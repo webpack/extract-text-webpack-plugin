@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import webpack from 'webpack';
+import glob from 'glob';
 import ExtractTextPlugin from '../src';
 
 const cases = process.env.CASES
@@ -47,24 +48,20 @@ describe('Webpack Integration Tests', () => {
           require(testFile)(suite);
         }
         const expectedDirectory = path.join(testDirectory, 'expected');
-        fs.readdirSync(expectedDirectory).forEach((file) => {
-          const filePath = path.join(expectedDirectory, file);
-          const actualPath = path.join(outputDirectory, file);
-          expect(readFileOrEmpty(actualPath)).toEqual(
-            readFileOrEmpty(filePath)
-          );
-          expect(readFileOrEmpty(actualPath)).toMatchSnapshot();
-        });
+
+        glob
+          .sync('**/*.@(txt|css)', { cwd: outputDirectory })
+          .forEach((file) => {
+            const filePath = path.join(expectedDirectory, file);
+            const actualPath = path.join(outputDirectory, file);
+            expect(fs.existsSync(filePath)).toBeTruthy();
+            expect(fs.readFileSync(actualPath, 'utf-8')).toEqual(
+              fs.readFileSync(filePath, 'utf-8')
+            );
+            expect(fs.readFileSync(actualPath, 'utf-8')).toMatchSnapshot();
+          });
         done();
       });
     });
   });
 });
-
-function readFileOrEmpty(filePath) {
-  try {
-    return fs.readFileSync(filePath, 'utf-8');
-  } catch (e) {
-    return '';
-  }
-}
