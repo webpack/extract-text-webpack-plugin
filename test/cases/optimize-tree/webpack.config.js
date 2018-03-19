@@ -1,19 +1,18 @@
-import webpack from 'webpack';
 import ExtractTextPlugin from '../../../src/index';
 
 module.exports = {
   entry: './index.js',
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      minChunks: 2,
+      minSize: 51200, // 50ko
+    },
+  },
   plugins: [
     new ExtractTextPlugin({
       filename: '[name].txt',
       allChunks: true,
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      children: true,
-      minChunks: 2,
-    }),
-    new webpack.optimize.MinChunkSizePlugin({
-      minChunkSize: 51200, // 50ko
     }),
   ],
 };

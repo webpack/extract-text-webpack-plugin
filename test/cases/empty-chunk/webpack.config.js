@@ -7,16 +7,16 @@ module.exports = {
       cacheGroups: {
         common: {
           name: 'common',
-          chunks: 'all',
+          chunks: 'async',
           test: /async-chunk-(a|b)/,
         },
       },
     },
+    runtimeChunk: true
   },
   plugins: [
     new ExtractTextPlugin({
-      filename: 'file.css',
-      allChunks: true,
+      filename: '[name].css'
     }),
   ],
 };

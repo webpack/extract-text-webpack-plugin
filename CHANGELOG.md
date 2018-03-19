@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.0.0-beta.0"></a>
+# [4.0.0-beta.0](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v4.0.0-alpha.0...v4.0.0-beta.0) (2018-02-28)
+
+
+### Bug Fixes
+
+* **index:** don't crash with dynamic `import()` ([#728](https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/728)) ([348b46b](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/348b46b))
+
+
+
+<a name="4.0.0-alpha.0"></a>
+# [4.0.0-alpha.0](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v3.0.2...v4.0.0-alpha.0) (2018-02-14)
+
+
+### Chores
+
+* **package:** update `engines` && `peerDependencies` ([05b41f3](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/05b41f3))
+
+
+### Code Refactoring
+
+* **ExtractTextPlugin:** update to new plugin system and API's ([#707](https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/707)) ([51c56c0](https://github.com/webpack-contrib/extract-text-webpack-plugin/commit/51c56c0))
+
+
+### BREAKING CHANGES
+
+* **ExtractTextPlugin:** requires `webpack >= v4.0.0`
+* **package:** requires `node >= v6.0.0` (`engines`)
+
+
+
 <a name="3.0.2"></a>
 ## [3.0.2](https://github.com/webpack-contrib/extract-text-webpack-plugin/compare/v3.0.1...v3.0.2) (2017-10-25)
 

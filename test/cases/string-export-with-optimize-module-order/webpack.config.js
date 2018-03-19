@@ -12,7 +12,7 @@ function moduleOrderOptimizer() {
 module.exports = {
   entry: ['./a', './b'],
   module: {
-    loaders: [
+    rules: [
       {
         test: /(a|b)\.js$/,
         use: ExtractTextPlugin.extract('./loader')

@@ -1,10 +1,17 @@
-/* eslint-disable import/no-dynamic-require, global-require */
+/* eslint-disable
+  global-require,
+  import/no-dynamic-require,
+  consistent-return
+*/
 import fs from 'fs';
 import path from 'path';
 import webpack from 'webpack';
+import glob from 'glob';
 import ExtractTextPlugin from '../src';
 
-const cases = process.env.CASES ? process.env.CASES.split(',') : fs.readdirSync(path.join(__dirname, 'cases'));
+const cases = process.env.CASES
+  ? process.env.CASES.split(',')
+  : fs.readdirSync(path.join(__dirname, 'cases'));
 
 describe('Webpack Integration Tests', () => {
   cases.forEach((testCase) => {
@@ -19,13 +26,18 @@ describe('Webpack Integration Tests', () => {
       }
       options.context = testDirectory;
       if (!options.module) options.module = {};
-      if (!options.module.loaders) {
-        options.module.loaders = [{ test: /\.txt$/, loader: ExtractTextPlugin.extract('raw-loader') }];
+      if (!options.module.rules) {
+        options.module.rules = [
+          { test: /\.txt$/, loader: ExtractTextPlugin.extract('raw-loader') },
+        ];
       }
       if (!options.output) options.output = { filename: '[name].js' };
       if (!options.output.path) options.output.path = outputDirectory;
       if (process.env.CASES) {
-        console.log(`\nwebpack.${testCase}.config.js ${JSON.stringify(options, null, 2)}`);
+        // eslint-disable-next-line
+        console.log(
+          `\nwebpack.${testCase}.config.js ${JSON.stringify(options, null, 2)}`
+        );
       }
 
       webpack(options, (err, stats) => {
@@ -36,22 +48,20 @@ describe('Webpack Integration Tests', () => {
           require(testFile)(suite);
         }
         const expectedDirectory = path.join(testDirectory, 'expected');
-        fs.readdirSync(expectedDirectory).forEach((file) => {
-          const filePath = path.join(expectedDirectory, file);
-          const actualPath = path.join(outputDirectory, file);
-          expect(readFileOrEmpty(actualPath)).toEqual(readFileOrEmpty(filePath));
-          expect(readFileOrEmpty(actualPath)).toMatchSnapshot();
-        });
+
+        glob
+          .sync('**/*.@(txt|css)', { cwd: outputDirectory })
+          .forEach((file) => {
+            const filePath = path.join(expectedDirectory, file);
+            const actualPath = path.join(outputDirectory, file);
+            expect(fs.existsSync(filePath)).toBeTruthy();
+            expect(fs.readFileSync(actualPath, 'utf-8')).toEqual(
+              fs.readFileSync(filePath, 'utf-8')
+            );
+            expect(fs.readFileSync(actualPath, 'utf-8')).toMatchSnapshot();
+          });
         done();
       });
     });
   });
 });
-
-function readFileOrEmpty(path) {
-  try {
-    return fs.readFileSync(path, 'utf-8');
-  } catch (e) {
-    return '';
-  }
-}
