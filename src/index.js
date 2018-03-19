@@ -143,7 +143,7 @@ class ExtractTextPlugin {
         });
         async.forEach(chunks, (chunk, callback) => { // eslint-disable-line no-shadow
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
-          const shouldExtract = !!(options.allChunks);
+          const shouldExtract = !!options.allChunks;
           chunk.sortModules();
           async.forEach(chunk.mapModules(c => c), (module, callback) => { // eslint-disable-line no-shadow
             let meta = module[NS];
@@ -153,15 +153,14 @@ class ExtractTextPlugin {
               // module would be extracted twice. Happens when a module is a dependency of an initial and a non-initial
               // chunk. See issue #604
 
-              const cks = module.chunks;
               // check every module's chunks.parents() to decide extract or not
-              for (let i = 0; i < cks.length; i++) {
-                if (!isInitialOrHasNoParents(cks[i]) && !module.noExtracted) {
-                  module.noExtracted = 1;
+              for (let i = 0; i < module.chunks.length; i++) {
+                if (!isInitialOrHasNoParents(module.chunks[i]) && !module.extracted) {
+                  module.extracted = true;
                   break;
                 }
               }
-              if (shouldExtract || (!module.noExtracted && !wasExtracted)) {
+              if (shouldExtract || (!module.extracted && !wasExtracted)) {
                 module[`${NS}/extract`] = true; // eslint-disable-line no-path-concat
                 compilation.rebuildModule(module, (err) => {
                   if (err) {
