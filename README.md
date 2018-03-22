@@ -16,6 +16,12 @@
   <p>Extract text from a bundle, or bundles, into a separate file.</p>
 </div>
 
+<h2 align="center">Compatibility</h2>
+
+> :warning: Webpack 4 is not supported. Please check [this comment](https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/731#issuecomment-374548865) for futher information
+
+> Webpack 1, 2 and 3 are supported
+
 <h2 align="center">Install</h2>
 
 ```bash
