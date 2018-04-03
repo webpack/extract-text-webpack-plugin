@@ -31,7 +31,7 @@ npm install --save-dev extract-text-webpack-plugin@1.0.1
 
 > :warning: For webpack v1, see [the README in the webpack-1 branch](https://github.com/webpack/extract-text-webpack-plugin/blob/webpack-1/README.md).
 
-> :warning: For webpack v4 and later, it is recommended to use [mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin) instead.
+> :warning: This plugin does not currently support Webpack v4 or later. For webpack v4 and later, it is recommended to use [mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin) instead.
 
 ```js
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
