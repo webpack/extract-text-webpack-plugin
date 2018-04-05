@@ -6,6 +6,7 @@ import NodeTargetPlugin from 'webpack/lib/node/NodeTargetPlugin';
 import LibraryTemplatePlugin from 'webpack/lib/LibraryTemplatePlugin';
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin';
 import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin';
+import { ensureNumber } from './lib/helpers';
 
 const NS = path.dirname(fs.realpathSync(__filename));
 
@@ -13,6 +14,9 @@ export default source => source;
 
 export function pitch(request) {
   const query = loaderUtils.getOptions(this) || {};
+  query.id = ensureNumber(query.id);
+  query.omit = ensureNumber(query.omit);
+
   let loaders = this.loaders.slice(this.loaderIndex + 1);
   this.addDependency(this.resourcePath);
   // We already in child compiler, return empty bundle
