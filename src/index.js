@@ -15,6 +15,7 @@ import {
   mergeOptions,
   isString,
   isFunction,
+  cloneModule,
 } from './lib/helpers';
 
 const NS = path.dirname(fs.realpathSync(__filename));
@@ -26,7 +27,7 @@ class ExtractTextPlugin {
     if (isString(options)) {
       options = { filename: options };
     } else {
-      validateOptions(path.resolve(__dirname, '../schema/plugin.json'), options, 'Extract Text Plugin');
+      validateOptions(path.resolve(__dirname, './plugin.json'), options, 'Extract Text Plugin');
     }
     this.filename = options.filename;
     this.id = options.id != null ? options.id : ++nextId;
@@ -88,7 +89,7 @@ class ExtractTextPlugin {
     if (Array.isArray(options) || isString(options) || typeof options.options === 'object' || typeof options.query === 'object') {
       options = { use: options };
     } else {
-      validateOptions(path.resolve(__dirname, '../schema/loader.json'), options, 'Extract Text Plugin (Loader)');
+      validateOptions(path.resolve(__dirname, './loader.json'), options, 'Extract Text Plugin (Loader)');
     }
     let loader = options.use;
     let before = options.fallback || [];
@@ -115,7 +116,9 @@ class ExtractTextPlugin {
       compilation.plugin('normal-module-loader', (loaderContext, module) => {
         loaderContext[NS] = (content, opt) => {
           if (options.disable) { return false; }
-          if (!Array.isArray(content) && content != null) { throw new Error(`Exported value was not extracted as an array: ${JSON.stringify(content)}`); }
+          if (!Array.isArray(content) && content != null) {
+            throw new Error(`Exported value was not extracted as an array: ${JSON.stringify(content)}`);
+          }
           module[NS] = {
             content,
             options: opt || {},
@@ -126,8 +129,12 @@ class ExtractTextPlugin {
       const filename = this.filename;
       const id = this.id;
       let extractedChunks;
+      let toRemoveModules;
+
       compilation.plugin('optimize-tree', (chunks, modules, callback) => {
         extractedChunks = chunks.map(() => new Chunk());
+        toRemoveModules = [];
+
         chunks.forEach((chunk, i) => {
           const extractedChunk = extractedChunks[i];
           extractedChunk.index = i;
@@ -161,24 +168,40 @@ class ExtractTextPlugin {
                 }
               }
               if (shouldExtract || (!module.extracted && !wasExtracted)) {
-                module[`${NS}/extract`] = true; // eslint-disable-line no-path-concat
-                compilation.rebuildModule(module, (err) => {
+                const newModule = cloneModule(module);
+                newModule[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
+                compilation.buildModule(newModule, false, newModule, null, (err) => {
                   if (err) {
                     compilation.errors.push(err);
                     return callback();
                   }
-                  meta = module[NS];
+                  meta = newModule[NS];
+
+                  const identifier = module.identifier();
                   // Error out if content is not an array and is not null
                   if (!Array.isArray(meta.content) && meta.content != null) {
-                    err = new Error(`${module.identifier()} doesn't export content`);
+                    err = new Error(`${identifier} doesn't export content`);
                     compilation.errors.push(err);
                     return callback();
                   }
-                  if (meta.content) { extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk); }
+                  if (meta.content) {
+                    extractCompilation.addResultToChunk(identifier, meta.content, module, extractedChunk);
+                    if (toRemoveModules[identifier]) {
+                      toRemoveModules[identifier].chunks.push(chunk);
+                    } else {
+                      toRemoveModules[identifier] = {
+                        module: newModule,
+                        moduleToRemove: module,
+                        chunks: [chunk],
+                      };
+                    }
+                  }
                   callback();
                 });
               } else {
-                if (meta.content) { extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk); }
+                if (meta.content) {
+                  extractCompilation.addResultToChunk(module.identifier(), meta.content, module, extractedChunk);
+                }
                 callback();
               }
             } else callback();
@@ -202,6 +225,30 @@ class ExtractTextPlugin {
           callback();
         });
       });
+
+      compilation.plugin('optimize-module-ids', (modules) => {
+        modules.forEach((module) => {
+          const data = toRemoveModules[module.identifier()];
+
+          if (data) {
+            const oldModuleId = module.id;
+            const newModule = cloneModule(module);
+            newModule.id = oldModuleId;
+            newModule._source = data.module._source; // eslint-disable-line no-underscore-dangle
+            data.chunks.forEach((chunk) => {
+              chunk.removeModule(data.moduleToRemove);
+              const deps = data.moduleToRemove.dependencies;
+              deps.forEach((d) => {
+                if (d.module && d.module.loaders.length > 0) {
+                  chunk.removeModule(d.module);
+                }
+              });
+              chunk.addModule(newModule);
+            });
+          }
+        });
+      });
+
       compilation.plugin('additional-assets', (callback) => {
         extractedChunks.forEach((extractedChunk) => {
           if (extractedChunk.getNumberOfModules()) {

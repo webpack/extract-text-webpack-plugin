@@ -1,3 +1,5 @@
+import NormalModule from 'webpack/lib/NormalModule';
+
 export function isInitialOrHasNoParents(chunk) {
   return chunk.isInitial() || chunk.parents.length === 0;
 }
@@ -26,6 +28,17 @@ export function getOrder(a, b) {
   if (ai < bi) return -1;
   if (ai > bi) return 1;
   return 0;
+}
+
+export function cloneModule(module) {
+  return new NormalModule(
+    module.request,
+    module.userRequest,
+    module.rawRequest,
+    module.loaders,
+    module.resource,
+    module.parser,
+  );
 }
 
 export function getLoaderObject(loader) {
