@@ -54,3 +54,8 @@ export function isFunction(a) {
 export function isType(type, obj) {
   return Object.prototype.toString.call(obj) === `[object ${type}]`;
 }
+
+export function ensureNumber(value) {
+  const newValue = Number(value);
+  return Number.isNaN(newValue) ? value : newValue;
+}
