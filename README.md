@@ -146,7 +146,6 @@ module.exports = {
         test: /\.scss$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
-          //resolve-url-loader may be chained before sass-loader if necessary
           use: ['css-loader', 'sass-loader']
         })
       }
@@ -159,6 +158,45 @@ module.exports = {
     //  filename: 'style.css'
     //})
   ]
+}
+```
+
+### `url()` Resolving
+
+If you are finding that urls are not resolving properly when you run webpack. You can expand your loader functionality with options. The `url: false` property allows your paths resolved without any changes.
+
+```js
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.scss$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            {
+                loader: 'css-loader',
+                options: {
+                    // If you are having trouble with urls not resolving add this setting.
+                    // See https://github.com/webpack-contrib/css-loader#url
+                    url: false,
+                    minimize: true,
+                    sourceMap: true
+                }
+            }, 
+            {
+                loader: 'sass-loader',
+                options: {
+                    sourceMap: true
+                }
+            }
+          ]
+        })
+      }
+    ]
+  }
 }
 ```
 

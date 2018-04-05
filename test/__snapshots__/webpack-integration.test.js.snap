@@ -42,6 +42,13 @@ c
 "
 `;
 
+exports[`Webpack Integration Tests hashed-module-ids 1`] = `
+"index
+a
+b
+"
+`;
+
 exports[`Webpack Integration Tests merging-chunk 1`] = `
 "a
 b
@@ -382,6 +389,10 @@ exports[`Webpack Integration Tests splitted-chunk 1`] = `
 "a
 "
 `;
+
+exports[`Webpack Integration Tests splitted-mix-multiple-entries 1`] = `"a"`;
+
+exports[`Webpack Integration Tests splitted-mix-multiple-entries 2`] = `"b"`;
 
 exports[`Webpack Integration Tests splitted-multiple-entries 1`] = `""`;
 

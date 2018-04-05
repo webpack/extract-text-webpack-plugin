@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import Chunk from 'webpack/lib/Chunk';
 import { ConcatSource } from 'webpack-sources';
-import async from 'async';
+import async from 'neo-async';
 import loaderUtils from 'loader-utils';
 import validateOptions from 'schema-utils';
 import ExtractTextPluginCompilation from './lib/ExtractTextPluginCompilation';
@@ -150,7 +150,7 @@ class ExtractTextPlugin {
         });
         async.forEach(chunks, (chunk, callback) => { // eslint-disable-line no-shadow
           const extractedChunk = extractedChunks[chunks.indexOf(chunk)];
-          const shouldExtract = !!(options.allChunks || isInitialOrHasNoParents(chunk));
+          const shouldExtract = !!options.allChunks;
           chunk.sortModules();
           async.forEach(chunk.mapModules(c => c), (module, callback) => { // eslint-disable-line no-shadow
             let meta = module[NS];
@@ -159,7 +159,15 @@ class ExtractTextPlugin {
               // A stricter `shouldExtract !== wasExtracted` check to guard against cases where a previously extracted
               // module would be extracted twice. Happens when a module is a dependency of an initial and a non-initial
               // chunk. See issue #604
-              if (shouldExtract && !wasExtracted) {
+
+              // check every module's chunks.parents() to decide extract or not
+              for (let i = 0; i < module.chunks.length; i++) {
+                if (!isInitialOrHasNoParents(module.chunks[i]) && !module.extracted) {
+                  module.extracted = true;
+                  break;
+                }
+              }
+              if (shouldExtract || (!module.extracted && !wasExtracted)) {
                 const newModule = cloneModule(module);
                 newModule[`${NS}/extract`] = shouldExtract; // eslint-disable-line no-path-concat
                 compilation.buildModule(newModule, false, newModule, null, (err) => {
