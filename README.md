@@ -19,6 +19,8 @@
 <h2 align="center">Install</h2>
 
 ```bash
+# for webpack 4
+npm install --save-dev extract-text-webpack-plugin@next # beta
 # for webpack 3
 npm install --save-dev extract-text-webpack-plugin
 # for webpack 2
