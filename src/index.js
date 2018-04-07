@@ -29,7 +29,7 @@ class ExtractTextPlugin {
       validateOptions(path.resolve(__dirname, '../schema/plugin.json'), options, 'Extract Text Plugin');
     }
     this.filename = options.filename;
-    this.id = options.id != null ? options.id : ++nextId;
+    this.id = String(options.id != null ? options.id : ++nextId);
     this.options = {};
     mergeOptions(this.options, options);
     delete this.options.filename;
