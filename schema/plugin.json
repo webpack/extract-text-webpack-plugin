@@ -2,6 +2,10 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "id": {
+      "description": "Unique ident for this plugin instance. (For advanced usage only, by default automatically generated).",
+      "type": "string"
+    },
     "allChunks": {
       "description": "",
       "type": "boolean"
