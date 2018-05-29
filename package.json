@@ -41,7 +41,7 @@
     "webpack"
   ],
   "peerDependencies": {
-    "webpack": "^3.0.0 || ^4.0.0"
+    "webpack": "^4.0.0"
   },
   "dependencies": {
     "async": "^2.4.1",
