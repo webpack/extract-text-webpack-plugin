@@ -1,4 +1,4 @@
-require("./a.txt");
-require("./b.txt");
-require("./c.txt");
-require("./d.txt");
+require('./a.txt');
+require('./b.txt');
+require('./c.txt');
+require('./d.txt');

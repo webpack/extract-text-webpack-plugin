@@ -1,39 +1,79 @@
 {
   "name": "extract-text-webpack-plugin",
-  "version": "1.0.1",
+  "version": "3.0.2",
   "author": "Tobias Koppers @sokra",
   "description": "Extract text from bundle into a file.",
-  "peerDependencies": {
-    "webpack": "^1.9.11"
+  "license": "MIT",
+  "main": "dist/cjs.js",
+  "files": [
+    "dist",
+    "schema"
+  ],
+  "scripts": {
+    "start": "npm run build -- -w",
+    "appveyor:test": "npm run test",
+    "build": "cross-env NODE_ENV=production babel src -d dist --ignore 'src/**/*.test.js'",
+    "build:example": "(cd example && webpack)",
+    "clean": "del-cli dist",
+    "lint": "eslint --cache src test",
+    "lint-staged": "lint-staged",
+    "prebuild": "npm run clean",
+    "prepublish": "npm run build",
+    "release": "standard-version",
+    "security": "nsp check",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --collectCoverageFrom='src/**/*.js' --coverage",
+    "travis:lint": "npm run lint && npm run security",
+    "travis:test": "npm run test -- --runInBand",
+    "travis:coverage": "npm run test:coverage -- --runInBand",
+    "webpack-defaults": "webpack-defaults"
   },
   "dependencies": {
-    "async": "^1.5.0",
-    "loader-utils": "^0.2.3",
-    "webpack-sources": "^0.1.0"
+    "loader-utils": "^1.1.0",
+    "neo-async": "^2.5.0",
+    "schema-utils": "^0.3.0",
+    "webpack-sources": "^1.0.1"
   },
   "devDependencies": {
-    "codecov.io": "^0.1.2",
-    "coveralls": "^2.11.2",
-    "css-loader": "^0.21.0",
-    "file-loader": "^0.8.4",
-    "istanbul": "^0.3.13",
-    "mocha": "^2.3.3",
-    "mocha-lcov-reporter": "0.0.2",
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^21.2.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "cross-env": "^5.1.0",
+    "css-loader": "^0.28.7",
+    "del-cli": "^1.1.0",
+    "eslint": "^4.9.0",
+    "eslint-config-webpack": "^1.2.5",
+    "eslint-plugin-import": "^2.8.0",
+    "file-loader": "^1.1.5",
+    "jest": "^21.2.1",
+    "lint-staged": "^4.3.0",
+    "nsp": "^2.8.1",
+    "pre-commit": "^1.2.2",
     "raw-loader": "^0.5.1",
-    "should": "^7.1.1",
-    "style-loader": "^0.13.0",
-    "webpack": "^1.12.2"
+    "standard-version": "^4.2.0",
+    "style-loader": "^0.19.0",
+    "webpack": "^3.8.1",
+    "webpack-defaults": "^1.6.0"
   },
-  "homepage": "http://github.com/webpack/extract-text-webpack-plugin",
+  "engines": {
+    "node": ">= 4.8 < 5.0.0 || >= 5.10"
+  },
+  "peerDependencies": {
+    "webpack": "^3.1.0"
+  },
+  "homepage": "http://github.com/webpack-contrib/extract-text-webpack-plugin",
   "repository": {
     "type": "git",
-    "url": "http://github.com/webpack/extract-text-webpack-plugin.git"
+    "url": "http://github.com/webpack-contrib/extract-text-webpack-plugin.git"
   },
-  "license": "MIT",
-  "scripts": {
-    "test": "mocha",
-    "travis": "npm run cover -- --report lcovonly",
-    "cover": "istanbul cover _mocha",
-    "publish-patch": "mocha && npm version patch && git push && git push --tags && npm publish"
+  "pre-commit": "lint-staged",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

@@ -1,0 +1,179 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Webpack Integration Tests chunk-modules-css-wrong-order 1`] = `
+".block {
+  color: tomato;
+}
+.App {
+  color: black;
+}
+"
+`;
+
+exports[`Webpack Integration Tests chunk-modules-nested-ordered-by-id 1`] = `
+"body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+.block {
+	color: tomato;
+}
+.App {
+	color: black;
+}
+"
+`;
+
+exports[`Webpack Integration Tests chunk-modules-ordered-by-id 1`] = `
+".block {
+	color: tomato;
+}
+.App {
+	color: black;
+}
+"
+`;
+
+exports[`Webpack Integration Tests common-async 1`] = `
+"a
+b
+c
+"
+`;
+
+exports[`Webpack Integration Tests hashed-module-ids 1`] = `
+"index
+a
+b
+"
+`;
+
+exports[`Webpack Integration Tests merging-chunk 1`] = `
+"a
+b
+c
+"
+`;
+
+exports[`Webpack Integration Tests merging-multiple-entries 1`] = `
+"a
+b
+"
+`;
+
+exports[`Webpack Integration Tests merging-multiple-entries 2`] = `
+"a
+c
+"
+`;
+
+exports[`Webpack Integration Tests merging-multiple-entries-shared 1`] = `
+"a
+"
+`;
+
+exports[`Webpack Integration Tests merging-multiple-entries-shared 2`] = `
+"a
+"
+`;
+
+exports[`Webpack Integration Tests multiple-entries 1`] = `
+"a
+b
+"
+`;
+
+exports[`Webpack Integration Tests multiple-entries 2`] = `
+"a
+c
+"
+`;
+
+exports[`Webpack Integration Tests multiple-entries-filename 1`] = `
+"a
+b
+"
+`;
+
+exports[`Webpack Integration Tests multiple-entries-filename 2`] = `
+"a
+c
+"
+`;
+
+exports[`Webpack Integration Tests multiple-entries-filename 3`] = `""`;
+
+exports[`Webpack Integration Tests nested 1`] = `
+"a
+b
+c
+d
+"
+`;
+
+exports[`Webpack Integration Tests optimize-tree 1`] = `
+"index
+a
+b
+"
+`;
+
+exports[`Webpack Integration Tests order-undefined-error 1`] = `
+"._3QiTkN7JPds2C9Bq73MpOX {
+}
+._3dtwYD12yqGZUJ-uPQLu9z {
+}
+._32HVXkGocfWZMaHoXEFkED {
+}
+.hbZI7DlQBB9VYNCgL20kL {
+}
+"
+`;
+
+exports[`Webpack Integration Tests simple 1`] = `
+"a
+b
+"
+`;
+
+exports[`Webpack Integration Tests simple-query-object 1`] = `
+"body {
+	correct: a;
+}
+body {
+	correct: b;
+}
+
+/*# sourceMappingURL=file.css.map*/"
+`;
+
+exports[`Webpack Integration Tests simple-queryless-object 1`] = `
+"body {
+	correct: a;
+}
+body {
+	correct: b;
+}
+
+/*# sourceMappingURL=file.css.map*/"
+`;
+
+exports[`Webpack Integration Tests splitted-chunk 1`] = `
+"a
+"
+`;
+
+exports[`Webpack Integration Tests splitted-mix-multiple-entries 1`] = `"a"`;
+
+exports[`Webpack Integration Tests splitted-mix-multiple-entries 2`] = `"b"`;
+
+exports[`Webpack Integration Tests splitted-multiple-entries 1`] = `""`;
+
+exports[`Webpack Integration Tests splitted-multiple-entries 2`] = `""`;
+
+exports[`Webpack Integration Tests string-export-with-optimize-module-order 1`] = `
+"a
+b
+"
+`;
