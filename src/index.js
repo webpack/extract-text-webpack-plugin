@@ -58,20 +58,20 @@ class ExtractTextPlugin {
   mergeNonInitialChunks(chunk, intoChunk, checkedChunks) {
     if (!intoChunk) {
       checkedChunks = [];
-      chunk.chunks.forEach((c) => {
-        if (isInitialOrHasNoParents(c)) return;
-        this.mergeNonInitialChunks(c, chunk, checkedChunks);
-      }, this);
+      for (const c of chunk.chunks) {
+        if (isInitialOrHasNoParents(c)) break;
+        mergeNonInitialChunks(c, chunk, checkedChunks);
+      }
     } else if (checkedChunks.indexOf(chunk) < 0) {
       checkedChunks.push(chunk);
       chunk.forEachModule((module) => {
         intoChunk.addModule(module);
         module.addChunk(intoChunk);
       });
-      chunk.chunks.forEach((c) => {
-        if (isInitialOrHasNoParents(c)) return;
-        this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
-      }, this);
+      for (const c of chunk.chunks) {
+        if (isInitialOrHasNoParents(c)) break;
+        mergeNonInitialChunks(c, intoChunk, checkedChunks);
+      }
     }
   }
 
