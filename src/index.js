@@ -60,7 +60,7 @@ class ExtractTextPlugin {
       checkedChunks = [];
       for (const c of chunk.chunks) {
         if (isInitialOrHasNoParents(c)) break;
-        mergeNonInitialChunks(c, chunk, checkedChunks);
+        this.mergeNonInitialChunks(c, chunk, checkedChunks);
       }
     } else if (checkedChunks.indexOf(chunk) < 0) {
       checkedChunks.push(chunk);
@@ -70,7 +70,7 @@ class ExtractTextPlugin {
       });
       for (const c of chunk.chunks) {
         if (isInitialOrHasNoParents(c)) break;
-        mergeNonInitialChunks(c, intoChunk, checkedChunks);
+        this.mergeNonInitialChunks(c, intoChunk, checkedChunks);
       }
     }
   }
